@@ -1,0 +1,11 @@
+{% if toc | length > 0 %}
+<nav class="docs-toc-nav" aria-label="on this page">
+  <p>on this page</p>
+  {% for heading in toc %}
+  <a href="{{ heading.permalink | safe }}">{{ heading.title }}</a>
+    {% for child in heading.children %}
+    <a class="docs-toc-child" href="{{ child.permalink | safe }}">{{ child.title }}</a>
+    {% endfor %}
+  {% endfor %}
+</nav>
+{% endif %}

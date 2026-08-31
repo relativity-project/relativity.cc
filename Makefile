@@ -1,7 +1,7 @@
 .PHONY: serve build check clean
 
 serve:
-	zola serve
+	zola serve --base-url http://127.0.0.1
 
 build:
 	zola build

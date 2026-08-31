@@ -6,6 +6,7 @@
   <nav aria-label="primary navigation">
     <a class="tab-link" href="{{ get_url(path='@/_index.md') }}"{% if active_tab == "software" %} aria-current="page"{% endif %}>software</a>
     <a class="tab-link" href="{{ get_url(path='@/hardware/_index.md') }}"{% if active_tab == "hardware" %} aria-current="page"{% endif %}>hardware</a>
+    <a class="tab-link" href="{{ get_url(path='@/docs/_index.md') }}"{% if active_tab == "docs" %} aria-current="page"{% endif %}>docs</a>
     <a class="repo-link" href="{{ config.extra.repo_url }}">github</a>
   </nav>
 </header>

@@ -1,0 +1,13 @@
+<nav class="docs-sidebar-nav" aria-label="documentation navigation">
+  <p>documentation</p>
+  <a href="{{ docs_section.permalink }}"{% if active_doc == "index" %} aria-current="page"{% endif %}>
+    <span>00</span>
+    overview
+  </a>
+  {% for doc in docs_section.pages %}
+  <a href="{{ doc.permalink }}"{% if active_doc == doc.slug %} aria-current="page"{% endif %}>
+    <span>{% if loop.index < 10 %}0{% endif %}{{ loop.index }}</span>
+    {{ doc.title | lower }}
+  </a>
+  {% endfor %}
+</nav>
