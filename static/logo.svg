@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 360 360"
+   version="1.1"
+   id="svg22"
+   sodipodi:docname="logo.svg"
+   inkscape:version="1.4.2 (ebf0e940, 2025-05-08)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview22"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="3.1753245"
+     inkscape:cx="130.06545"
+     inkscape:cy="174.47036"
+     inkscape:window-width="1400"
+     inkscape:window-height="883"
+     inkscape:window-x="0"
+     inkscape:window-y="33"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg22"
+     showgrid="false" />
+  <title
+     id="title1">relativity.cc light-cone mark</title>
+  <rect
+     width="360"
+     height="360"
+     fill="#090909"
+     id="rect1" />
+  <defs
+     id="defs11">
+    <g
+       id="cone-rings"
+       fill="none">
+      <ellipse
+         cx="180"
+         cy="60"
+         rx="110"
+         ry="21"
+         id="ellipse1" />
+      <ellipse
+         cx="180"
+         cy="87.8"
+         rx="84.517"
+         ry="16.135"
+         id="ellipse2" />
+      <ellipse
+         cx="180"
+         cy="115.6"
+         rx="59.033"
+         ry="11.27"
+         id="ellipse3" />
+      <ellipse
+         cx="180"
+         cy="147.8"
+         rx="29.517"
+         ry="5.635"
+         id="ellipse4" />
+      <ellipse
+         cx="180"
+         cy="212.2"
+         rx="29.517"
+         ry="5.635"
+         id="ellipse5" />
+      <ellipse
+         cx="180"
+         cy="244.4"
+         rx="59.033"
+         ry="11.27"
+         id="ellipse6" />
+      <ellipse
+         cx="180"
+         cy="272.2"
+         rx="84.517"
+         ry="16.135"
+         id="ellipse7" />
+      <ellipse
+         cx="180"
+         cy="300"
+         rx="110"
+         ry="21"
+         id="ellipse8" />
+    </g>
+    <g
+       id="cone-rays"
+       fill="none">
+      <path
+         d="M70 60L180 180L70 300M290 60L180 180L290 300"
+         id="path10" />
+      <path
+         d="M83 47L180 180L83 313M113 41L180 180L113 319M146 39L180 180L146 321M214 39L180 180L214 321M247 41L180 180L247 319M277 47L180 180L277 313"
+         id="path11" />
+    </g>
+    <clipPath
+       id="cone-left-fill-clip">
+      <path
+         d="M121.005 115.6C121.005 109.376 147.421 104.33 180 104.33V180Z"
+         id="path1" />
+      <path
+         d="M180 180V255.67C147.421 255.67 121.005 250.624 121.005 244.4Z"
+         id="path2" />
+    </clipPath>
+  </defs>
+  <use
+     href="#cone-rays"
+     stroke="#a6a29a"
+     stroke-width="1.05"
+     stroke-linecap="round"
+     opacity=".55"
+     id="use11" />
+  <use
+     href="#cone-rings"
+     stroke="#a6a29a"
+     stroke-width="1.05"
+     opacity=".62"
+     id="use12" />
+  <ellipse
+     cx="180"
+     cy="60"
+     rx="110"
+     ry="21"
+     fill="none"
+     stroke="#f3f0e8"
+     stroke-width="1.5"
+     opacity=".86"
+     id="ellipse12" />
+  <ellipse
+     cx="180"
+     cy="300"
+     rx="110"
+     ry="21"
+     fill="none"
+     stroke="#f3f0e8"
+     stroke-width="1.5"
+     opacity=".86"
+     id="ellipse13" />
+  <path
+     d="M70 60L180 180L70 300M290 60L180 180L290 300"
+     fill="none"
+     stroke="#f3f0e8"
+     stroke-width="1.35"
+     opacity=".72"
+     id="path13" />
+  <g
+     fill="none"
+     stroke="#f3f0e8"
+     stroke-width="1.4"
+     opacity=".84"
+     id="g15">
+    <path
+       d="M180 18V342"
+       id="path14" />
+    <path
+       d="M48 180H312"
+       id="path15" />
+  </g>
+  <path
+     d="M180 349L175 337H185Z"
+     fill="#f3f0e8"
+     id="path16" />
+  <path
+     d="M40 180L51 176V184Z"
+     fill="#4da3ff"
+     id="path17" />
+  <path
+     d="M320 180L309 176V184Z"
+     fill="#4da3ff"
+     id="path18" />
+  <path
+     d="M40 180H72"
+     stroke="#4da3ff"
+     stroke-width="2.4"
+     id="path19" />
+  <path
+     d="M288 180H320"
+     stroke="#4da3ff"
+     stroke-width="2.4"
+     id="path20" />
+  <path
+     d="M180 11L175 23H185Z"
+     fill="#ff4d3d"
+     id="ct-arrow" />
+  <path
+     d="M180 11V43"
+     stroke="#ff4d3d"
+     stroke-width="2.4"
+     id="ct-axis-accent" />
+  <text
+     x="189"
+     y="24"
+     fill="#ff4d3d"
+     font-family="ui-monospace, Menlo, monospace"
+     font-size="14"
+     font-weight="600"
+     id="text20">ct</text>
+  <text
+     x="337"
+     y="185"
+     fill="#4da3ff"
+     font-family="ui-monospace, Menlo, monospace"
+     font-size="14"
+     font-weight="600"
+     id="text21">x</text>
+  <g
+     fill="#f3f0e8"
+     transform="translate(180 180) scale(1.15) translate(-180 -180)"
+     id="g22">
+    <!-- The left half of the cone becomes the R's stem. -->
+    <path
+       d="M128.7 124C128.7 118.588 151.67 114.2 180 114.2V180Z"
+       id="path21" />
+    <path
+       d="M180 180V245.8C151.67 245.8 128.7 241.412 128.7 236Z"
+       id="path22" />
+    <path
+       fill-rule="evenodd"
+       d="M180 115H204.94479C229.94479 115 244.94479 129 244.94479 151C244.94479 167 232.94479 179 211.94479 183H180ZM180 127H202.94479C219.94479 127 230.94479 136 230.94479 151C230.94479 167 219.94479 177 201.94479 177H180Z"
+       id="path23" />
+    <path
+       d="M180 180H197.57532L238.27607 242.2045H219.77574Z"
+       id="path24"
+       style="stroke-width:0.979285" />
+  </g>
+  <g
+     clip-path="url(#cone-left-fill-clip)"
+     fill="none"
+     stroke="#090909"
+     stroke-width="1.35"
+     stroke-linecap="round"
+     opacity=".78"
+     id="inverted-cone-mesh">
+    <ellipse
+       cx="180"
+       cy="115.6"
+       rx="59.033"
+       ry="11.27"
+       id="ellipse9" />
+    <ellipse
+       cx="180"
+       cy="147.8"
+       rx="29.517"
+       ry="5.635"
+       id="ellipse10" />
+    <ellipse
+       cx="180"
+       cy="212.2"
+       rx="29.517"
+       ry="5.635"
+       id="ellipse11" />
+    <ellipse
+       cx="180"
+       cy="244.4"
+       rx="59.033"
+       ry="11.27"
+       id="ellipse14" />
+    <path
+       d="M70 60L180 180L70 300M83 47L180 180L83 313M113 41L180 180L113 319M146 39L180 180L146 321"
+       id="path25" />
+    <path
+       d="M180 18V342M48 180H180"
+       stroke-width="1.62"
+       opacity=".9"
+       id="path26" />
+  </g>
+</svg>

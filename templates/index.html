@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="shell">
+  {% set active_tab = "software" %}
+  {% include "partials/site-header.html" %}
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="prompt">›</span> low-level experiments for Tenstorrent</p>
+        <h1>relativity.cc</h1>
+        <p class="lede">A small open-source lab for understanding and pushing accelerator hardware—from tensor algebra to kernels to distributed execution.</p>
+        <p class="tagline"><span>compute</span><i>/</i><span>compile</span><i>/</i><span>accelerate</span></p>
+        <div class="hero-actions">
+          <a class="primary-action" href="#principles">get started <span>→</span></a>
+          <a href="{{ config.extra.repo_url }}">view on GitHub <span>↗</span></a>
+        </div>
+      </div>
+      <div class="hero-mark" aria-hidden="true">
+        <img src="{{ get_url(path='logo.svg', cachebust=true) }}" alt="">
+      </div>
+    </section>
+
+    <section class="rule" id="principles">
+      <p>01 / principles</p>
+    </section>
+
+    <section class="cards">
+      <article>
+        <span class="card-index">01</span>
+        <h2>close to metal</h2>
+        <p>Understand the hardware first. Abstractions earn their place.</p>
+      </article>
+      <article>
+        <span class="card-index">02</span>
+        <h2>measure everything</h2>
+        <p>Performance claims should collapse into numbers, traces, and reproducible tests.</p>
+      </article>
+      <article>
+        <span class="card-index">03</span>
+        <h2>small surface area</h2>
+        <p>Prefer sharp primitives over sprawling frameworks and hidden machinery.</p>
+      </article>
+      <article>
+        <span class="card-index">04</span>
+        <h2>open by default</h2>
+        <p>Source, experiments, failures, and useful discoveries belong in the open.</p>
+      </article>
+    </section>
+
+    <section class="rule" id="stack">
+      <p>02 / from tensor to silicon</p>
+    </section>
+
+    <section class="stack-diagram" aria-label="relativity.cc software stack">
+      <div class="stack-layer">
+        <div class="layer-label"><span>04</span><small>applications</small></div>
+        <div class="stack-nodes stack-nodes-paired">
+          <a class="stack-node" href="https://github.com/pytorch/torchtitan"><strong>torchtitan</strong><small>distributed training</small></a>
+          <a class="stack-node" href="https://github.com/sgl-project/sglang-jax"><strong>sglang-jax</strong><small>model serving</small></a>
+        </div>
+      </div>
+
+      <div class="stack-links" aria-hidden="true">
+        <svg viewBox="0 0 100 28" preserveAspectRatio="none">
+          <path d="M25 0V28M75 0V28" />
+        </svg>
+      </div>
+
+      <div class="stack-layer">
+        <div class="layer-label"><span>03</span><small>frameworks</small></div>
+        <div class="stack-nodes stack-nodes-paired">
+          <a class="stack-node" href="https://github.com/google/torchax"><strong>torchax / TorchTPU</strong><small>PyTorch on XLA</small></a>
+          <a class="stack-node" href="https://github.com/jax-ml/jax"><strong>JAX</strong><small>array programming</small></a>
+        </div>
+      </div>
+
+      <div class="stack-links stack-links-merge" aria-hidden="true">
+        <svg viewBox="0 0 100 36" preserveAspectRatio="none">
+          <path d="M25 0V12L50 28V36M75 0V12L50 28" />
+        </svg>
+      </div>
+
+      <div class="stack-layer">
+        <div class="layer-label"><span>02</span><small>interface</small></div>
+        <div class="stack-nodes">
+          <a class="stack-node stack-node-shared" href="https://github.com/pcmoritz/libtt"><strong>libtt</strong><small>PJRT interface · StableHLO</small></a>
+        </div>
+      </div>
+
+      <div class="stack-links stack-links-to-compiler" aria-hidden="true">
+        <svg viewBox="0 0 100 28" preserveAspectRatio="none">
+          <path d="M50 0V14H25V28" />
+        </svg>
+      </div>
+
+      <div class="stack-layer">
+        <div class="layer-label"><span>01</span><small>Tenstorrent</small></div>
+        <div class="stack-nodes stack-nodes-paired stack-nodes-backend">
+          <a class="stack-node" href="https://github.com/tenstorrent/tt-mlir"><strong>tt-mlir</strong><small>compiler</small></a>
+          <span class="backend-arrow" aria-hidden="true">→</span>
+          <a class="stack-node" href="https://github.com/tenstorrent/tt-metal"><strong>tt-metal</strong><small>kernels</small></a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  {% include "partials/site-footer.html" %}
+</div>
+{% endblock content %}

@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}hardware · relativity.cc{% endblock title %}
+
+{% block content %}
+<div class="shell">
+  {% set active_tab = "hardware" %}
+  {% include "partials/site-header.html" %}
+
+  <main class="hardware-page">
+    <section class="subpage-hero">
+      <p class="eyebrow"><span class="prompt">›</span> architecture below the abstraction</p>
+      <h1>hardware</h1>
+      <p class="lede">Notes and experiments on Tenstorrent systems—from compute cores and memory movement to multi-chip execution.</p>
+    </section>
+
+    <section class="rule">
+      <p>01 / understand the hardware</p>
+    </section>
+
+    <section class="hardware-learning" aria-labelledby="learning-title">
+      <div class="learning-intro">
+        <div>
+          <p class="eyebrow"><span class="prompt">›</span> no black boxes</p>
+          <h2 id="learning-title">understand the machine</h2>
+        </div>
+        <p>A reading path for hackers who want to move from the programming model to real kernels, explicit data movement, and the instructions underneath.</p>
+      </div>
+
+      <div class="resource-cards">
+        <a class="resource-card resource-card-start" href="https://github.com/tenstorrent/tt-metal/blob/main/METALIUM_GUIDE.md">
+          <span class="resource-meta"><b>01</b> official guide</span>
+          <h3>TT Architecture and Metalium Guide</h3>
+          <p>Build the mental model: Tensix cores, local SRAM, NoCs, tiles, circular buffers, and reader / compute / writer kernels.</p>
+          <small>start here <span>↗</span></small>
+        </a>
+        <a class="resource-card" href="https://github.com/tenstorrent/tt-metal/blob/main/docs/source/tt-metalium/tt_metal/labs/matmul/lab1/lab1.rst">
+          <span class="resource-meta"><b>02</b> hands on</span>
+          <h3>Single-core matmul lab</h3>
+          <p>Go from host code to data-movement and compute kernels while learning how a tiled matrix multiply maps onto one Tensix core.</p>
+          <small>write a kernel <span>↗</span></small>
+        </a>
+        <a class="resource-card" href="https://github.com/tenstorrent/tt-llk/blob/main/docs/llk/l2/top_level_overview.md">
+          <span class="resource-meta"><b>03</b> lower level</span>
+          <h3>Tensix core and LLKs</h3>
+          <p>Trace data through unpack, matrix or vector execution, destination registers, and pack—the machinery Metalium kernels drive.</p>
+          <small>open the core <span>↗</span></small>
+        </a>
+        <a class="resource-card" href="https://github.com/tenstorrent/tt-isa-documentation">
+          <span class="resource-meta"><b>04</b> reference</span>
+          <h3>tt-isa-documentation</h3>
+          <p>The living low-level reference for Wormhole B0 and Blackhole A0 when an abstraction leaks or a register becomes the shortest path.</p>
+          <small>open the reference <span>↗</span></small>
+        </a>
+      </div>
+
+      <div class="resource-shelves">
+        <section class="resource-shelf" aria-labelledby="official-resources-title">
+          <div class="resource-shelf-heading">
+            <span>05</span>
+            <h3 id="official-resources-title">keep open</h3>
+          </div>
+          <div class="resource-list">
+            <a href="https://github.com/tenstorrent/tt-metal/tree/main/tech_reports"><span>tech reports</span><small>layouts, bandwidth, fabric, attention</small><b>↗</b></a>
+            <a href="https://docs.tenstorrent.com/aibs/blackhole/"><span>Blackhole hardware docs</span><small>cards, power, topology, specifications</small><b>↗</b></a>
+            <a href="https://github.com/tenstorrent/tt-metal"><span>tt-metal source</span><small>examples are part of the documentation</small><b>↗</b></a>
+          </div>
+        </section>
+
+        <section class="resource-shelf" aria-labelledby="field-notes-title">
+          <div class="resource-shelf-heading">
+            <span>06</span>
+            <h3 id="field-notes-title">field notes</h3>
+          </div>
+          <div class="resource-list">
+            <a href="https://clehaxze.tw/gemlog/2025/04-21-programming-tensotrrent-processors.gmi"><span>Programming Tenstorrent processors</span><small>model, APIs, and footguns · Martin Chang</small><b>↗</b></a>
+            <a href="https://clehaxze.tw/gemlog/2025/03-17-memory-on-tenstorrent.gmi"><span>Memory on Tenstorrent</span><small>layouts, banks, SRAM, and allocation · Martin Chang</small><b>↗</b></a>
+            <a href="https://www.corsix.org/content/tt-wh-part1"><span>Wormhole series</span><small>physical chip to NoC and Tensix internals · Corsix</small><b>↗</b></a>
+            <a href="https://www.jasondavies.com/"><span>Jason Davies’ numerical kernels</span><small>cycle-counted numerical and SFPU optimization</small><b>↗</b></a>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="rule">
+      <p>02 / build your own</p>
+    </section>
+
+    <section class="build-guide" aria-labelledby="build-guide-title">
+      <div class="build-guide-intro">
+        <div>
+          <p class="eyebrow"><span class="prompt">›</span> a compact Tenstorrent workstation</p>
+          <h2 id="build-guide-title">build your own</h2>
+        </div>
+        <p>Combine a mini PC, a PCIe dock, and a Blackhole card to build a compact system for developing the software stack.</p>
+      </div>
+
+      <div class="build-guide-grid">
+        <section class="build-panel" aria-labelledby="parts-title">
+          <p class="build-panel-label" id="parts-title"><span>01</span> / hardware</p>
+          <div class="parts-list">
+            <a href="https://www.bee-link.com/products/beelink-gti15-ultra9-285h">
+              <strong>Beelink GTi15 Ultra</strong>
+              <small>Intel® Core™ Ultra 9 285H</small>
+              <small>64GB (32GB×2) DDR5 5600MHz + 1TB SSD</small>
+              <span aria-hidden="true">↗</span>
+            </a>
+            <a href="https://www.bee-link.com/products/beelink-ex-docking-station">
+              <strong>Beelink Multi-Functional EX Pro Docking Station</strong>
+              <small>external PCIe dock + integrated power supply</small>
+              <span aria-hidden="true">↗</span>
+            </a>
+            <a href="https://docs.tenstorrent.com/aibs/blackhole/">
+              <strong>Tenstorrent Blackhole® p150a</strong>
+              <small>PCIe accelerator card</small>
+              <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </section>
+
+        <section class="build-panel" aria-labelledby="setup-title">
+          <p class="build-panel-label" id="setup-title"><span>02</span> / setup</p>
+          <ol class="setup-steps">
+            <li>
+              <span>01</span>
+              <div><strong>assemble the system</strong><p>Seat and power the p150a in the EX Pro dock, then connect the dock to the GTi15 Ultra.</p></div>
+            </li>
+            <li>
+              <span>02</span>
+              <div><strong>install Ubuntu 24.04</strong><p>Use a clean Ubuntu installation and apply all available system updates.</p></div>
+            </li>
+            <li>
+              <span>03</span>
+              <div>
+                <strong>run the Tenstorrent installer</strong>
+                <p>Install the prerequisites, then run the official setup script.</p>
+                <pre><code>sudo apt update &amp;&amp; sudo apt install -y curl jq
+/bin/bash -c "$(curl -fsSL https://tenstorrent.ai/install.sh)"</code></pre>
+              </div>
+            </li>
+            <li>
+              <span>04</span>
+              <div><strong>reboot and verify</strong><p>After restarting, activate the installer-created environment and run <code>tt-smi</code> to confirm that the p150a is detected.</p></div>
+            </li>
+          </ol>
+          <a class="build-docs-link" href="https://docs.tenstorrent.com/getting-started/README.html">open the complete installation guide <span>↗</span></a>
+        </section>
+      </div>
+
+    </section>
+  </main>
+
+  {% include "partials/site-footer.html" %}
+</div>
+{% endblock content %}

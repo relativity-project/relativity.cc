@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 360 360"
+   version="1.1"
+   id="svg22"
+   sodipodi:docname="logo.svg"
+   inkscape:version="1.4.2 (ebf0e940, 2025-05-08)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview22"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.6873239"
+     inkscape:cx="131.27296"
+     inkscape:cy="186.68615"
+     inkscape:window-width="1728"
+     inkscape:window-height="997"
+     inkscape:window-x="0"
+     inkscape:window-y="33"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg22" />
+  <title
+     id="title1">relativity.cc light-cone mark</title>
+  <rect
+     width="360"
+     height="360"
+     fill="#090909"
+     id="rect1" />
+  <defs
+     id="defs11">
+    <g
+       id="cone-rings"
+       fill="none">
+      <ellipse
+         cx="180"
+         cy="60"
+         rx="110"
+         ry="21"
+         id="ellipse1" />
+      <ellipse
+         cx="180"
+         cy="86"
+         rx="86.2"
+         ry="16.5"
+         id="ellipse2" />
+      <ellipse
+         cx="180"
+         cy="112"
+         rx="62.3"
+         ry="11.9"
+         id="ellipse3" />
+      <ellipse
+         cx="180"
+         cy="138"
+         rx="38.5"
+         ry="7.4"
+         id="ellipse4" />
+      <ellipse
+         cx="180"
+         cy="164"
+         rx="14.7"
+         ry="2.8"
+         id="ellipse5" />
+      <ellipse
+         cx="180"
+         cy="196"
+         rx="14.7"
+         ry="2.8"
+         id="ellipse6" />
+      <ellipse
+         cx="180"
+         cy="222"
+         rx="38.5"
+         ry="7.4"
+         id="ellipse7" />
+      <ellipse
+         cx="180"
+         cy="248"
+         rx="62.3"
+         ry="11.9"
+         id="ellipse8" />
+      <ellipse
+         cx="180"
+         cy="274"
+         rx="86.2"
+         ry="16.5"
+         id="ellipse9" />
+      <ellipse
+         cx="180"
+         cy="300"
+         rx="110"
+         ry="21"
+         id="ellipse10" />
+    </g>
+    <g
+       id="cone-rays"
+       fill="none">
+      <path
+         d="M70 60L180 180L70 300M290 60L180 180L290 300"
+         id="path10" />
+      <path
+         d="M83 47L180 180L83 313M113 41L180 180L113 319M146 39L180 180L146 321M214 39L180 180L214 321M247 41L180 180L247 319M277 47L180 180L277 313"
+         id="path11" />
+    </g>
+  </defs>
+  <use
+     href="#cone-rays"
+     stroke="#a6a29a"
+     stroke-width="1.05"
+     stroke-linecap="round"
+     opacity=".55"
+     id="use11" />
+  <use
+     href="#cone-rings"
+     stroke="#a6a29a"
+     stroke-width="1.05"
+     opacity=".62"
+     id="use12" />
+  <ellipse
+     cx="180"
+     cy="60"
+     rx="110"
+     ry="21"
+     fill="none"
+     stroke="#f3f0e8"
+     stroke-width="1.5"
+     opacity=".86"
+     id="ellipse12" />
+  <ellipse
+     cx="180"
+     cy="300"
+     rx="110"
+     ry="21"
+     fill="none"
+     stroke="#f3f0e8"
+     stroke-width="1.5"
+     opacity=".86"
+     id="ellipse13" />
+  <path
+     d="M70 60L180 180L70 300M290 60L180 180L290 300"
+     fill="none"
+     stroke="#f3f0e8"
+     stroke-width="1.35"
+     opacity=".72"
+     id="path13" />
+  <g
+     fill="none"
+     stroke="#f3f0e8"
+     stroke-width="1.4"
+     opacity=".84"
+     id="g15">
+    <path
+       d="M180 18V342"
+       id="path14" />
+    <path
+       d="M48 180H312"
+       id="path15" />
+  </g>
+  <path
+     d="M180 11L175 23H185ZM180 349L175 337H185Z"
+     fill="#f3f0e8"
+     id="path16" />
+  <path
+     d="M40 180L51 176V184Z"
+     fill="#ff4d3d"
+     id="path17" />
+  <path
+     d="M320 180L309 176V184Z"
+     fill="#4da3ff"
+     id="path18" />
+  <path
+     d="M40 180H72"
+     stroke="#ff4d3d"
+     stroke-width="2.4"
+     id="path19" />
+  <path
+     d="M288 180H320"
+     stroke="#4da3ff"
+     stroke-width="2.4"
+     id="path20" />
+  <text
+     x="13"
+     y="185"
+     fill="#ff4d3d"
+     font-family="ui-monospace, Menlo, monospace"
+     font-size="14"
+     font-weight="600"
+     id="text20">ct</text>
+  <text
+     x="337"
+     y="185"
+     fill="#4da3ff"
+     font-family="ui-monospace, Menlo, monospace"
+     font-size="14"
+     font-weight="600"
+     id="text21">x</text>
+  <g
+     fill="#f3f0e8"
+     id="g22"
+     transform="translate(6,-12)">
+    <!-- Martian Mono Regular R outline, with its original diagonal leg removed. -->
+    <path
+       d="M 130,272 V 112 h 54.2 q 15.4,0 26.8,5.6 11.4,5.6 17.7,16 6.3,10.4 6.3,24.6 0,13.4 -6.4,23.4 -6.4,10 -17.8,15.7 -11.4,5.7 -26.6,5.7 h -31.4 v 69 z m 22.8,-88.8 h 31.8 q 12.6,0 20.1,-6.8 7.5,-6.8 7.5,-18 0,-11.4 -7.5,-18.2 -7.5,-6.8 -20.1,-6.8 h -31.8 z"
+       id="path21"
+       style="stroke-width:0.2" />
+    <!-- Custom 24px leg centered on a 45-degree line, with Optima-like horizontal terminals. -->
+    <path
+       d="m 155.03,184.37062 h 30.26652 L 267.33895,274 h -30.26652 z"
+       id="path22"
+       style="stroke-width:0.932087" />
+  </g>
+</svg>
