@@ -68,7 +68,7 @@ uv pip freeze > experiment-requirements.txt
 
 ## Interpret the result
 
-The assertion compares the result with a NumPy computation on the host. Its tolerances are specific to this smoke test, not an accuracy guarantee for other shapes or models. If it fails, keep the measured error and investigate before changing the tolerance.
+The assertion compares the result with a NumPy computation on the host. If it fails, keep the measured error and investigate before changing the tolerance.
 
 The timing includes host dispatch and waiting for device completion. It excludes input transfer, NumPy validation, and the explicit compilation call. This small matrix is useful for debugging; it is not a measure of peak accelerator throughput. A compiler cache can also affect the reported compilation time.
 
@@ -86,7 +86,7 @@ Include the following in a [libtt issue](https://github.com/pcmoritz/libtt/issue
 
 - The smallest script and exact invocation that reproduce the result.
 - Card model, card count, OS, driver, and firmware versions from your system setup.
-- Installed package versions from `experiment-requirements.txt`; the Git commit if you built libtt yourself.
+- Installed package versions and the Git commit if you built libtt yourself.
 - Expected and observed values, tolerances, and the complete error message.
 - For a performance report: shapes, dtypes, warmup count, timed iterations, and whether compilation and transfers are included.
 

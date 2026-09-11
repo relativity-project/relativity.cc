@@ -6,44 +6,9 @@ weight = 30
 
 ## Reference configuration
 
-This recipe follows [libtt's published Qwen3-8B setup](https://github.com/pcmoritz/libtt/blob/b50ce2db8c3dbdebf1ba1818cae833dc472f34e2/README.md). It pins the libtt source and the SGLang-JAX TT integration revision, uses Python 3.12 and JAX 0.8.1, and serves on `127.0.0.1:31000`.
+This recipe follows [libtt's published Qwen3-8B setup](https://github.com/pcmoritz/libtt/blob/main/README.md). It pins the libtt source and the SGLang-JAX TT integration revision, uses Python 3.12 and JAX 0.8.1, and serves on `127.0.0.1:31000`.
 
 You need a Blackhole card with working system drivers, [uv](https://docs.astral.sh/uv/getting-started/installation/), Git, and Bazel. Complete the [device check](@/docs/getting-started.md#verify-jax-execution) first. Model weights download from Hugging Face on first use, so allow disk space and time for that download as well as the compiler build.
-
-## Build the reference plugin
-
-From a directory for your source checkouts:
-
-```sh
-git clone https://github.com/pcmoritz/libtt.git
-cd libtt
-git checkout b50ce2db8c3dbdebf1ba1818cae833dc472f34e2
-bazel build //:jax_tt_plugin_wheel
-export LIBTT_WHEEL="$PWD/bazel-bin/jax_tt_plugin-0.1.0-py3-none-linux_x86_64.whl"
-cd ..
-```
-
-This builds the compiler and runtime into the plugin wheel. For simpler JAX experiments, [Getting started](@/docs/getting-started.md#install-the-jax-plugin) uses a prebuilt wheel; the source build here fixes the libtt revision for the serving recipe.
-
-## Install SGLang-JAX
-
-Continue in the same shell so `LIBTT_WHEEL` remains set:
-
-```sh
-git clone https://github.com/sgl-project/sglang-jax.git
-cd sglang-jax
-git fetch origin pull/1527/head
-git checkout 3fc69af87cb7fb855bcdc6bee412bf8786c6a75a
-uv venv --python 3.12
-uv pip install --python .venv/bin/python \
-  -e python \
-  "jax==0.8.1" \
-  "jaxlib==0.8.1" \
-  "$LIBTT_WHEEL"
-uv pip freeze --python .venv/bin/python > inference-requirements.txt
-```
-
-The SGLang revision comes from the [TT integration referenced by libtt](https://github.com/sgl-project/sglang-jax/pull/1527). Keep `inference-requirements.txt` with your results: the two Git revisions do not pin every transitive Python dependency.
 
 ## Launch Qwen3-8B
 

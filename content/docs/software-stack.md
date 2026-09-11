@@ -20,11 +20,11 @@ JAX program / SGLang-JAX ──┘
   → Tenstorrent device
 ```
 
-[libtt](https://github.com/pcmoritz/libtt) packages pinned upstream components into `libtt.so` and a Python wheel. Its local code initializes the plugin, makes the bundled runtime files available, and exposes the PJRT entry points. The compiler and kernel implementations live primarily in the upstream projects.
+[libtt](https://github.com/pcmoritz/libtt) statically compiles heavily patched upstream libraries [tt-metal](https://github.com/tenstorrent/tt-metal), [tt-mlir](https://github.com/tenstorrent/tt-mlir) and [tt-xla](https://github.com/tenstorrent/tt-xla) into `libtt.so` and a Python wheel. Its local code initializes the plugin, makes the bundled runtime files available, and exposes the PJRT entry points.
 
 ## Framework support and TorchTPU
 
-PyTorch via torchax and JAX are supported today. We plan to center framework support on TorchTPU as soon as it is open-sourced. The execution path above describes the current torchax and JAX integration; TorchTPU is a planned integration.
+PyTorch via torchax and JAX are supported today. We plan to center PyTorch support on TorchTPU as soon as it is open-sourced.
 
 The backend is experimental, and operation coverage is still in development. The [first experiment](@/docs/first-experiment.md) checks the shared backend with a small JAX program. For PyTorch-specific usage, see the [torchax examples](https://github.com/google/torchax).
 
@@ -35,11 +35,11 @@ The backend is experimental, and operation coverage is still in development. The
 | torchax | Maps PyTorch operations to JAX and provides tensor interoperability. | A PyTorch operation cannot be translated or behaves differently after conversion. |
 | JAX | Traces Python array operations and lowers a compiled function to StableHLO. | The traced program has an unexpected shape, dtype, or operation. |
 | StableHLO | Represents the tensor computation passed to the compiler. | You need a compiler input independent of the Python application. |
-| PJRT / tt-xla | Exposes devices, buffers, compilation, and execution to JAX. | Plugin discovery, device initialization, or buffer handling fails. |
-| tt-mlir | Lowers the input program to Tenstorrent operations and executable artifacts. | An operation is unsupported or compilation produces incorrect code. |
-| tt-metal / Metalium | Supplies the runtime, kernels, memory movement, and device execution. | A compiled program hangs, produces incorrect output, or spends time moving data. |
+| PJRT / [tt-xla](https://github.com/tenstorrent/tt-xla) | Exposes devices, buffers, compilation, and execution to JAX. | Plugin discovery, device initialization, or buffer handling fails. |
+| [tt-mlir](https://github.com/tenstorrent/tt-mlir) | Lowers the input program to Tenstorrent operations and executable artifacts. | An operation is unsupported or compilation produces incorrect code. |
+| [tt-metal](https://github.com/tenstorrent/tt-metal) / Metalium | Supplies the runtime, kernels, memory movement, and device execution. | A compiled program hangs, produces incorrect output, or spends time moving data. |
 
-libtt's [reported August 2026 JAX test run](https://github.com/pcmoritz/libtt/blob/b50ce2db8c3dbdebf1ba1818cae833dc472f34e2/README.md) recorded 22,837 passes, 2,800 failures, and 6,531 skips. That runner [pins JAX 0.7.1](https://github.com/pcmoritz/libtt/blob/b50ce2db8c3dbdebf1ba1818cae833dc472f34e2/requirements-jax-tests.txt); the inference recipe uses 0.8.1. These counts describe the shared backend's JAX coverage, not a separate PyTorch test suite or a guarantee for every model.
+libtt's [reported JAX test suite run](https://github.com/pcmoritz/libtt/blob/b50ce2db8c3dbdebf1ba1818cae833dc472f34e2/README.md) recorded 22,837 passes, 2,800 failures, and 6,531 skips.
 
 ## Build and test libtt
 

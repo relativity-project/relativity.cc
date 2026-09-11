@@ -8,7 +8,7 @@ weight = 10
 
 These examples target one Blackhole p150a in an x86-64 Linux host. You need administrator access for system setup, network access for packages, and [uv](https://docs.astral.sh/uv/getting-started/installation/) for the Python environment.
 
-Use the [Tenstorrent installation guide](https://docs.tenstorrent.com/getting-started/README.html) to check OS, BIOS, driver, and firmware requirements for your card. Our [workstation configuration](../../hardware/#workstation-configuration) uses Ubuntu 24.04.
+Use the [Tenstorrent installation guide](https://docs.tenstorrent.com/getting-started/README.html) to check OS, BIOS, driver, and firmware requirements for your card. Our [p150a dev box configuration](../../hardware/#workstation-configuration) uses Ubuntu 24.04.
 
 ## Install the system software
 
@@ -40,7 +40,7 @@ source .venv/bin/activate
 uv pip install "jax==0.8.1" "jaxlib==0.8.1" "jax-tt-plugin==0.1.0"
 ```
 
-These pins use the JAX version in [libtt's reference inference recipe](https://github.com/pcmoritz/libtt/blob/b50ce2db8c3dbdebf1ba1818cae833dc472f34e2/README.md) and the [published plugin wheel](https://pypi.org/project/jax-tt-plugin/0.1.0/). The wheel bundles the user-space compiler and runtime; a separate tt-metal source build is only needed when working on those components. A wheel release and a build from a newer source revision can behave differently.
+These pins use the JAX version in [libtt's reference inference recipe](https://github.com/pcmoritz/libtt/blob/b50ce2db8c3dbdebf1ba1818cae833dc472f34e2/README.md) and the [published plugin wheel](https://pypi.org/project/jax-tt-plugin/0.1.0/). The wheel bundles the user-space compiler and runtime; a separate tt-metal installation is not needed.
 
 ## Verify JAX execution
 
