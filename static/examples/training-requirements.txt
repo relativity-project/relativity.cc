@@ -1,0 +1,12 @@
+# Tested together for the TorchTitan training walkthrough.
+# Install torch==2.13.0+cpu from the PyTorch CPU index first.
+torch==2.13.0+cpu
+jax-tt-plugin==0.1.0
+jax==0.7.1
+jaxlib==0.7.1
+optax==0.2.4
+triton==3.8.0
+
+# These revisions match the APIs used by train_tiny_qwen3.py.
+torchax @ git+https://github.com/google/torchax.git@b2d44f0d6a25db265fe1d93d58dab5de0bf865ca
+torchtitan @ git+https://github.com/pytorch/torchtitan.git@63de14f5876a195cbe805438614f7b777e1f0daa
