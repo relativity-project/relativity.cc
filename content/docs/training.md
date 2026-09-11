@@ -6,7 +6,7 @@ weight = 40
 
 ## Train a tiny Qwen3 model
 
-This walkthrough trains a **197,056-parameter Qwen3 decoder** from scratch on one Blackhole p150a. It uses [TorchTitan's Qwen3 model](https://github.com/pytorch/torchtitan/tree/63de14f5876a195cbe805438614f7b777e1f0daa/torchtitan/models/qwen3), [TorchAX](https://github.com/google/torchax/tree/b2d44f0d6a25db265fe1d93d58dab5de0bf865ca) to run its PyTorch operations through JAX, and libtt for device execution. A small TorchAX loop handles the forward pass, gradients, and SGD updates.
+This walkthrough trains a **31,987,968-parameter Qwen3 decoder** from scratch on one Blackhole p150a. It uses [TorchTitan's Qwen3 model](https://github.com/pytorch/torchtitan/tree/63de14f5876a195cbe805438614f7b777e1f0daa/torchtitan/models/qwen3), [TorchAX](https://github.com/google/torchax/tree/b2d44f0d6a25db265fe1d93d58dab5de0bf865ca) to run its PyTorch operations through JAX, and libtt for device execution. A small TorchAX loop handles the forward pass, gradients, and SGD updates.
 
 You will train on a fixed sequence of token IDs, watch the loss fall, save a checkpoint, and reload it in native PyTorch to check the result. The fixed batch makes learning easy to see without downloading a tokenizer, dataset, or pretrained weights.
 
@@ -31,16 +31,16 @@ The requirements include the published `jax-tt-plugin==0.1.0` wheel, JAX/jaxlib 
 
 ## 2. Understand the model and task
 
-The script builds TorchTitan's `Qwen3Model` with one `Qwen3TransformerBlock`. The main settings are:
+The script selects TorchTitan's upstream `qwen3_configs["debugmodel"]` preset. TorchTitan defines the architecture and initialization; the script sets the sequence length and adapts attention for TorchAX. The walkthrough uses:
 
 | Setting | Value |
 | --- | --- |
-| Transformer layers | 1 |
-| Model width / feed-forward width | 128 / 256 |
-| Attention heads / KV heads | 4 / 4, with 32 elements per head |
-| Vocabulary | 256 token IDs |
+| Transformer layers | 8 |
+| Model width / feed-forward width | 256 / 3,072 |
+| Attention heads / KV heads | 16 / 8, with 128 elements per head |
+| Vocabulary | 2,048 token IDs |
 | Batch | One sequence of 32 tokens |
-| Parameters | 197,056, with shared embedding and output weights |
+| Parameters | 31,987,968, with shared embedding and output weights |
 | Parameter dtype | BF16 |
 | Optimizer | SGD, learning rate 0.05 |
 | Initialization seed | 0 |
@@ -54,7 +54,7 @@ labels = (tokens + 1) % vocab_size
 
 With the defaults, the inputs are `0, 1, ..., 31` and the targets are `1, 2, ..., 32`. Causal attention lets each position see itself and preceding positions. Repeating this batch trains the model to memorize the next integer in the sequence. Training useful text models additionally requires varied text, a tokenizer, and held-out evaluation.
 
-TorchTitan's attention interface uses `[tokens, heads, head_dim]`. The script's small attention adapter transposes this layout for PyTorch's `scaled_dot_product_attention`, applies causal attention, and transposes the output back. The transformer blocks, projections, normalization, rotary embeddings, and feed-forward layers come from TorchTitan.
+The preset uses FlexAttention. For TorchAX execution, the script replaces that backend with a small adapter to PyTorch's `scaled_dot_product_attention`. It transposes TorchTitan's `[tokens, heads, head_dim]` layout to `[heads, tokens, head_dim]`, applies causal grouped-query attention, and transposes back. The transformer blocks, fused QKV projections, normalization, rotary embeddings, and feed-forward layers come from the upstream preset. The rotary cache is sized to the 32-token training sequence.
 
 ## 3. Run 20 training steps
 
@@ -75,11 +75,10 @@ Each step computes cross-entropy, differentiates every trainable parameter, and 
 
 ```python
 optimizer = optax.sgd(args.learning_rate)
-opt_state = interop.call_jax(optimizer.init, jittable_model.params)
+opt_state = interop.call_jax(optimizer.init, params)
 train_step = torchax.train.make_train_step(model_fn, loss_fn, optimizer)
 train_step = interop.jax_jit(
-    train_step,
-    kwargs_for_jax_jit={"donate_argnums": (0, 2)},
+    train_step, kwargs_for_jax_jit={"donate_argnums": (0, 2)}
 )
 ```
 
@@ -91,12 +90,12 @@ A tested p150a run produced the following loss values; runtime log lines and per
 
 ```text
 device: TTDevice(id=0, arch=Blackhole)
-parameters: 197,056
-step 01: loss=5.559835
-step 05: loss=3.746826
-step 10: loss=2.749637
-step 20: loss=1.268078
-final loss: 1.172283
+parameters: 31,987,968
+step 01: loss=7.735438
+step 05: loss=5.682494
+step 10: loss=4.183215
+step 20: loss=2.713692
+final loss: 2.477034
 checkpoint: tiny-qwen3.pt
 training: ok
 ```
@@ -107,25 +106,21 @@ The first step includes compilation and can take tens of seconds with an empty c
 
 ## 4. Reload and check the trained weights
 
-The checkpoint contains a regular PyTorch state dictionary, model settings, step count, learning rate, and initial/final losses. Reload it on the CPU and evaluate the same task independently:
+The checkpoint contains a regular PyTorch state dictionary, model preset, sequence length, initialization seed, step count, learning rate, and initial/final losses. Reload it on the CPU and evaluate the same task independently:
 
 ```sh
 python - <<'PY'
-from argparse import Namespace
-
 import torch
 import torch.nn.functional as F
 
-from train_tiny_qwen3 import make_batch, make_qwen3_config
+from train_tiny_qwen3 import build_model, make_batch
 
 checkpoint = torch.load("tiny-qwen3.pt", map_location="cpu", weights_only=True)
-config = Namespace(**checkpoint["config"])
-dtype = torch.bfloat16 if config.dtype == "bf16" else torch.float32
-model = make_qwen3_config(config).build().to(dtype=dtype)
-model.init_states(buffer_device=torch.device("cpu"))
+config = checkpoint["config"]
+model = build_model(**config)
 model.load_state_dict(checkpoint["model"])
 model.eval()
-tokens, labels = make_batch(config.seq_len, config.vocab_size)
+tokens, labels = make_batch(config["seq_len"], model.config.vocab_size)
 
 with torch.inference_mode():
     logits = model(tokens).float()
@@ -141,7 +136,7 @@ print("PASS: checkpoint loss matches TT within tolerance")
 PY
 ```
 
-For the run above, the reloaded checkpoint had loss **1.172335** and predicted **32/32** targets correctly. This checks the saved weights with native PyTorch, in addition to the device-side loss check. The checkpoint uses this example's tiny architecture and token IDs; it is not a pretrained Qwen model for the inference server.
+For the run above, the reloaded checkpoint had loss **2.478699** and predicted **28/32** targets correctly. This checks the saved weights with native PyTorch, in addition to the device-side loss check. The checkpoint uses TorchTitan's debug preset and this example's token IDs; it is not a pretrained Qwen model for the inference server.
 
 ## 5. Try another experiment
 
@@ -156,7 +151,7 @@ python -u train_tiny_qwen3.py \
 
 Compare the loss curves, allowing for BF16 and backend arithmetic differences. The checkpoint check above compares the *same trained weights* across implementations; two separate training runs can accumulate different rounding errors.
 
-Next, change one setting at a time: increase `--steps`, adjust `--learning-rate`, or increase `--layers`. On TT, keep sequence length, vocabulary size, model width, feed-forward width, and head dimension divisible by 32. The script validates these dimensions before running.
+Next, increase `--steps` or adjust `--learning-rate`. The `config` dictionary in `main()` selects the upstream preset, sequence length, and seed. Keep sequence length divisible by 32 on TT. Larger TorchTitan presets need their own memory and execution checks.
 
 When moving beyond this fixed batch, add a tokenizer and train/validation split, feed different batches to the loop, and evaluate on data the model has not seen. Larger models also need memory planning: parameters, gradients, optimizer state, activations, and temporary buffers all contribute. Adam, for example, adds two moment buffers to the SGD setup used here. Multi-card training requires separate validation of sharding and collectives.
 
