@@ -367,6 +367,91 @@ h1 {
   font-size: 14px;
 }
 
+.status-section { padding: 42px 0 112px; }
+
+.status-intro {
+  display: grid;
+  grid-template-columns: .8fr 1.2fr;
+  gap: 64px;
+  align-items: end;
+  padding-bottom: 36px;
+}
+
+.status-intro .eyebrow { margin-bottom: 12px; }
+
+.status-intro h2 {
+  margin: 0;
+  font-size: clamp(36px, 4.5vw, 58px);
+  font-weight: 400;
+  letter-spacing: -.055em;
+  line-height: 1;
+}
+
+.status-intro > p {
+  max-width: 600px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.status-card {
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  border: 1px solid var(--line-soft);
+}
+
+.status-card:nth-child(even) { border-left: 0; }
+.status-card:nth-child(n + 3) { border-top: 0; }
+
+.status-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 9px;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.status-meta span { color: var(--blue); }
+.status-card-progress .status-meta span,
+.status-card-contribute .status-meta span { color: var(--red); }
+
+.status-card h3 {
+  margin: 48px 0 9px;
+  font-size: 18px;
+  font-weight: 540;
+  letter-spacing: -.025em;
+}
+
+.status-card p {
+  max-width: 480px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.status-card a {
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 20px;
+  color: var(--ink);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.status-card a span { color: var(--blue); }
+.status-card a:hover span,
+.status-card a:focus-visible span { color: var(--red); }
+
 .hardware-page { min-height: calc(100vh - 230px); }
 
 .subpage-hero {
@@ -905,6 +990,8 @@ footer > :last-child { justify-self: end; }
   .build-guide-grid { grid-template-columns: 1fr; }
   .build-panel + .build-panel { border-top: 0; border-left: 1px solid var(--line-soft); }
 
+  .status-intro { grid-template-columns: 1fr; gap: 24px; }
+
   .docs-layout { grid-template-columns: 175px minmax(0, 1fr); }
   .docs-toc { display: none; }
 
@@ -953,6 +1040,11 @@ footer > :last-child { justify-self: end; }
   .resource-card:nth-child(even) { border-left: 1px solid var(--line-soft); }
   .resource-card:nth-child(n + 2) { border-top: 0; }
   .resource-shelf + .resource-shelf { border-top: 1px solid var(--line-soft); border-left: 0; }
+
+  .status-grid { grid-template-columns: 1fr; }
+  .status-card,
+  .status-card:nth-child(even) { border-left: 1px solid var(--line-soft); }
+  .status-card:nth-child(n + 2) { border-top: 0; }
 
   .docs-layout {
     grid-template-columns: 1fr;

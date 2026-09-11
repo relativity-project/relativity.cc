@@ -1,8 +1,12 @@
 +++
-title = "Hardware setup"
-description = "A compact host, PCIe dock, and Blackhole p150a development setup."
+title = "Training"
+description = "Train Qwen3-8B on a Tenstorrent Blackhole card."
 weight = 40
 +++
+
+In this section we describe how you can serve Qwen3-8B with upstream [SGLang-JAX](https://github.com/sgl-project/sglang-jax) as the inference server and model layer and [libtt](https://github.com/pcmoritz/libtt) as the compiler and runtime. We assume you have access to the [hardware](@/hardware/_index.md).
+
+> This setup is currently experimental
 
 ## Reference machine
 

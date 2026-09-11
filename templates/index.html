@@ -9,7 +9,7 @@
     <section class="hero">
       <div class="hero-copy">
         <h1>relativity.cc</h1>
-        <p class="lede">A small open-source lab for understanding and pushing accelerator hardware—from tensor algebra to kernels to distributed execution.</p>
+        <p class="lede">Open-source software for bringing existing machine learning frameworks to affordable compiler-driven accelerators.</p>
         <p class="tagline"><span>compute</span><i>/</i><span>compile</span><i>/</i><span>accelerate</span></p>
         <div class="hero-actions">
           <a class="primary-action" href="#principles">get started <span>→</span></a>
@@ -101,6 +101,39 @@
           <span class="backend-arrow" aria-hidden="true">→</span>
           <a class="stack-node" href="https://github.com/tenstorrent/tt-metal"><strong>tt-metal</strong><small>kernels</small></a>
         </div>
+      </div>
+    </section>
+
+    <section class="rule" id="status">
+      <p>03 / status</p>
+    </section>
+
+    <section class="status-section" aria-labelledby="status-title">
+      <div class="status-grid">
+        <article class="status-card status-card-working">
+          <div class="status-meta"><span>01</span><small>working</small></div>
+          <h3>JAX compatibility</h3>
+          <p>Most of the upstream JAX test suite is passing on the Tenstorrent backend.</p>
+        </article>
+
+        <article class="status-card status-card-progress">
+          <div class="status-meta"><span>02</span><small>in progress</small></div>
+          <h3>multi-accelerator</h3>
+          <p>Execution across multiple accelerator cards is actively being developed.</p>
+        </article>
+
+        <article class="status-card status-card-planned">
+          <div class="status-meta"><span>03</span><small>planned</small></div>
+          <h3>more model architectures</h3>
+          <p>Qwen 3.5, DeepSeek, GLM, and Kimi support are on the roadmap.</p>
+        </article>
+
+        <article class="status-card status-card-contribute">
+          <div class="status-meta"><span>04</span><small>help wanted</small></div>
+          <h3>build with us</h3>
+          <p>Contributions to compiler coverage, model bring-up, distributed execution, tests, and documentation are welcome.</p>
+          <a href="{{ config.extra.repo_url }}/issues">find an issue <span>↗</span></a>
+        </article>
       </div>
     </section>
 
