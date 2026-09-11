@@ -9,47 +9,45 @@
 
   <main class="hardware-page">
     <section class="subpage-hero">
-      <p class="eyebrow"><span class="prompt">›</span> architecture below the abstraction</p>
       <h1>hardware</h1>
-      <p class="lede">Notes and experiments on Tenstorrent systems—from compute cores and memory movement to multi-chip execution.</p>
+      <p class="lede">Learn the Tenstorrent programming model, assemble a p150a workstation, or buy a complete QuietBox 2 system.</p>
     </section>
 
     <section class="rule">
-      <p>01 / understand the hardware</p>
+      <h2>01 / programming the device</h2>
     </section>
 
     <section class="hardware-learning" aria-labelledby="learning-title">
       <div class="learning-intro">
         <div>
-          <p class="eyebrow"><span class="prompt">›</span> no black boxes</p>
-          <h2 id="learning-title">understand the machine</h2>
+          <h2 id="learning-title">cores, memory, kernels</h2>
         </div>
-        <p>A reading path for hackers who want to move from the programming model to real kernels, explicit data movement, and the instructions underneath.</p>
+        <p>A Metalium program coordinates data movement and compute: reader kernels load tiles into circular buffers, compute kernels consume them, and writer kernels store results. These references explain the synchronization and memory layout at each step.</p>
       </div>
 
       <div class="resource-cards">
         <a class="resource-card resource-card-start" href="https://github.com/tenstorrent/tt-metal/blob/main/METALIUM_GUIDE.md">
           <span class="resource-meta"><b>01</b> official guide</span>
           <h3>TT Architecture and Metalium Guide</h3>
-          <p>Build the mental model: Tensix cores, local SRAM, NoCs, tiles, circular buffers, and reader / compute / writer kernels.</p>
+          <p>How Tensix cores use local SRAM and networks-on-chip (NoCs). Covers tiles, circular buffers, and synchronization between reader, compute, and writer kernels.</p>
           <small>start here <span>↗</span></small>
         </a>
         <a class="resource-card" href="https://github.com/tenstorrent/tt-metal/blob/main/docs/source/tt-metalium/tt_metal/labs/matmul/lab1/lab1.rst">
           <span class="resource-meta"><b>02</b> hands on</span>
           <h3>Single-core matmul lab</h3>
-          <p>Go from host code to data-movement and compute kernels while learning how a tiled matrix multiply maps onto one Tensix core.</p>
+          <p>Host setup and kernels for a tiled matrix multiply on one Tensix core. Follow allocation, tile transfers, computation, and output validation.</p>
           <small>write a kernel <span>↗</span></small>
         </a>
         <a class="resource-card" href="https://github.com/tenstorrent/tt-llk/blob/main/docs/llk/l2/top_level_overview.md">
           <span class="resource-meta"><b>03</b> lower level</span>
           <h3>Tensix core and LLKs</h3>
-          <p>Trace data through unpack, matrix or vector execution, destination registers, and pack—the machinery Metalium kernels drive.</p>
-          <small>open the core <span>↗</span></small>
+          <p>Low-level kernels (LLKs): unpack tiles, execute matrix or vector operations, hold results in destination registers, and pack them for storage.</p>
+          <small>read the LLK overview <span>↗</span></small>
         </a>
         <a class="resource-card" href="https://github.com/tenstorrent/tt-isa-documentation">
           <span class="resource-meta"><b>04</b> reference</span>
           <h3>tt-isa-documentation</h3>
-          <p>The living low-level reference for Wormhole B0 and Blackhole A0 when an abstraction leaks or a register becomes the shortest path.</p>
+          <p>Instruction encodings, register behavior, and architecture details for Wormhole B0 and Blackhole A0. Select the documentation for your chip generation.</p>
           <small>open the reference <span>↗</span></small>
         </a>
       </div>
@@ -58,12 +56,12 @@
         <section class="resource-shelf" aria-labelledby="official-resources-title">
           <div class="resource-shelf-heading">
             <span>05</span>
-            <h3 id="official-resources-title">keep open</h3>
+            <h3 id="official-resources-title">official references</h3>
           </div>
           <div class="resource-list">
             <a href="https://github.com/tenstorrent/tt-metal/tree/main/tech_reports"><span>tech reports</span><small>layouts, bandwidth, fabric, attention</small><b>↗</b></a>
             <a href="https://docs.tenstorrent.com/aibs/blackhole/"><span>Blackhole hardware docs</span><small>cards, power, topology, specifications</small><b>↗</b></a>
-            <a href="https://github.com/tenstorrent/tt-metal"><span>tt-metal source</span><small>examples are part of the documentation</small><b>↗</b></a>
+            <a href="https://github.com/tenstorrent/tt-metal"><span>tt-metal source</span><small>runtime, kernels, tests, and examples</small><b>↗</b></a>
           </div>
         </section>
 
@@ -83,16 +81,15 @@
     </section>
 
     <section class="rule">
-      <p>02 / build your own</p>
+      <h2>02 / workstation configuration</h2>
     </section>
 
     <section class="build-guide" aria-labelledby="build-guide-title">
       <div class="build-guide-intro">
         <div>
-          <p class="eyebrow"><span class="prompt">›</span> a compact Tenstorrent workstation</p>
-          <h2 id="build-guide-title">build your own</h2>
+          <h2 id="build-guide-title">one Blackhole card</h2>
         </div>
-        <p>Combine a mini PC, a PCIe dock, and a Blackhole card to build a compact system for developing the software stack.</p>
+        <p>This configuration connects a p150a to a mini PC through an external PCIe dock. Other hosts need compatible PCIe connectivity, power delivery, cooling, and a supported Linux installation.</p>
       </div>
 
       <div class="build-guide-grid">
@@ -101,7 +98,7 @@
           <div class="parts-list">
             <a href="https://www.bee-link.com/products/beelink-gti15-ultra9-285h">
               <strong>Beelink GTi15 Ultra</strong>
-              <small>Intel® Core™ Ultra 9 285H</small>
+              <small>Intel Core Ultra 9 285H</small>
               <small>64GB (32GB×2) DDR5 5600MHz + 1TB SSD</small>
               <span aria-hidden="true">↗</span>
             </a>
@@ -111,8 +108,14 @@
               <span aria-hidden="true">↗</span>
             </a>
             <a href="https://docs.tenstorrent.com/aibs/blackhole/">
-              <strong>Tenstorrent Blackhole® p150a</strong>
+              <strong>Tenstorrent Blackhole p150a</strong>
               <small>PCIe accelerator card</small>
+              <span aria-hidden="true">↗</span>
+            </a>
+            <a href="https://www.amazon.com/dp/B0BWND5FFG">
+              <strong>Fasgear 12VHPWR power adapter cable</strong>
+              <small>2 × 8-pin PCIe female to 16-pin (12+4) male</small>
+              <small>30 cm sleeved extension cable</small>
               <span aria-hidden="true">↗</span>
             </a>
           </div>
@@ -123,30 +126,62 @@
           <ol class="setup-steps">
             <li>
               <span>01</span>
-              <div><strong>assemble the system</strong><p>Seat and power the p150a in the EX Pro dock, then connect the dock to the GTi15 Ultra.</p></div>
+              <div><strong>check PCIe, power, and cooling</strong><p>With the system powered off, install the p150a in the dock and connect the specified power cables. Keep the card's airflow unobstructed and follow the card and dock installation manuals.</p></div>
             </li>
             <li>
               <span>02</span>
-              <div><strong>install Ubuntu 24.04</strong><p>Use a clean Ubuntu installation and apply all available system updates.</p></div>
+              <div><strong>prepare the Linux host</strong><p>This workstation configuration uses Ubuntu 24.04. Check the vendor's OS and BIOS requirements for your software release before installing.</p></div>
             </li>
             <li>
               <span>03</span>
               <div>
-                <strong>run the Tenstorrent installer</strong>
-                <p>Install the prerequisites, then run the official setup script.</p>
-                <pre><code>sudo apt update &amp;&amp; sudo apt install -y curl jq
-/bin/bash -c "$(curl -fsSL https://tenstorrent.ai/install.sh)"</code></pre>
+                <strong>install and verify the software</strong>
+                <p>Follow Getting started to install the driver, inspect the card with <code>tt-smi</code>, and run a JAX computation with libtt.</p>
               </div>
             </li>
-            <li>
-              <span>04</span>
-              <div><strong>reboot and verify</strong><p>After restarting, activate the installer-created environment and run <code>tt-smi</code> to confirm that the p150a is detected.</p></div>
-            </li>
           </ol>
-          <a class="build-docs-link" href="https://docs.tenstorrent.com/getting-started/README.html">open the complete installation guide <span>↗</span></a>
+          <a class="build-docs-link" href="{{ get_url(path='@/docs/getting-started.md') }}">install libtt &amp; verify execution <span>→</span></a>
         </section>
       </div>
 
+    </section>
+
+    <section class="rule" id="quietbox-2">
+      <h2>03 / buy a workstation</h2>
+    </section>
+
+    <section class="build-guide" aria-labelledby="quietbox-title">
+      <div class="build-guide-intro">
+        <div>
+          <h2 id="quietbox-title">QuietBox 2</h2>
+        </div>
+        <p>Tenstorrent's assembled, liquid-cooled Blackhole workstation. It includes the host, accelerator cards, cooling, power supply, and preinstalled Tenstorrent software.</p>
+      </div>
+
+      <div class="build-guide-grid">
+        <section class="build-panel" aria-labelledby="quietbox-specs-title">
+          <p class="build-panel-label" id="quietbox-specs-title"><span>01</span> / configuration</p>
+          <dl class="hardware-specs">
+            <div><dt>Accelerators</dt><dd>2 × p300c cards, 4 Blackhole chips</dd></div>
+            <div><dt>Device memory</dt><dd>128 GB GDDR6 total, 32 GB per chip</dd></div>
+            <div><dt>Host CPU</dt><dd>AMD Ryzen 7 9700X</dd></div>
+            <div><dt>Host memory</dt><dd>256 GB DDR5-5600</dd></div>
+            <div><dt>Storage</dt><dd>4 TB NVMe SSD</dd></div>
+            <div><dt>OS</dt><dd>Ubuntu 24.04</dd></div>
+          </dl>
+          <a class="build-docs-link" href="https://docs.tenstorrent.com/systems/quietbox/quietbox-bh-2/specifications.html">full specifications <span>↗</span></a>
+        </section>
+
+        <section class="build-panel" aria-labelledby="quietbox-buy-title">
+          <p class="build-panel-label" id="quietbox-buy-title"><span>02</span> / purchase &amp; setup</p>
+          <div class="workstation-notes">
+            <p>Listed at <strong>US $9,999</strong> on September 11, 2026. Check Tenstorrent's product page for current pricing and delivery estimates.</p>
+            <p>The included Tenstorrent software has its own setup guide. For libtt, the examples on this site currently target one p150a; multi-card execution is still in development.</p>
+          </div>
+          <a class="build-docs-link" href="https://tenstorrent.com/hardware/tt-quietbox">buy QuietBox 2 from Tenstorrent <span>↗</span></a>
+          <a class="build-docs-link" href="https://docs.tenstorrent.com/tt-quietbox2-guide/">QuietBox 2 setup guide <span>↗</span></a>
+        </section>
+      </div>
     </section>
   </main>
 

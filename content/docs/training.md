@@ -1,36 +1,40 @@
 +++
 title = "Training"
-description = "Train Qwen3-8B on a Tenstorrent Blackhole card."
+description = "Experimental work: gradients, optimizer updates, memory use, and full-model validation."
 weight = 40
 +++
 
-In this section we describe how you can serve Qwen3-8B with upstream [SGLang-JAX](https://github.com/sgl-project/sglang-jax) as the inference server and model layer and [libtt](https://github.com/pcmoritz/libtt) as the compiler and runtime. We assume you have access to the [hardware](@/hardware/_index.md).
+## Current scope
 
-> This setup is currently experimental
+Training is experimental. This site does not yet provide a validated Qwen3-8B training command, convergence result, or training throughput measurement. The [Qwen3-8B example](@/docs/inference.md) covers inference.
 
-## Reference machine
+A forward pass only exercises part of a training workload. Training also needs backward operations, optimizer state, parameter updates, and enough memory for saved activations. Multi-card training additionally needs working sharding and collectives.
 
-The compact workstation described on the hardware page uses:
+## Validate one training step
 
-| Part | Configuration |
+Start with the [JAX experiment](@/docs/first-experiment.md) to check device execution and measurement. For a training contribution, use a small model and a fixed batch:
+
+1. Compute the same loss on the CPU and TT backend with identical weights, inputs, and dtypes.
+2. Compare each gradient from `jax.value_and_grad`, including its shape and numerical error.
+3. Apply one optimizer update and compare the new parameters and optimizer state.
+4. Run several steps and record the loss, peak memory use, compilation time, and warm step latency.
+5. Repeat at the intended model size and batch size before drawing conclusions about capacity or speed.
+
+Keep inputs fixed while debugging. A decreasing loss alone will not reveal a wrong gradient or an unintended dtype conversion.
+
+## Account for memory
+
+For an 8-billion-parameter model, BF16 parameters alone require about 16 GB in decimal units. BF16 gradients plus two FP32 Adam moment buffers add about 80 GB, bringing those four arrays to roughly 96 GB. That estimate excludes activations, temporary buffers, and any FP32 master weights.
+
+Optimizer choice, sharding, offloading, and activation checkpointing change the requirements. A model fitting for inference does not establish that full-parameter training fits on the same card.
+
+## Useful contributions
+
+| Area | Evidence to include |
 | --- | --- |
-| Host | Beelink GTi15 Ultra, Intel Core Ultra 9 285H |
-| Memory | 64 GB DDR5-5600 |
-| Storage | 1 TB SSD |
-| Dock | Beelink Multi-Functional EX Pro Docking Station |
-| Accelerator | Tenstorrent Blackhole p150a |
+| Missing backward operation | Minimal `value_and_grad` example, StableHLO, and CPU reference output. |
+| Optimizer correctness | Initial state and parameter values before and after one update. |
+| Memory reduction | Model and batch size, dtypes, peak memory, and any added recomputation or transfer cost. |
+| Distributed training | Device topology, sharding, collective operations, and comparison with a single-device result. |
 
-The exact host is less important than stable PCIe connectivity, sufficient power, airflow, and a supported Linux installation.
-
-## Before power-on
-
-1. Seat the accelerator and every power connector completely.
-2. Confirm that the dock and card have unobstructed airflow.
-3. Connect the dock before starting the host.
-4. Keep a monitor and keyboard available for the first boot.
-
-## Establish a baseline
-
-Before changing firmware, compiler revisions, or kernel code, save a clean diagnostic run and the versions of every installed component. Repeat the same check after each low-level change.
-
-For the architecture reading path and official references, continue to the [hardware section](@/hardware/_index.md).
+Attach the exact software revisions and a runnable script to a [libtt issue](https://github.com/pcmoritz/libtt/issues). A full-model recipe should specify the dataset, optimizer, batch size, precision, checkpoints, hardware, and a repeatable loss trace.

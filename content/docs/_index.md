@@ -1,13 +1,16 @@
 +++
 title = "Docs"
-description = "Practical notes for moving from a fresh machine to programs running on Tenstorrent hardware."
+description = "Install libtt, run JAX on a Tenstorrent card, and debug compilation and execution."
 sort_by = "weight"
 template = "docs/section.html"
 page_template = "docs/page.html"
 +++
 
-## Start with the path, not the API
+## Choose a starting point
 
-The stack is easiest to understand from the hardware upward: bring up the card, run one known-good program, then follow compilation and execution through the layers. These notes keep that path short and make the boundaries explicit.
+- **New machine:** [Getting started](@/docs/getting-started.md) covers the system driver, Python plugin, and a device check.
+- **Working JAX environment:** [First experiment](@/docs/first-experiment.md) checks a matrix multiply against NumPy, times execution, and exports StableHLO.
+- **Model serving:** [Inference](@/docs/inference.md) gives a Qwen3-8B launch configuration and an MMLU smoke check.
+- **Compiler work:** [Software stack](@/docs/software-stack.md) explains the interfaces and what to collect when a program fails.
 
-The documentation is written as ordinary Markdown. Add a file here, give it a `weight`, and Zola places it in the navigation automatically.
+The hardware examples use a single Blackhole p150a. Training and multi-card execution are under development; see [training](@/docs/training.md) for the validation work needed before a full-model recipe.
