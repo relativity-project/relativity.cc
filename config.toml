@@ -1,6 +1,6 @@
 base_url = "https://relativity.cc"
 title = "relativity.cc"
-description = "Low-level experiments for Tenstorrent."
+description = "Open-source compiler and runtime integration for running existing machine learning frameworks on Tenstorrent accelerators."
 default_language = "en"
 compile_sass = false
 build_search_index = false
@@ -11,4 +11,4 @@ style = "inline"
 theme = "github-dark"
 
 [extra]
-repo_url = "https://github.com/relativity-project/relativity.cc"
+repo_url = "https://github.com/pcmoritz/libtt"

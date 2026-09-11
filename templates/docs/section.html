@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}docs · relativity.cc{% endblock title %}
+
+{% block content %}
+{% set docs_section = section %}
+{% set active_doc = "index" %}
+<div class="shell docs-shell">
+  {% set active_tab = "docs" %}
+  {% include "partials/site-header.html" %}
+
+  <main class="docs-layout">
+    <aside class="docs-sidebar">
+      {% include "partials/docs-sidebar.html" %}
+    </aside>
+
+    <article class="docs-article docs-overview">
+      <p class="docs-kicker"><span>›</span> relativity.cc / docs</p>
+      <h1>{{ section.title }}</h1>
+      {% if section.description %}<p class="docs-summary">{{ section.description }}</p>{% endif %}
+      <div class="docs-prose">
+        {{ section.content | safe }}
+      </div>
+
+      <div class="docs-index" aria-label="documentation pages">
+        {% for doc in section.pages %}
+        <a href="{{ doc.permalink }}">
+          <span>{% if loop.index < 10 %}0{% endif %}{{ loop.index }}</span>
+          <strong>{{ doc.title }}</strong>
+          {% if doc.description %}<small>{{ doc.description }}</small>{% endif %}
+          <b>→</b>
+        </a>
+        {% endfor %}
+      </div>
+    </article>
+
+    <aside class="docs-toc">
+      {% set toc = section.toc %}
+      {% include "partials/docs-toc.html" %}
+    </aside>
+  </main>
+
+  {% include "partials/site-footer.html" %}
+</div>
+{% endblock content %}

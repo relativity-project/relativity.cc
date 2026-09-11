@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }} · docs · relativity.cc{% endblock title %}
+
+{% block content %}
+{% set docs_section = get_section(path="docs/_index.md") %}
+{% set active_doc = page.slug %}
+<div class="shell docs-shell">
+  {% set active_tab = "docs" %}
+  {% include "partials/site-header.html" %}
+
+  <main class="docs-layout">
+    <aside class="docs-sidebar">
+      {% include "partials/docs-sidebar.html" %}
+    </aside>
+
+    <article class="docs-article">
+      <p class="docs-kicker"><a href="{{ docs_section.permalink }}">docs</a> <span>/</span> {{ page.title | lower }}</p>
+      <h1>{{ page.title }}</h1>
+      {% if page.description %}<p class="docs-summary">{{ page.description }}</p>{% endif %}
+      <div class="docs-prose">
+        {{ page.content | safe }}
+      </div>
+    </article>
+
+    <aside class="docs-toc">
+      {% set toc = page.toc %}
+      {% include "partials/docs-toc.html" %}
+    </aside>
+  </main>
+
+  {% include "partials/site-footer.html" %}
+</div>
+{% endblock content %}

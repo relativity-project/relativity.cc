@@ -9,11 +9,11 @@
     <section class="hero">
       <div class="hero-copy">
         <h1>relativity.cc</h1>
-        <p class="lede">A small open-source lab for understanding and pushing accelerator hardware—from tensor algebra to kernels to distributed execution.</p>
-        <p class="tagline"><span>compute</span><i>/</i><span>compile</span><i>/</i><span>accelerate</span></p>
+        <p class="lede">Open-source software for bringing existing machine learning frameworks to Tenstorrent accelerators.</p>
+        <p class="hero-detail">Our goal is to run upstream frameworks and model code out of the box. We focus on compiler and runtime integration so applications need little or no modification, rather than maintaining separate model implementations.</p>
         <div class="hero-actions">
-          <a class="primary-action" href="#principles">get started <span>→</span></a>
-          <a href="{{ config.extra.repo_url }}">view on GitHub <span>↗</span></a>
+          <a class="primary-action" href="{{ get_url(path='@/docs/getting-started.md') }}">run your first program <span>→</span></a>
+          <a href="{{ config.extra.repo_url }}">read the source <span>↗</span></a>
         </div>
       </div>
       <div class="hero-mark" aria-hidden="true">
@@ -21,43 +21,47 @@
       </div>
     </section>
 
-    <section class="rule" id="principles">
-      <p>01 / principles</p>
+    <section class="rule" id="start">
+      <h2>01 / start hacking</h2>
     </section>
 
     <section class="cards">
       <article>
         <span class="card-index">01</span>
-        <h2>close to metal</h2>
-        <p>Understand the hardware first. Abstractions earn their place.</p>
+        <h3>Run a program</h3>
+        <p>Install libtt, check that the accelerator is visible, and verify a computation against a host reference.</p>
+        <a href="{{ get_url(path='@/docs/getting-started.md') }}">installation &amp; device check →</a>
       </article>
       <article>
         <span class="card-index">02</span>
-        <h2>measure everything</h2>
-        <p>Performance claims should collapse into numbers, traces, and reproducible tests.</p>
+        <h3>Serve Qwen3-8B</h3>
+        <p>Use SGLang-JAX's model and serving code with the Tenstorrent backend. Launch Qwen3-8B on Blackhole and check its output.</p>
+        <a href="{{ get_url(path='@/docs/inference.md') }}">inference recipe →</a>
       </article>
       <article>
         <span class="card-index">03</span>
-        <h2>small surface area</h2>
-        <p>Prefer sharp primitives over sprawling frameworks and hidden machinery.</p>
+        <h3>Write a kernel</h3>
+        <p>Follow a matrix multiply through host code, circular buffers, and reader, compute, and writer kernels.</p>
+        <a href="{{ get_url(path='@/hardware/_index.md') }}#programming-the-device">hardware &amp; kernel guides →</a>
       </article>
       <article>
         <span class="card-index">04</span>
-        <h2>open by default</h2>
-        <p>Source, experiments, failures, and useful discoveries belong in the open.</p>
+        <h3>Reproduce a failure</h3>
+        <p>Reduce a failing operation to fixed inputs, inspect its StableHLO, and report the result and software versions.</p>
+        <a href="{{ get_url(path='@/docs/first-experiment.md') }}">correctness &amp; timing example →</a>
       </article>
     </section>
 
     <section class="rule" id="stack">
-      <p>02 / from tensor to silicon</p>
+      <h2>02 / how execution works</h2>
     </section>
 
     <section class="stack-diagram" aria-label="relativity.cc software stack">
       <div class="stack-layer">
         <div class="layer-label"><span>04</span><small>applications</small></div>
         <div class="stack-nodes stack-nodes-paired">
-          <a class="stack-node" href="https://github.com/pytorch/torchtitan"><strong>torchtitan</strong><small>distributed training</small></a>
-          <a class="stack-node" href="https://github.com/sgl-project/sglang-jax"><strong>sglang-jax</strong><small>model serving</small></a>
+          <a class="stack-node" href="https://github.com/pytorch/torchtitan"><strong>PyTorch programs</strong><small>including torchtitan training</small></a>
+          <a class="stack-node" href="https://github.com/sgl-project/sglang-jax"><strong>JAX programs</strong><small>including SGLang-JAX serving</small></a>
         </div>
       </div>
 
@@ -68,10 +72,10 @@
       </div>
 
       <div class="stack-layer">
-        <div class="layer-label"><span>03</span><small>frameworks</small></div>
+        <div class="layer-label"><span>03</span><small>frontends</small></div>
         <div class="stack-nodes stack-nodes-paired">
-          <a class="stack-node" href="https://github.com/google/torchax"><strong>torchax / TorchTPU</strong><small>PyTorch on XLA</small></a>
-          <a class="stack-node" href="https://github.com/jax-ml/jax"><strong>JAX</strong><small>array programming</small></a>
+          <a class="stack-node" href="https://github.com/google/torchax"><strong>torchax → JAX</strong><small>PyTorch operations lowered through JAX</small></a>
+          <a class="stack-node" href="https://github.com/jax-ml/jax"><strong>JAX</strong><small>direct tracing and lowering</small></a>
         </div>
       </div>
 
@@ -84,7 +88,7 @@
       <div class="stack-layer">
         <div class="layer-label"><span>02</span><small>interface</small></div>
         <div class="stack-nodes">
-          <a class="stack-node stack-node-shared" href="https://github.com/pcmoritz/libtt"><strong>libtt</strong><small>PJRT interface · StableHLO</small></a>
+          <a class="stack-node stack-node-shared" href="{{ config.extra.repo_url }}"><strong>libtt</strong><small>StableHLO input · devices and execution via PJRT</small></a>
         </div>
       </div>
 
@@ -99,8 +103,45 @@
         <div class="stack-nodes stack-nodes-paired stack-nodes-backend">
           <a class="stack-node" href="https://github.com/tenstorrent/tt-mlir"><strong>tt-mlir</strong><small>compiler</small></a>
           <span class="backend-arrow" aria-hidden="true">→</span>
-          <a class="stack-node" href="https://github.com/tenstorrent/tt-metal"><strong>tt-metal</strong><small>kernels</small></a>
+          <a class="stack-node" href="https://github.com/tenstorrent/tt-metal"><strong>tt-metal</strong><small>runtime &amp; kernels</small></a>
         </div>
+      </div>
+      <p class="stack-note">libtt packages the PJRT implementation from <a href="https://github.com/tenstorrent/tt-xla">tt-xla</a> with pinned compiler and runtime dependencies. <a href="{{ get_url(path='@/docs/software-stack.md') }}">Read the interfaces and debugging guide →</a></p>
+    </section>
+
+    <section class="rule" id="status">
+      <h2 id="status-title">03 / support &amp; open work</h2>
+    </section>
+
+    <section class="status-section" aria-labelledby="status-title">
+      <div class="status-grid">
+        <article class="status-card status-card-working">
+          <div class="status-meta"><span>01</span><small>planned after open-source release</small></div>
+          <h3>TorchTPU</h3>
+          <p>TorchTPU is the planned focus for framework support once it is open-sourced. PyTorch support is available today through torchax.</p>
+          <a href="{{ get_url(path='@/docs/software-stack.md') }}#framework-support-and-torchtpu">current support &amp; planned direction <span>→</span></a>
+        </article>
+
+        <article class="status-card status-card-progress">
+          <div class="status-meta"><span>02</span><small>in progress</small></div>
+          <h3>Multiple accelerator cards</h3>
+          <p>Multi-card execution is under development. The setup and inference recipes here target a single Blackhole card.</p>
+          <a href="{{ config.extra.repo_url }}/issues">track or report an issue <span>↗</span></a>
+        </article>
+
+        <article class="status-card status-card-planned">
+          <div class="status-meta"><span>03</span><small>inference example</small></div>
+          <h3>Qwen3-8B</h3>
+          <p>The documented serving path uses SGLang-JAX and the TT attention backend. <a href="https://github.com/pcmoritz/libtt/pull/226">Qwen 3.5 architecture support is in progress</a>.</p>
+          <a href="{{ get_url(path='@/docs/inference.md') }}#launch-qwen3-8b">launch configuration &amp; limits <span>→</span></a>
+        </article>
+
+        <article class="status-card status-card-contribute">
+          <div class="status-meta"><span>04</span><small>experimental</small></div>
+          <h3>Training</h3>
+          <p>Train a tiny TorchTitan Qwen3 model through TorchAX, watch the loss fall, and reload its checkpoint to check the trained weights.</p>
+          <a href="{{ get_url(path='@/docs/training.md') }}">train a small model <span>→</span></a>
+        </article>
       </div>
     </section>
 
