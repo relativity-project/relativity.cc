@@ -8,7 +8,7 @@ weight = 10
 
 These examples target one Blackhole p150a in an x86-64 Linux host. You need administrator access for system setup, network access for packages, and [uv](https://docs.astral.sh/uv/getting-started/installation/) for the Python environment.
 
-Use the [Tenstorrent installation guide](https://docs.tenstorrent.com/getting-started/README.html) to check OS, BIOS, driver, and firmware requirements for your card. Our [workstation configuration](@/hardware/_index.md) uses Ubuntu 24.04; the vendor's general installation guide currently recommends Ubuntu 22.04. Check the requirements of the software revision you intend to run.
+Use the [Tenstorrent installation guide](https://docs.tenstorrent.com/getting-started/README.html) to check OS, BIOS, driver, and firmware requirements for your card. Our [workstation configuration](../../hardware/#workstation-configuration) uses Ubuntu 24.04.
 
 ## Install the system software
 

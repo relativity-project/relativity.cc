@@ -42,7 +42,7 @@
         <span class="card-index">03</span>
         <h3>Write a kernel</h3>
         <p>Follow a matrix multiply through host code, circular buffers, and reader, compute, and writer kernels.</p>
-        <a href="{{ get_url(path='@/hardware/_index.md') }}">hardware &amp; kernel guides →</a>
+        <a href="{{ get_url(path='@/hardware/_index.md') }}#programming-the-device">hardware &amp; kernel guides →</a>
       </article>
       <article>
         <span class="card-index">04</span>
@@ -119,7 +119,7 @@
           <div class="status-meta"><span>01</span><small>planned after open-source release</small></div>
           <h3>TorchTPU</h3>
           <p>TorchTPU is the planned focus for framework support once it is open-sourced. PyTorch support is available today through torchax.</p>
-          <a href="{{ get_url(path='@/docs/software-stack.md') }}">current support &amp; planned direction <span>→</span></a>
+          <a href="{{ get_url(path='@/docs/software-stack.md') }}#framework-support-and-torchtpu">current support &amp; planned direction <span>→</span></a>
         </article>
 
         <article class="status-card status-card-progress">
@@ -132,8 +132,8 @@
         <article class="status-card status-card-planned">
           <div class="status-meta"><span>03</span><small>inference example</small></div>
           <h3>Qwen3-8B</h3>
-          <p>The documented serving path uses SGLang-JAX and the TT attention backend. More model architectures need kernel integration and correctness checks.</p>
-          <a href="{{ get_url(path='@/docs/inference.md') }}">launch configuration &amp; limits <span>→</span></a>
+          <p>The documented serving path uses SGLang-JAX and the TT attention backend. <a href="https://github.com/pcmoritz/libtt/pull/226">Qwen 3.5 architecture support is in progress</a>.</p>
+          <a href="{{ get_url(path='@/docs/inference.md') }}#launch-qwen3-8b">launch configuration &amp; limits <span>→</span></a>
         </article>
 
         <article class="status-card status-card-contribute">

@@ -446,7 +446,13 @@ h1 {
   font-size: 1rem;
 }
 
-.status-card a {
+.status-card p a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.status-card > a {
   display: flex;
   justify-content: space-between;
   margin-top: auto;
@@ -473,6 +479,9 @@ h1 {
 
 .subpage-hero h1 { font-size: clamp(64px, 8vw, 112px); }
 .subpage-hero .lede { max-width: 760px; }
+.subpage-hero .lede a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--blue); text-underline-offset: 4px; }
+.subpage-hero .lede a:hover,
+.subpage-hero .lede a:focus-visible { text-decoration-color: var(--red); }
 
 .hardware-learning { padding: 32px 0 48px; }
 
@@ -1011,7 +1020,7 @@ footer > :last-child { justify-self: end; }
 .docs-prose :not(pre) > code { overflow-wrap: anywhere; }
 .docs-prose th, .docs-prose td { overflow-wrap: anywhere; }
 .docs-prose pre code { font-size: 1em; }
-.docs-prose h2, .docs-prose h3, .rule { scroll-margin-top: 24px; }
+.docs-prose h2, .docs-prose h3, .rule, .build-panel[id] { scroll-margin-top: 24px; }
 a:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
 
 @media (prefers-reduced-motion: reduce) {

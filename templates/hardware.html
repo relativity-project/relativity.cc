@@ -10,10 +10,10 @@
   <main class="hardware-page">
     <section class="subpage-hero">
       <h1>hardware</h1>
-      <p class="lede">Learn the Tenstorrent programming model, assemble a p150a workstation, or buy a complete QuietBox 2 system.</p>
+      <p class="lede">Learn the <a href="#programming-the-device">Tenstorrent programming model</a>, assemble a <a href="#workstation-configuration">p150a workstation</a>, or buy a complete <a href="#quietbox-2">QuietBox 2 system</a>.</p>
     </section>
 
-    <section class="rule">
+    <section class="rule" id="programming-the-device">
       <h2>01 / programming the device</h2>
     </section>
 
@@ -80,7 +80,7 @@
       </div>
     </section>
 
-    <section class="rule">
+    <section class="rule" id="workstation-configuration">
       <h2>02 / workstation configuration</h2>
     </section>
 
@@ -93,7 +93,7 @@
       </div>
 
       <div class="build-guide-grid">
-        <section class="build-panel" aria-labelledby="parts-title">
+        <section class="build-panel" id="workstation-parts" aria-labelledby="parts-title">
           <p class="build-panel-label" id="parts-title"><span>01</span> / hardware</p>
           <div class="parts-list">
             <a href="https://www.bee-link.com/products/beelink-gti15-ultra9-285h">
@@ -121,7 +121,7 @@
           </div>
         </section>
 
-        <section class="build-panel" aria-labelledby="setup-title">
+        <section class="build-panel" id="workstation-setup" aria-labelledby="setup-title">
           <p class="build-panel-label" id="setup-title"><span>02</span> / setup</p>
           <ol class="setup-steps">
             <li>
@@ -140,7 +140,7 @@
               </div>
             </li>
           </ol>
-          <a class="build-docs-link" href="{{ get_url(path='@/docs/getting-started.md') }}">install libtt &amp; verify execution <span>→</span></a>
+          <a class="build-docs-link" href="{{ get_url(path='@/docs/getting-started.md') }}#install-the-system-software">install libtt &amp; verify execution <span>→</span></a>
         </section>
       </div>
 
@@ -159,7 +159,7 @@
       </div>
 
       <div class="build-guide-grid">
-        <section class="build-panel" aria-labelledby="quietbox-specs-title">
+        <section class="build-panel" id="quietbox-specifications" aria-labelledby="quietbox-specs-title">
           <p class="build-panel-label" id="quietbox-specs-title"><span>01</span> / configuration</p>
           <dl class="hardware-specs">
             <div><dt>Accelerators</dt><dd>2 × p300c cards, 4 Blackhole chips</dd></div>
@@ -172,7 +172,7 @@
           <a class="build-docs-link" href="https://docs.tenstorrent.com/systems/quietbox/quietbox-bh-2/specifications.html">full specifications <span>↗</span></a>
         </section>
 
-        <section class="build-panel" aria-labelledby="quietbox-buy-title">
+        <section class="build-panel" id="quietbox-purchase" aria-labelledby="quietbox-buy-title">
           <p class="build-panel-label" id="quietbox-buy-title"><span>02</span> / purchase &amp; setup</p>
           <div class="workstation-notes">
             <p>Listed at <strong>US $9,999</strong> on September 11, 2026. Check Tenstorrent's product page for current pricing and delivery estimates.</p>

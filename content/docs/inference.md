@@ -8,7 +8,7 @@ weight = 30
 
 This recipe follows [libtt's published Qwen3-8B setup](https://github.com/pcmoritz/libtt/blob/b50ce2db8c3dbdebf1ba1818cae833dc472f34e2/README.md). It pins the libtt source and the SGLang-JAX TT integration revision, uses Python 3.12 and JAX 0.8.1, and serves on `127.0.0.1:31000`.
 
-You need a Blackhole card with working system drivers, [uv](https://docs.astral.sh/uv/getting-started/installation/), Git, and Bazel. Complete the [device check](@/docs/getting-started.md) first. Model weights download from Hugging Face on first use, so allow disk space and time for that download as well as the compiler build.
+You need a Blackhole card with working system drivers, [uv](https://docs.astral.sh/uv/getting-started/installation/), Git, and Bazel. Complete the [device check](@/docs/getting-started.md#verify-jax-execution) first. Model weights download from Hugging Face on first use, so allow disk space and time for that download as well as the compiler build.
 
 ## Build the reference plugin
 
@@ -23,7 +23,7 @@ export LIBTT_WHEEL="$PWD/bazel-bin/jax_tt_plugin-0.1.0-py3-none-linux_x86_64.whl
 cd ..
 ```
 
-This builds the compiler and runtime into the plugin wheel. For simpler JAX experiments, [Getting started](@/docs/getting-started.md) uses a prebuilt wheel; the source build here fixes the libtt revision for the serving recipe.
+This builds the compiler and runtime into the plugin wheel. For simpler JAX experiments, [Getting started](@/docs/getting-started.md#install-the-jax-plugin) uses a prebuilt wheel; the source build here fixes the libtt revision for the serving recipe.
 
 ## Install SGLang-JAX
 
@@ -114,6 +114,8 @@ Ten examples check that the evaluation path works; they are too few for a meanin
 
 ## Scope and open work
 
-This configuration covers Qwen3-8B inference on one card. It does not establish support for Qwen3.5, DeepSeek, GLM, Kimi, or the separate SGLang and vLLM PyTorch servers.
+This configuration covers Qwen3-8B inference on one card. It does not establish support for DeepSeek, GLM, Kimi, or the separate SGLang and vLLM PyTorch servers.
+
+Qwen 3.5 architecture support is already in progress in [libtt #226](https://github.com/pcmoritz/libtt/pull/226). The PR adds recurrent attention kernels for SGLang-JAX and documents single-request Qwen3.5-9B serving. The recipe above remains specific to Qwen3-8B.
 
 To bring up another architecture, isolate unsupported operations, check outputs against a reference, and measure prefill and decode separately. Include model revision, shapes, dtypes, and a small reproducer in a [libtt issue](https://github.com/pcmoritz/libtt/issues). See [training](@/docs/training.md) for the additional work needed for backward passes and optimizer updates.

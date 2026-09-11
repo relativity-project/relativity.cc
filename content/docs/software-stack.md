@@ -70,4 +70,4 @@ Collection only lists tests; it does not execute them. Use the repository's full
 
 First reproduce the problem with fixed inputs and one compiled function. Export its StableHLO using the [first experiment](@/docs/first-experiment.md), then identify whether failure occurs during lowering, compilation, or execution. Keep the complete error and the last artifact produced successfully.
 
-For wrong results, compare with a host reference before profiling. For slow results, separate compilation, transfers, host dispatch, and device work. For kernel-level investigation, follow the [Metalium and architecture references](@/hardware/_index.md).
+For wrong results, compare with a host reference before profiling. For slow results, separate compilation, transfers, host dispatch, and device work. For kernel-level investigation, follow the [Metalium and architecture references](../../hardware/#programming-the-device).
