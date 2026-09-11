@@ -66,8 +66,9 @@ Keep the server running. In another terminal, clone SGLang-JAX and run its MMLU 
 ```sh
 git clone https://github.com/sgl-project/sglang-jax.git
 cd sglang-jax
-uv run --no-project --python 3.12 \
+uv run --isolated --no-project --python 3.12 \
   --with httpx --with numpy --with openai --with tqdm --with pandas \
+  --with jinja2 --with requests \
   test/srt/run_eval.py \
   --host 127.0.0.1 \
   --port 31000 \

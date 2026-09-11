@@ -43,7 +43,7 @@ libtt's [reported JAX test suite run](https://github.com/pcmoritz/libtt/blob/b50
 
 ## Build and test libtt
 
-For compiler or runtime changes, use a Linux development host with Bazel installed. Start from the [libtt build instructions](https://github.com/pcmoritz/libtt) and record your checkout revision:
+For compiler or runtime changes, use a Linux development host with the Bazel version specified in libtt's `.bazelversion` (9.1.0 for the revision tested here). [Bazelisk](https://github.com/bazelbuild/bazelisk) can select that version automatically. Start from the [libtt build instructions](https://github.com/pcmoritz/libtt) and record your checkout revision:
 
 ```sh
 git clone https://github.com/pcmoritz/libtt.git
@@ -55,7 +55,7 @@ bazel test //tests:jax_smoke_tests --test_output=streamed
 
 The test target requires a usable Tenstorrent device. Building the wheel includes compiler and runtime dependencies, so allow more time and disk space than for a Python package install.
 
-To collect a JAX test file without opening the device:
+To list the tests in a JAX test file without running them:
 
 ```sh
 bazel test //tests:jax_test_suite \
@@ -64,7 +64,7 @@ bazel test //tests:jax_test_suite \
   --test_arg=tests/lax_numpy_test.py
 ```
 
-Collection only lists tests; it does not execute them. Use the repository's full test command when reporting a compatibility baseline so the exclusions are recorded too.
+Collection imports test modules, which can still initialize the TT backend even with `--skip-device-check`. This command therefore also needs a usable device; it lists tests without executing their test bodies. Use the repository's full test command when reporting a compatibility baseline so the exclusions are recorded too.
 
 ## Isolate a failure
 
