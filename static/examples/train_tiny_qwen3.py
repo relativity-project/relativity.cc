@@ -62,11 +62,7 @@ def make_batch(seq_len, vocab_size):
 
 
 def loss_fn(logits, labels):
-    # Equivalent to cross-entropy; avoids incorrect F.cross_entropy loss scalars
-    # observed with this graph on the pinned TT backend.
-    logits = logits.float()
-    targets = F.one_hot(labels, num_classes=logits.shape[-1]).float()
-    return -(targets * F.log_softmax(logits, dim=-1)).sum(-1).mean()
+    return F.cross_entropy(logits.float(), labels)
 
 
 def to_cpu(tensor):
