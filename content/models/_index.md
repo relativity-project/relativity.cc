@@ -51,7 +51,7 @@ Qwen3-8B on one chip with the [z-lab/Qwen3-8B-DFlash-b16](https://huggingface.co
 | 19-token code request | 38.5 | 109.6 | 2.8× |
 | 215-token summarization request | 37.4 | 50.1 | 1.3× |
 
-The speedup depends on how predictable the continuation is. Across both prompts, the target accepted 3.72 draft tokens per verification step on average. Add these flags to the launch command:
+The speedup depends on how predictable the continuation is. Averaged over every request in the run, including the 5-token prompt, whose continuation repeats, each verification step produced 3.72 tokens. Add these flags to the launch command:
 
 ```sh
   --speculative-algorithm DFLASH \
