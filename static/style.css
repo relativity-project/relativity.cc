@@ -470,6 +470,29 @@ h1 {
 
 .models-page { min-height: calc(100vh - 230px); }
 
+/* Model performance: two rows per model, tinted by metric. */
+.perf-key { color: var(--muted); font-size: .875rem; line-height: 1.8; }
+.perf-key-decode,
+.perf-key-ttft { display: inline-block; min-width: 7.5em; padding: 0 8px; margin-right: 10px; font-weight: 500; }
+.perf-key-decode { color: var(--blue); background: rgba(77, 163, 255, .12); }
+.perf-key-ttft { color: var(--red); background: rgba(255, 77, 61, .10); }
+.docs-prose .perf-table td { text-align: right; font-variant-numeric: tabular-nums; }
+.docs-prose .perf-table thead th:nth-child(n + 3) { text-align: right; }
+.docs-prose .perf-table tbody { border-top: 2px solid var(--line); }
+.docs-prose .perf-table tbody th { vertical-align: top; white-space: nowrap; }
+.docs-prose .perf-table tbody th a { color: var(--ink); }
+.perf-arch { display: block; color: var(--muted); font-size: .75rem; font-weight: 400; }
+.docs-prose .perf-table td.perf-metric { text-align: left; white-space: nowrap; font-weight: 500; }
+.perf-table .perf-decode td { background: rgba(77, 163, 255, .07); }
+.perf-table .perf-decode td.perf-metric { color: var(--blue); }
+.perf-table .perf-ttft td { background: rgba(255, 77, 61, .06); }
+.perf-table .perf-ttft td.perf-metric { color: var(--red); }
+.docs-prose .perf-table td.perf-none { color: var(--line); }
+.docs-prose .perf-table th,
+.docs-prose .perf-table td { overflow-wrap: normal; white-space: nowrap; }
+.docs-prose .perf-table td { color: var(--ink); }
+.models-prose > h2:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+
 .models-layout {
   display: grid;
   grid-template-columns: minmax(0, 940px) 180px;
@@ -1066,6 +1089,10 @@ a:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
   .docs-layout { grid-template-columns: 175px minmax(0, 1fr); }
   .models-layout { grid-template-columns: minmax(0, 1fr); }
   .models-prose table { display: block; overflow-x: auto; }
+  .docs-prose .perf-table th,
+  .docs-prose .perf-table td { padding: 10px 10px; }
+  .perf-key-decode,
+  .perf-key-ttft { min-width: 0; }
   .docs-toc { display: none; }
 
 }

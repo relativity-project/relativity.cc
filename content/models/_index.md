@@ -8,25 +8,31 @@ template = "models.html"
 
 These models run with SGLang-JAX's TT backend and libtt, using the [inference recipe](@/docs/inference.md). Weights are stored as block-float8 (BF8) and activations as BF16. Decode and prefill are traced, so steady-state requests replay recorded device programs.
 
-Decode rate for a single request, in tokens per second:
+<p class="perf-key"><span class="perf-key-decode">decode</span> tokens per second for a single request, higher is better<br><span class="perf-key-ttft">first token</span> milliseconds to the first token of a 215-token prompt, lower is better</p>
 
-| Model | Architecture | 1 chip | 2 chips | 4 chips |
-| --- | --- | ---: | ---: | ---: |
-| [Qwen3-8B](https://huggingface.co/Qwen/Qwen3-8B) | dense | 38.5 | 60.3 | 85.6 |
-| [Qwen3-14B](https://huggingface.co/Qwen/Qwen3-14B) | dense | 23.7 | — | 62.1 |
-| [Qwen3-32B](https://huggingface.co/Qwen/Qwen3-32B) | dense | — | — | 32.9 |
-| [Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) | hybrid | 37.2 | — | 81.6 |
-| [Qwen3.8-27B](https://huggingface.co/Qwen/Qwen3.8-27B) | hybrid | — | — | 35.1 |
-
-Time to first token for a 215-token prompt, in milliseconds:
-
-| Model | 1 chip | 2 chips | 4 chips |
-| --- | ---: | ---: | ---: |
-| Qwen3-8B | 108 | 76 | 57 |
-| Qwen3-14B | 163 | — | 75 |
-| Qwen3-32B | — | — | 139 |
-| Qwen3.5-9B | 152 | — | 81 |
-| Qwen3.8-27B | — | — | 186 |
+<table class="perf-table">
+<thead><tr><th scope="col">Model</th><th scope="col">Metric</th><th scope="col">1 chip</th><th scope="col">2 chips</th><th scope="col">4 chips</th></tr></thead>
+<tbody>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-8B">Qwen3-8B</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td>38.5</td><td>60.3</td><td>85.6</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td>108</td><td>76</td><td>57</td></tr>
+</tbody>
+<tbody>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-14B">Qwen3-14B</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td>23.7</td><td class="perf-none">—</td><td>62.1</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td>163</td><td class="perf-none">—</td><td>75</td></tr>
+</tbody>
+<tbody>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-32B">Qwen3-32B</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td class="perf-none">—</td><td>32.9</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td class="perf-none">—</td><td>139</td></tr>
+</tbody>
+<tbody>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.5-9B">Qwen3.5-9B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">decode</td><td>37.2</td><td class="perf-none">—</td><td>81.6</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td>152</td><td class="perf-none">—</td><td>81</td></tr>
+</tbody>
+<tbody>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.8-27B">Qwen3.8-27B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td class="perf-none">—</td><td>35.1</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td class="perf-none">—</td><td>186</td></tr>
+</tbody>
+</table>
 
 A dash marks a configuration we did not run. Decode rates are for a single request, which is the latency-bound case; the [recipe](@/docs/inference.md) allows two concurrent requests. Rates vary by a few percent with the prompt (for example, 79.9 tokens/s for Qwen3-8B on four chips after the 215-token prompt), and with the host CPU's power profile.
 
