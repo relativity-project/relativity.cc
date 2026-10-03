@@ -71,8 +71,8 @@ a { color: inherit; text-decoration: none; }
 }
 
 .brand-mark {
-  width: 46px;
-  height: 46px;
+  width: 64px;
+  height: 64px;
   object-fit: contain;
   flex: none;
 }
@@ -1117,7 +1117,7 @@ a:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
   .topbar { min-height: 96px; flex-wrap: wrap; gap: 8px; }
   .topbar nav { flex: 1; }
   .brand { gap: 7px; }
-  .brand-mark { width: 36px; height: 36px; }
+  .brand-mark { width: 44px; height: 44px; }
   .topbar .brand > span { display: none; }
   nav { gap: 10px; }
   nav a { font-size: .78rem; letter-spacing: 0; }
