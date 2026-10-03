@@ -1,6 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320">
   <title>relativity.cc light-cone mark</title>
-  <rect width="320" height="320" fill="#090909"/>
 
   <defs>
     <clipPath id="cone-left-fill-clip">

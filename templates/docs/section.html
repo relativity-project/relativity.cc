@@ -16,7 +16,7 @@
 
     <article class="docs-article docs-overview">
       <p class="docs-kicker"><span>›</span> relativity.cc / docs</p>
-      <h1>{{ section.title }}</h1>
+      <h1>{{ section.title | lower }}</h1>
       {% if section.description %}<p class="docs-summary">{{ section.description }}</p>{% endif %}
       <div class="docs-prose">
         {{ section.content | safe }}
@@ -26,7 +26,7 @@
         {% for doc in section.pages %}
         <a href="{{ doc.permalink }}">
           <span>{% if loop.index < 10 %}0{% endif %}{{ loop.index }}</span>
-          <strong>{{ doc.title }}</strong>
+          <strong>{{ doc.title | lower }}</strong>
           {% if doc.description %}<small>{{ doc.description }}</small>{% endif %}
           <b>→</b>
         </a>
