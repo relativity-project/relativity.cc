@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}models · relativity.cc{% endblock title %}
+{% block content %}
+<div class="shell">
+  {% set active_tab = "models" %}
+  {% include "partials/site-header.html" %}
+  <main class="models-page">
+    <section class="subpage-hero">
+      <h1>models</h1>
+      <p class="lede">{{ section.description }}</p>
+    </section>
+    <div class="models-layout">
+      <article class="docs-prose models-prose">
+        {{ section.content | safe }}
+      </article>
+      <aside class="docs-toc">
+        {% set toc = section.toc %}
+        {% include "partials/docs-toc.html" %}
+      </aside>
+    </div>
+  </main>
+  {% include "partials/site-footer.html" %}
+</div>
+{% endblock content %}

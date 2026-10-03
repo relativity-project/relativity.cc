@@ -468,6 +468,16 @@ h1 {
 
 .hardware-page { min-height: calc(100vh - 230px); }
 
+.models-page { min-height: calc(100vh - 230px); }
+
+.models-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 940px) 180px;
+  gap: clamp(24px, 3vw, 48px);
+  justify-content: space-between;
+  padding: 56px 0 112px;
+}
+
 .subpage-hero {
   min-height: 300px;
   display: flex;
@@ -1054,6 +1064,8 @@ a:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
   .status-intro { grid-template-columns: 1fr; gap: 24px; }
 
   .docs-layout { grid-template-columns: 175px minmax(0, 1fr); }
+  .models-layout { grid-template-columns: minmax(0, 1fr); }
+  .models-prose table { display: block; overflow-x: auto; }
   .docs-toc { display: none; }
 
 }
