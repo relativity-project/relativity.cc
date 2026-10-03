@@ -10,7 +10,7 @@ page_template = "docs/page.html"
 
 - **New machine:** [Getting started](@/docs/getting-started.md) covers the system driver, Python plugin, and a device check.
 - **Working JAX environment:** [First experiment](@/docs/first-experiment.md) checks a matrix multiply against NumPy, times execution, and exports StableHLO.
-- **Model serving:** [Inference](@/docs/inference.md) gives a Qwen3-8B launch configuration and an MMLU smoke check.
+- **Model serving:** [Inference](@/docs/inference.md) gives launch configurations for one or more chips and an MMLU smoke check; the [models page](@/models/_index.md) lists supported models with measured performance.
 - **Training:** [Train a tiny Qwen3 model](@/docs/training.md) walks through TorchTitan, TorchAX, SGD updates, and checking a saved checkpoint.
 - **Compiler work:** [Software stack](@/docs/software-stack.md) explains the interfaces and what to collect when a program fails.
 
