@@ -73,4 +73,4 @@ PY
 | The device opens but compilation fails | Cut the program down to the one failing operation and save its shapes, dtypes and StableHLO. |
 | It runs but the values are wrong | Save the reference output and the maximum error, along with the exact dtype and inputs. |
 
-Next, try the [matrix multiply experiment](@/docs/first-experiment.md) or [serve Qwen3-8B](@/docs/inference.md).
+Next, try the [matrix multiply experiment](@/docs/first-experiment.md) or [serve a Qwen model](@/docs/inference.md).
