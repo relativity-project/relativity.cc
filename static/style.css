@@ -7,7 +7,8 @@
   --red: #ff4d3d;
   --blue: #4da3ff;
   --max: 1240px;
-  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 * { box-sizing: border-box; }
@@ -20,13 +21,22 @@ body {
     radial-gradient(circle at 70% 38%, rgba(255, 255, 255, .025), transparent 28rem),
     var(--bg);
   color: var(--ink);
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: 1rem;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
 a { color: inherit; text-decoration: none; }
+
+/* Monospace for site chrome, labels, display headings, code and data; prose stays sans. */
+.topbar, h1, .rule h2, .eyebrow, .hero-actions a, .card-index, .cards a,
+.layer-label, .stack-node strong, .status-meta, .status-card > a,
+.status-intro h2, .learning-intro h2, .build-guide-intro h2,
+.resource-meta, .resource-card > small, .resource-shelf-heading, .resource-list b,
+.build-panel-label, .setup-steps li > span, .build-docs-link,
+.docs-sidebar-nav, .docs-toc-nav, .docs-kicker, .docs-prose h2, .docs-index > a > span,
+.docs-prose table, .perf-key span, footer, code, pre { font-family: var(--mono); }
 
 ::selection { background: var(--ink); color: var(--bg); }
 
@@ -136,7 +146,7 @@ h1 {
   font-family: var(--mono);
   font-size: clamp(3.5rem, 6.3vw, 5rem);
   font-weight: 400;
-  letter-spacing: -.07em;
+  letter-spacing: -.035em;
   line-height: 1.05;
 }
 
@@ -199,6 +209,9 @@ h1 {
   border-top: 1px solid var(--line);
 }
 
+.hero + .rule,
+.subpage-hero + .rule { margin-top: 0; border-top: 0; padding-top: 40px; }
+
 .rule h2 {
   margin: 0;
   color: var(--ink);
@@ -231,7 +244,7 @@ h1 {
 .cards h3 {
   margin: 24px 0 12px;
   font-size: 1rem;
-  font-weight: 550;
+  font-weight: 600;
   letter-spacing: -.02em;
 }
 
@@ -321,7 +334,7 @@ h1 {
 
 .stack-node strong {
   font-size: 1.125rem;
-  font-weight: 540;
+  font-weight: 600;
   letter-spacing: -.025em;
 }
 
@@ -391,7 +404,7 @@ h1 {
   margin: 0;
   font-size: clamp(36px, 4.5vw, 58px);
   font-weight: 400;
-  letter-spacing: -.055em;
+  letter-spacing: -.03em;
   line-height: 1;
 }
 
@@ -435,7 +448,7 @@ h1 {
 .status-card h3 {
   margin: 24px 0 12px;
   font-size: 1.125rem;
-  font-weight: 540;
+  font-weight: 600;
   letter-spacing: -.025em;
 }
 
@@ -536,7 +549,7 @@ h1 {
   margin: 0;
   font-size: clamp(36px, 4.5vw, 58px);
   font-weight: 400;
-  letter-spacing: -.055em;
+  letter-spacing: -.03em;
   line-height: 1;
 }
 
@@ -586,7 +599,7 @@ h1 {
 .resource-card h3 {
   margin: 24px 0 12px;
   font-size: 1.125rem;
-  font-weight: 540;
+  font-weight: 600;
   letter-spacing: -.025em;
 }
 
@@ -681,7 +694,7 @@ h1 {
   margin: 0;
   font-size: clamp(36px, 4.5vw, 58px);
   font-weight: 400;
-  letter-spacing: -.055em;
+  letter-spacing: -.03em;
   line-height: 1;
 }
 
@@ -755,7 +768,7 @@ h1 {
 .parts-list a:hover > span,
 .parts-list a:focus-visible > span { color: var(--blue); }
 
-.parts-list strong { font-size: 1rem; font-weight: 540; }
+.parts-list strong { font-size: 1rem; font-weight: 600; }
 
 .parts-list small {
   color: var(--muted);
@@ -783,7 +796,7 @@ h1 {
 .setup-steps li > div { min-width: 0; }
 
 .setup-steps li > span { color: var(--red); font-size: .875rem; }
-.setup-steps strong { display: block; font-size: 1rem; font-weight: 540; }
+.setup-steps strong { display: block; font-size: 1rem; font-weight: 600; }
 .setup-steps p { margin: 4px 0 0; color: var(--muted); font-size: 1rem; }
 
 .setup-steps code {
@@ -883,7 +896,7 @@ h1 {
 
 .docs-article h1 {
   font-size: clamp(46px, 5.2vw, 74px);
-  letter-spacing: -.065em;
+  letter-spacing: -.035em;
   line-height: 1;
 }
 
@@ -919,10 +932,14 @@ h1 {
 .docs-prose li {
   color: #bbb7ae;
   font-size: 1rem;
-  line-height: 1.8;
+  line-height: 1.7;
 }
 
 .docs-prose p { margin: 0 0 18px; }
+.docs-prose > p,
+.docs-prose > ul,
+.docs-prose > ol { max-width: 70ch; }
+.docs-prose > p.perf-key { max-width: none; }
 .docs-prose ul,
 .docs-prose ol { margin: 0 0 24px; padding-left: 22px; }
 .docs-prose li + li { margin-top: 7px; }
@@ -1108,8 +1125,9 @@ a:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
   .brand { gap: 7px; }
   .brand-mark { width: 40px; height: 48px; }
   .topbar .brand > span { display: none; }
-  nav { gap: 12px; }
-  .repo-link { padding: 8px; }
+  nav { gap: 10px; }
+  nav a { font-size: .78rem; letter-spacing: 0; }
+  .repo-link { padding: 6px 8px; }
 
   .hero { padding: 44px 0; }
   h1 { font-size: clamp(2.5rem, 12vw, 4rem); }

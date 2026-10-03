@@ -1,6 +1,6 @@
 +++
 title = "Models"
-description = "Qwen3 and Qwen3.5 models served with SGLang-JAX and libtt on Blackhole, with measured performance, speculative decoding, and known gaps."
+description = "Qwen3, Qwen3.5 and Qwen3.8 models served with SGLang-JAX and libtt on Blackhole, with measured performance, speculative decoding, and known gaps."
 template = "models.html"
 +++
 
