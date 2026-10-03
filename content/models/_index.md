@@ -38,6 +38,18 @@ A dash marks a configuration that does not fit in one chip's memory or that we h
 
 Measured on a [QuietBox 2](../hardware/#quietbox-2) with libtt `96bed87` and SGLang-JAX `ff9b6dc`, using the [inference recipe](@/docs/inference.md) with `--tp-size` set to the chip count: greedy decoding of 128 tokens, one request at a time, median of five after two warmups.
 
+## Batched throughput
+
+Total decode throughput on four chips in tokens per second, with up to 16 requests running at once. Each request sends the 19-token code prompt and generates 128 tokens.
+
+| Model | 1 request | 4 requests | 8 requests | 16 requests |
+| --- | ---: | ---: | ---: | ---: |
+| Qwen3-8B | 84 | 270 | 501 | 878 |
+| Qwen3-14B | 62 | 202 | 381 | 689 |
+| Qwen3-32B | 32 | 110 | 207 | 376 |
+
+At 16 requests, each request still decodes at 59 tokens/s on Qwen3-8B, 46 on Qwen3-14B and 25 on Qwen3-32B. To serve more requests at once, raise `--max-running-requests` and `--max-total-tokens` in the launch command; we used 16 and 4096.
+
 ## Speculative decoding
 
 [DFlash](https://github.com/relativity-project/sglang-jax/blob/main/docs/features/speculative_decoding.md) speculative decoding runs on one chip with Qwen3 targets. Qwen3-8B with the [z-lab/Qwen3-8B-DFlash-b16](https://huggingface.co/z-lab/Qwen3-8B-DFlash-b16) draft, in tokens per second:
@@ -66,4 +78,4 @@ Use the multi-chip command from the [inference recipe](@/docs/inference.md#use-s
 
 - DFlash fails to compile on several chips, and does not yet support Qwen3-14B, Qwen3.5 or Qwen3.8 drafts.
 - A single chip of a QuietBox needs a single-chip mesh descriptor in `TT_MESH_GRAPH_DESC_PATH`.
-- Batched throughput and mixture-of-experts models are not covered yet.
+- Mixture-of-experts models are not covered yet.
