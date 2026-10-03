@@ -8,21 +8,29 @@ template = "models.html"
 
 These models run with SGLang-JAX's TT backend and libtt, using the [inference recipe](@/docs/inference.md). Weights are stored as block-float8 (BF8) and activations as BF16. Decode and prefill are traced, so steady-state requests replay recorded device programs.
 
-| Model | Architecture | Chips | Decode, tokens/s | Time to first token, 5-token prompt | Time to first token, 215-token prompt |
-| --- | --- | ---: | ---: | ---: | ---: |
-| [Qwen3-8B](https://huggingface.co/Qwen/Qwen3-8B) | dense transformer | 1 | 38.5 | 78 ms | 108 ms |
-| | | 2 | 60.3 | 57 ms | 76 ms |
-| | | 4 | 85.6 | 41 ms | 57 ms |
-| [Qwen3-14B](https://huggingface.co/Qwen/Qwen3-14B) | dense transformer | 1 | 23.7 | 115 ms | 163 ms |
-| | | 4 | 62.1 | 52 ms | 75 ms |
-| [Qwen3-32B](https://huggingface.co/Qwen/Qwen3-32B) | dense transformer | 4 | 32.9 | 99 ms | 139 ms |
-| [Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) | hybrid: gated DeltaNet and attention | 1 | 37.2 | 84 ms | 152 ms |
-| | | 4 | 81.6 | 49 ms | 81 ms |
-| [Qwen3.8-27B](https://huggingface.co/Qwen/Qwen3.8-27B) | hybrid: gated DeltaNet and attention | 4 | 35.1 | 103 ms | 186 ms |
+Decode rate for a single request, in tokens per second:
 
-Decode rates are for a single request, which is the latency-bound case; the [recipe](@/docs/inference.md) allows two concurrent requests. Rates vary by a few percent with the prompt (for example, 79.9 tokens/s for Qwen3-8B on four chips after the 215-token prompt), and with the host CPU's power profile.
+| Model | Architecture | 1 chip | 2 chips | 4 chips |
+| --- | --- | ---: | ---: | ---: |
+| [Qwen3-8B](https://huggingface.co/Qwen/Qwen3-8B) | dense | 38.5 | 60.3 | 85.6 |
+| [Qwen3-14B](https://huggingface.co/Qwen/Qwen3-14B) | dense | 23.7 | — | 62.1 |
+| [Qwen3-32B](https://huggingface.co/Qwen/Qwen3-32B) | dense | — | — | 32.9 |
+| [Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) | hybrid | 37.2 | — | 81.6 |
+| [Qwen3.8-27B](https://huggingface.co/Qwen/Qwen3.8-27B) | hybrid | — | — | 35.1 |
 
-Qwen3.5 and Qwen3.8 alternate gated DeltaNet layers, a recurrent linear attention, with full attention layers. libtt runs their decode step with dedicated recurrent-attention kernels; their prefill uses chunked recurrent attention.
+Time to first token for a 215-token prompt, in milliseconds:
+
+| Model | 1 chip | 2 chips | 4 chips |
+| --- | ---: | ---: | ---: |
+| Qwen3-8B | 108 | 76 | 57 |
+| Qwen3-14B | 163 | — | 75 |
+| Qwen3-32B | — | — | 139 |
+| Qwen3.5-9B | 152 | — | 81 |
+| Qwen3.8-27B | — | — | 186 |
+
+A dash marks a configuration we did not run. Decode rates are for a single request, which is the latency-bound case; the [recipe](@/docs/inference.md) allows two concurrent requests. Rates vary by a few percent with the prompt (for example, 79.9 tokens/s for Qwen3-8B on four chips after the 215-token prompt), and with the host CPU's power profile.
+
+Dense models are transformers with full attention in every layer. Qwen3.5 and Qwen3.8 are hybrid: they alternate gated DeltaNet layers, a recurrent linear attention, with full attention layers. libtt runs their decode step with dedicated recurrent-attention kernels; their prefill uses chunked recurrent attention.
 
 ## How we measured
 
@@ -30,17 +38,20 @@ Qwen3.5 and Qwen3.8 alternate gated DeltaNet layers, a recurrent linear attentio
 - **Software:** libtt [`main`](https://github.com/pcmoritz/libtt) at `96bed87`, built from source with `bazel build -c opt //:jax_tt_plugin_wheel`; SGLang-JAX [`main`](https://github.com/relativity-project/sglang-jax) at `ff9b6dc`; JAX and jaxlib 0.11.1; Python 3.12.
 - **Server:** the [inference recipe](@/docs/inference.md), with `--tp-size` set to the chip count. One-chip runs on the QuietBox add a single-chip mesh descriptor (see [known gaps](#known-gaps)).
 - **Requests:** greedy decoding of 128 tokens with `ignore_eos`, one request at a time, streamed. For each prompt, two warmup requests, then the median of five. The decode rate counts the tokens after the first one over the time after the first one; time to first token is measured at the client.
-- **Prompts:** a 5-token completion prompt, a 19-token code request, and a 215-token summarization request. The table shows the 5-token prompt's decode rate; the 19-token prompt is within 1% of it in every configuration.
+- **Prompts:** a 5-token completion prompt, a 19-token code request, and a 215-token summarization request. The decode table shows the 5-token prompt's rate; the 19-token prompt is within 1% of it in every configuration.
 
 ## Speculative decoding
 
 SGLang-JAX's TT backend supports [DFlash](https://github.com/relativity-project/sglang-jax/blob/main/docs/features/speculative_decoding.md) speculative decoding: a small diffusion draft model proposes a block of tokens, and the target model verifies the block in one step. Today it runs on one chip only, with Qwen3 targets.
 
-| Target | Draft | Chips | Decode without draft, tokens/s | Decode with draft, tokens/s | Mean accepted tokens per step |
-| --- | --- | ---: | ---: | ---: | ---: |
-| Qwen3-8B | [z-lab/Qwen3-8B-DFlash-b16](https://huggingface.co/z-lab/Qwen3-8B-DFlash-b16) | 1 | 38.5 | 109.6 (code prompt), 50.1 (215-token prompt) | 3.72 |
+Qwen3-8B on one chip with the [z-lab/Qwen3-8B-DFlash-b16](https://huggingface.co/z-lab/Qwen3-8B-DFlash-b16) draft, decode rate in tokens per second:
 
-The speedup depends on how predictable the continuation is: 2.8 times on the code request, 1.3 times on the summarization request. Add these flags to the launch command:
+| Prompt | Without draft | With draft | Speedup |
+| --- | ---: | ---: | ---: |
+| 19-token code request | 38.5 | 109.6 | 2.8× |
+| 215-token summarization request | 37.4 | 50.1 | 1.3× |
+
+The speedup depends on how predictable the continuation is. Across both prompts, the target accepted 3.72 draft tokens per verification step on average. Add these flags to the launch command:
 
 ```sh
   --speculative-algorithm DFLASH \
