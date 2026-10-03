@@ -391,8 +391,8 @@ h1 {
 
 .status-intro {
   display: grid;
-  grid-template-columns: .8fr 1.2fr;
-  gap: 64px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
   align-items: end;
   padding-bottom: 36px;
 }
@@ -534,8 +534,8 @@ h1 {
 
 .learning-intro {
   display: grid;
-  grid-template-columns: .8fr 1.2fr;
-  gap: 64px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
   align-items: end;
   padding-bottom: 36px;
 }
@@ -677,8 +677,8 @@ h1 {
 
 .build-guide-intro {
   display: grid;
-  grid-template-columns: .8fr 1.2fr;
-  gap: 64px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
   align-items: end;
   padding-bottom: 36px;
 }
@@ -702,7 +702,7 @@ h1 {
 
 .build-guide-grid {
   display: grid;
-  grid-template-columns: .9fr 1.1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .build-panel {
@@ -1182,7 +1182,15 @@ a:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
 }
 
 /* Cards lead with their heading now that the index numbers are gone. */
-.cards h3,
-.resource-card h3 { margin-top: 0; }
+.cards h3 { margin-top: 0; }
+.resource-card h3 { margin-top: 12px; }
 .status-card h3 { margin-top: 16px; }
 .docs-prose thead th { border-bottom: 1px solid var(--line); color: var(--muted); }
+
+/* Section intros share the two-column grid of the panels below: the
+   paragraph lines up with the text inside the right-hand panel. */
+@media (min-width: 961px) {
+  .status-intro > p,
+  .learning-intro > p,
+  .build-guide-intro > p { padding-left: 24px; }
+}
