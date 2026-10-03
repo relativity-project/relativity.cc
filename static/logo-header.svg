@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="36 8 248 304">
+  <title>relativity.cc light-cone mark</title>
+  <g fill="none" stroke="#f3f0e8" stroke-linecap="round">
+    <ellipse cx="160" cy="48" rx="104" ry="20" stroke-width="5" opacity=".85"/>
+    <ellipse cx="160" cy="272" rx="104" ry="20" stroke-width="5" opacity=".85"/>
+    <path d="M56 48L160 160L56 272M264 48L160 160L264 272" stroke-width="5" opacity=".7"/>
+    <path d="M160 48V292" stroke-width="5" opacity=".8"/>
+    <path d="M72 160H248" stroke-width="4" opacity=".6"/>
+  </g>
+  <path d="M160 14V48" stroke="#ff4d3d" stroke-width="7" stroke-linecap="round"/>
+  <path d="M42 160H72M248 160H278" stroke="#4da3ff" stroke-width="6" stroke-linecap="round"/>
+  <g fill="#f3f0e8" transform="translate(160 160) scale(1.15) translate(-160 -160)">
+    <path d="M108 104C108 98.477 131.282 94 160 94V160Z"/>
+    <path d="M160 160V226C131.282 226 108 221.523 108 216Z"/>
+    <path fill-rule="evenodd" d="M160 94.192167H188.09597C216.4088 94.192167 233.39548 107.84969 233.39548 129.31277C233.39548 144.92168 219.80537 156.097223 196.02427 160H160ZM160 105.8994H185.83201C205.08392 105.8994 217.54014 114.67955 217.54014 129.31277C217.54014 144.92168 205.08392 154 184.6994 154H160Z"/>
+    <path d="M160 160H178.45621L221.19648 224.94866H201.76878Z"/>
+  </g>
+</svg>
