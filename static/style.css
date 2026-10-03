@@ -46,7 +46,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 .topbar {
-  min-height: 118px;
+  min-height: 96px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -71,8 +71,8 @@ a { color: inherit; text-decoration: none; }
 }
 
 .brand-mark {
-  width: 76px;
-  height: 86px;
+  width: 52px;
+  height: 52px;
   object-fit: contain;
   flex: none;
 }
@@ -217,7 +217,6 @@ h1 {
   color: var(--ink);
   font-size: .875rem;
   letter-spacing: .08em;
-  text-transform: uppercase;
   font-weight: 500;
 }
 
@@ -256,8 +255,8 @@ h1 {
 }
 
 .stack-diagram {
-  width: min(100%, 920px);
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
   padding: 32px 0 48px;
 }
 
@@ -280,7 +279,6 @@ h1 {
   color: var(--muted);
   font-size: .875rem;
   letter-spacing: .05em;
-  text-transform: uppercase;
 }
 
 .layer-label span { color: var(--blue); }
@@ -351,6 +349,7 @@ h1 {
 }
 
 .stack-links svg {
+  grid-column: 2;
   display: block;
   width: 100%;
   height: 28px;
@@ -438,7 +437,6 @@ h1 {
   color: var(--muted);
   font-size: .75rem;
   letter-spacing: .07em;
-  text-transform: uppercase;
 }
 
 .status-meta span { color: var(--blue); }
@@ -472,7 +470,6 @@ h1 {
   padding-top: 20px;
   color: var(--ink);
   font-size: .875rem;
-  text-transform: uppercase;
 }
 
 .status-card a span { color: var(--blue); }
@@ -498,11 +495,11 @@ h1 {
 .docs-prose .perf-table tbody th a { color: var(--ink); }
 .perf-arch { display: block; color: var(--muted); font-size: .75rem; font-weight: 400; }
 .docs-prose .perf-table td.perf-metric { text-align: left; white-space: nowrap; font-weight: 500; }
-.perf-table .perf-decode td { background: rgba(77, 163, 255, .07); }
+.perf-table .perf-decode td { background: rgba(77, 163, 255, .035); }
 .perf-table .perf-decode td.perf-metric { color: var(--blue); }
-.perf-table .perf-ttft td { background: rgba(255, 77, 61, .06); }
+.perf-table .perf-ttft td { background: rgba(255, 77, 61, .03); }
 .perf-table .perf-ttft td.perf-metric { color: var(--red); }
-.perf-table .perf-total td { background: rgba(243, 240, 232, .04); }
+.perf-table .perf-total td { background: transparent; }
 .docs-prose .perf-table td.perf-none { color: var(--line); }
 .docs-prose .perf-table th,
 .docs-prose .perf-table td { overflow-wrap: normal; white-space: nowrap; }
@@ -591,7 +588,6 @@ h1 {
   color: var(--muted);
   font-size: .875rem;
   letter-spacing: .06em;
-  text-transform: uppercase;
 }
 
 .resource-meta b { margin-right: 8px; color: var(--blue); font-weight: 500; }
@@ -618,7 +614,6 @@ h1 {
   padding-top: 26px;
   color: var(--ink);
   font-size: .875rem;
-  text-transform: uppercase;
 }
 
 .resource-card > small span { color: var(--muted); }
@@ -650,7 +645,6 @@ h1 {
   font-size: .875rem;
   font-weight: 500;
   letter-spacing: .06em;
-  text-transform: uppercase;
 }
 
 .resource-list { display: grid; }
@@ -724,7 +718,6 @@ h1 {
   color: var(--muted);
   font-size: .875rem;
   letter-spacing: .06em;
-  text-transform: uppercase;
 }
 
 .build-panel-label span { color: var(--blue); }
@@ -858,7 +851,6 @@ h1 {
   color: var(--muted);
   font-size: .75rem;
   letter-spacing: .08em;
-  text-transform: uppercase;
 }
 
 .docs-sidebar-nav a {
@@ -996,7 +988,8 @@ h1 {
 .docs-prose th,
 .docs-prose td {
   padding: 12px 14px;
-  border: 1px solid var(--line-soft);
+  border: 0;
+  border-bottom: 1px solid var(--line-soft);
   text-align: left;
 }
 
@@ -1124,7 +1117,7 @@ a:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
   .topbar { min-height: 96px; flex-wrap: wrap; gap: 8px; }
   .topbar nav { flex: 1; }
   .brand { gap: 7px; }
-  .brand-mark { width: 40px; height: 48px; }
+  .brand-mark { width: 36px; height: 36px; }
   .topbar .brand > span { display: none; }
   nav { gap: 10px; }
   nav a { font-size: .78rem; letter-spacing: 0; }
@@ -1187,3 +1180,9 @@ a:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
   footer { grid-template-columns: 1fr; padding: 30px 0; }
   footer > :last-child { justify-self: start; }
 }
+
+/* Cards lead with their heading now that the index numbers are gone. */
+.cards h3,
+.resource-card h3 { margin-top: 0; }
+.status-card h3 { margin-top: 16px; }
+.docs-prose thead th { border-bottom: 1px solid var(--line); color: var(--muted); }
