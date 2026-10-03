@@ -17,24 +17,24 @@ These models run with SGLang-JAX's TT backend and libtt, with block-float8 (BF8)
 <tr class="perf-ttft"><td class="perf-metric">first token</td><td>108</td><td>76</td><td>57</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-14B">Qwen3-14B</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td>23.7</td><td class="perf-none">—</td><td>62.1</td></tr>
-<tr class="perf-ttft"><td class="perf-metric">first token</td><td>163</td><td class="perf-none">—</td><td>75</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-14B">Qwen3-14B</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td>23.7</td><td>40.3</td><td>62.1</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td>163</td><td>102</td><td>75</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-32B">Qwen3-32B</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td class="perf-none">—</td><td>32.9</td></tr>
-<tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td class="perf-none">—</td><td>139</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-32B">Qwen3-32B</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td>19.9</td><td>32.9</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td>203</td><td>139</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.5-9B">Qwen3.5-9B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">decode</td><td>37.2</td><td class="perf-none">—</td><td>81.6</td></tr>
-<tr class="perf-ttft"><td class="perf-metric">first token</td><td>152</td><td class="perf-none">—</td><td>81</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.5-9B">Qwen3.5-9B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">decode</td><td>37.2</td><td>57.1</td><td>81.6</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td>152</td><td>110</td><td>81</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.8-27B">Qwen3.8-27B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td class="perf-none">—</td><td>35.1</td></tr>
-<tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td class="perf-none">—</td><td>186</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.8-27B">Qwen3.8-27B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td>22.8</td><td>35.1</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td>251</td><td>186</td></tr>
 </tbody>
 </table>
 
-A dash marks a configuration we have not run. Dense models use full attention in every layer; hybrid models (Qwen3.5, Qwen3.8) alternate gated DeltaNet layers with full attention.
+A dash marks a configuration that does not fit in one chip's memory or that we have not run yet. Dense models use full attention in every layer; hybrid models (Qwen3.5, Qwen3.8) alternate gated DeltaNet layers with full attention.
 
 Measured on a [QuietBox 2](../hardware/#quietbox-2) with libtt `96bed87` and SGLang-JAX `ff9b6dc`, using the [inference recipe](@/docs/inference.md) with `--tp-size` set to the chip count: greedy decoding of 128 tokens, one request at a time, median of five after two warmups.
 
@@ -66,5 +66,4 @@ Use the multi-chip command from the [inference recipe](@/docs/inference.md#use-s
 
 - DFlash fails to compile on several chips, and does not yet support Qwen3-14B, Qwen3.5 or Qwen3.8 drafts.
 - A single chip of a QuietBox needs a single-chip mesh descriptor in `TT_MESH_GRAPH_DESC_PATH`.
-- Greedy outputs are not always identical across repeated requests on four chips.
 - Batched throughput and mixture-of-experts models are not covered yet.
