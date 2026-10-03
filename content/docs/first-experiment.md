@@ -6,7 +6,7 @@ weight = 25
 
 ## Run a matrix multiply
 
-Complete [Getting started](@/docs/getting-started.md), then save this as `matmul.py`. Inputs are generated on the host with a fixed seed and transferred to an explicit TT device.
+Finish [Getting started](@/docs/getting-started.md) first, then save this as `matmul.py`. It generates the inputs on the host with a fixed seed and copies them to a TT device.
 
 ```python
 from pathlib import Path
@@ -59,7 +59,7 @@ print(f"compile: {compile_s:.3f} s")
 print(f"warm execution, median of 20: {median(samples_ms):.3f} ms")
 ```
 
-Run it in the environment containing the plugin:
+Run it in the environment where you installed the plugin:
 
 ```sh
 JAX_PLATFORMS=tt JAX_USE_SHARDY_PARTITIONER=false python matmul.py
@@ -68,26 +68,26 @@ uv pip freeze > experiment-requirements.txt
 
 ## Interpret the result
 
-The assertion compares the result with a NumPy computation on the host. If it fails, keep the measured error and investigate before changing the tolerance.
+The assertion checks the result against NumPy on the host. If it fails, save the measured error and find out why before you loosen the tolerance.
 
-The timing includes host dispatch and waiting for device completion. It excludes input transfer, NumPy validation, and the explicit compilation call. This small matrix is useful for debugging; it is not a measure of peak accelerator throughput. A compiler cache can also affect the reported compilation time.
+The timing covers host dispatch and waiting for the device to finish. It leaves out input transfers, the NumPy check and compilation. A 128×128 matmul is handy for debugging but tells you nothing about peak throughput. A warm compiler cache can also make the compile time look shorter.
 
-JAX dispatch is asynchronous. Omitting `block_until_ready()` can measure dispatch time while the device is still working. See [JAX's benchmarking guide](https://docs.jax.dev/en/latest/benchmarking.html).
+JAX dispatches work asynchronously: without `block_until_ready()`, you'd measure how long it takes to queue the work, not to run it. See [JAX's benchmarking guide](https://docs.jax.dev/en/latest/benchmarking.html).
 
 ## Inspect the compiler input
 
-Open `matmul.stablehlo.mlir` and find `stablehlo.dot_general`. Check the operand shapes, element types, and contracting dimensions. Change one input dimension and compare the output. JAX documents this API in [ahead-of-time lowering and compilation](https://docs.jax.dev/en/latest/aot.html).
+Open `matmul.stablehlo.mlir` and find `stablehlo.dot_general`. Check the operand shapes, element types and contracting dimensions. Try changing an input dimension and see how the output changes. JAX documents this API under [ahead-of-time lowering and compilation](https://docs.jax.dev/en/latest/aot.html).
 
-If lowering succeeds but compilation fails, keep this file with the traceback. If execution returns incorrect values, include the inputs and reference output as well.
+If lowering works but compilation fails, keep this file together with the traceback. If execution returns wrong values, also keep the inputs and the reference output.
 
 ## Report a reproducible failure
 
-Include the following in a [libtt issue](https://github.com/pcmoritz/libtt/issues):
+A useful [libtt issue](https://github.com/pcmoritz/libtt/issues) includes:
 
-- The smallest script and exact invocation that reproduce the result.
-- Card model, card count, OS, driver, and firmware versions from your system setup.
-- Installed package versions and the Git commit if you built libtt yourself.
-- Expected and observed values, tolerances, and the complete error message.
-- For a performance report: shapes, dtypes, warmup count, timed iterations, and whether compilation and transfers are included.
+- The smallest script and the exact command that reproduce the problem.
+- Card model and count, OS, driver and firmware versions.
+- Package versions, plus the Git commit if you built libtt yourself.
+- Expected and actual values, the tolerances, and the full error message.
+- For performance problems: shapes, dtypes, the number of warmup and timed iterations, and whether compilation and transfers are included.
 
-Run the unchanged example before and after a compiler or runtime modification. That gives the change a correctness check and a comparable measurement.
+Run the unchanged example before and after you modify the compiler or runtime. That gives you a correctness check and a before/after measurement.

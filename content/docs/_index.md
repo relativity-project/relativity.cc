@@ -1,6 +1,6 @@
 +++
 title = "Docs"
-description = "Install libtt, run JAX on a Tenstorrent card, and debug compilation and execution."
+description = "Install libtt, run JAX on a Tenstorrent card, and debug what goes wrong."
 sort_by = "weight"
 template = "docs/section.html"
 page_template = "docs/page.html"
@@ -8,10 +8,10 @@ page_template = "docs/page.html"
 
 ## Choose a starting point
 
-- **New machine:** [Getting started](@/docs/getting-started.md) covers the system driver, Python plugin, and a device check.
-- **Working JAX environment:** [First experiment](@/docs/first-experiment.md) checks a matrix multiply against NumPy, times execution, and exports StableHLO.
-- **Model serving:** [Inference](@/docs/inference.md) gives launch configurations for one or more chips and an MMLU smoke check; the [models page](@/models/_index.md) lists supported models with measured performance.
-- **Training:** [Train a tiny Qwen3 model](@/docs/training.md) walks through TorchTitan, TorchAX, SGD updates, and checking a saved checkpoint.
-- **Compiler work:** [Software stack](@/docs/software-stack.md) explains the interfaces and what to collect when a program fails.
+- **Setting up a new machine?** [Getting started](@/docs/getting-started.md) installs the driver and the Python plugin, then checks that JAX can use the card.
+- **JAX already working?** [First experiment](@/docs/first-experiment.md) runs a matrix multiply, checks it against NumPy, times it, and dumps its StableHLO.
+- **Want to serve a model?** [Inference](@/docs/inference.md) has launch commands for one or more chips and a quick MMLU check. The [models page](@/models/_index.md) lists the supported models and how fast they run.
+- **Want to train?** [Training](@/docs/training.md) trains a tiny Qwen3 model with TorchTitan and TorchAX, saves a checkpoint, and checks it in PyTorch.
+- **Working on the compiler or runtime?** [Software stack](@/docs/software-stack.md) explains how the pieces fit together and what to collect when something breaks.
 
-The hardware examples use a single Blackhole p150a. The training walkthrough uses a tiny model on one device; full-model and multi-card training remain under development.
+Most examples use a single Blackhole p150a. Inference also runs across several chips; training currently covers a tiny model on one chip.

@@ -6,7 +6,7 @@ template = "models.html"
 
 ## Supported models
 
-These models run with SGLang-JAX's TT backend and libtt, with block-float8 (BF8) weights and BF16 activations.
+These models run on SGLang-JAX's TT backend and libtt, with weights in block-float8 (BF8) and activations in BF16.
 
 <p class="perf-key"><span class="perf-key-decode">decode</span> tokens per second for a single request, higher is better<br><span class="perf-key-ttft">first token</span> milliseconds to the first token of a 215-token prompt, lower is better</p>
 
@@ -34,13 +34,13 @@ These models run with SGLang-JAX's TT backend and libtt, with block-float8 (BF8)
 </tbody>
 </table>
 
-A dash marks a configuration that does not fit in one chip's memory or that we have not run yet. Dense models use full attention in every layer; hybrid models (Qwen3.5, Qwen3.8) alternate gated DeltaNet layers with full attention.
+A dash means the model doesn't fit on one chip or we haven't run that configuration yet. Dense models use full attention in every layer; the hybrid models (Qwen3.5, Qwen3.8) mix gated DeltaNet layers with full attention.
 
-Measured on a [QuietBox 2](../hardware/#quietbox-2) with libtt `96bed87` and SGLang-JAX `ff9b6dc`, using the [inference recipe](@/docs/inference.md) with `--tp-size` set to the chip count: greedy decoding of 128 tokens, one request at a time, median of five after two warmups.
+Measured on a [QuietBox 2](../hardware/#quietbox-2) with libtt `96bed87` and SGLang-JAX `ff9b6dc`, using the [inference recipe](@/docs/inference.md) with `--tp-size` set to the chip count. Each number is greedy decoding of 128 tokens, one request at a time, taking the median of five runs after two warmups.
 
 ## Batched throughput
 
-Decode throughput on four chips with several requests running at once. Each request sends the 19-token code prompt and generates 128 tokens.
+Decode throughput on four chips with several requests in flight. Each request sends a 19-token code prompt and generates 128 tokens.
 
 <p class="perf-key"><span class="perf-key-total">total</span> tokens per second across all running requests<br><span class="perf-key-decode">per user</span> tokens per second for each request</p>
 
@@ -60,18 +60,18 @@ Decode throughput on four chips with several requests running at once. Each requ
 </tbody>
 </table>
 
-To serve more requests at once, raise `--max-running-requests` and `--max-total-tokens` in the launch command; we used 16 and 4096.
+To serve more requests at once, raise `--max-running-requests` and `--max-total-tokens` in the launch command (we used 16 and 4096).
 
 ## Speculative decoding
 
-[DFlash](https://github.com/relativity-project/sglang-jax/blob/main/docs/features/speculative_decoding.md) speculative decoding runs on one chip with Qwen3 targets. Qwen3-8B with the [z-lab/Qwen3-8B-DFlash-b16](https://huggingface.co/z-lab/Qwen3-8B-DFlash-b16) draft, in tokens per second:
+[DFlash](https://github.com/relativity-project/sglang-jax/blob/main/docs/features/speculative_decoding.md) speculative decoding works on one chip with Qwen3 models. Here is Qwen3-8B with the [z-lab/Qwen3-8B-DFlash-b16](https://huggingface.co/z-lab/Qwen3-8B-DFlash-b16) draft model, in tokens per second:
 
 | Prompt | Without draft | With draft | Speedup |
 | --- | ---: | ---: | ---: |
 | 19-token code request | 38.5 | 109.6 | 2.8× |
 | 215-token summarization request | 37.4 | 50.1 | 1.3× |
 
-Add these flags to the launch command:
+To turn it on, add these flags to the launch command:
 
 ```sh
   --speculative-algorithm DFLASH \
@@ -84,10 +84,10 @@ Add these flags to the launch command:
 
 ## Run a model
 
-Use the multi-chip command from the [inference recipe](@/docs/inference.md#use-several-chips) and change `--model-path` and `--tp-size`. Qwen3.5 and Qwen3.8 also need CPU PyTorch and torchvision: add `--with "torch" --with "torchvision" --index "https://download.pytorch.org/whl/cpu" --index-strategy unsafe-best-match`.
+Start from the multi-chip command in the [inference recipe](@/docs/inference.md#use-several-chips) and change `--model-path` and `--tp-size`. Qwen3.5 and Qwen3.8 also need CPU builds of PyTorch and torchvision; add `--with "torch" --with "torchvision" --index "https://download.pytorch.org/whl/cpu" --index-strategy unsafe-best-match`.
 
 ## Known gaps
 
-- DFlash fails to compile on several chips, and does not yet support Qwen3-14B, Qwen3.5 or Qwen3.8 drafts.
-- A single chip of a QuietBox needs a single-chip mesh descriptor in `TT_MESH_GRAPH_DESC_PATH`.
-- Mixture-of-experts models are not covered yet.
+- DFlash doesn't compile on more than one chip yet, and doesn't support Qwen3-14B, Qwen3.5 or Qwen3.8 drafts.
+- To use a single chip of a QuietBox, you need a single-chip mesh descriptor in `TT_MESH_GRAPH_DESC_PATH`.
+- Mixture-of-experts models aren't supported yet.

@@ -22,32 +22,32 @@
         <div>
           <h2 id="learning-title">cores, memory, kernels</h2>
         </div>
-        <p>A Metalium program coordinates data movement and compute: reader kernels load tiles into circular buffers, compute kernels consume them, and writer kernels store results. These references explain the synchronization and memory layout at each step.</p>
+        <p>A Metalium program splits work across kernels: reader kernels load tiles into circular buffers, compute kernels process them, and writer kernels store the results. These references explain how the kernels synchronize and where data lives at each step.</p>
       </div>
 
       <div class="resource-cards">
         <a class="resource-card resource-card-start" href="https://github.com/tenstorrent/tt-metal/blob/main/METALIUM_GUIDE.md">
           <span class="resource-meta"><b>01</b> official guide</span>
           <h3>TT Architecture and Metalium Guide</h3>
-          <p>How Tensix cores use local SRAM and networks-on-chip (NoCs). Covers tiles, circular buffers, and synchronization between reader, compute, and writer kernels.</p>
+          <p>How Tensix cores use local SRAM and the networks-on-chip (NoCs), including tiles, circular buffers, and how reader, compute and writer kernels synchronize.</p>
           <small>start here <span>↗</span></small>
         </a>
         <a class="resource-card" href="https://github.com/tenstorrent/tt-metal/blob/main/docs/source/tt-metalium/tt_metal/labs/matmul/lab1/lab1.rst">
           <span class="resource-meta"><b>02</b> hands on</span>
           <h3>Single-core matmul lab</h3>
-          <p>Host setup and kernels for a tiled matrix multiply on one Tensix core. Follow allocation, tile transfers, computation, and output validation.</p>
+          <p>Write the host code and kernels for a tiled matrix multiply on a single Tensix core, from allocation and tile transfers to compute and checking the output.</p>
           <small>write a kernel <span>↗</span></small>
         </a>
         <a class="resource-card" href="https://github.com/tenstorrent/tt-llk/blob/main/docs/llk/l2/top_level_overview.md">
           <span class="resource-meta"><b>03</b> lower level</span>
           <h3>Tensix core and LLKs</h3>
-          <p>Low-level kernels (LLKs): unpack tiles, execute matrix or vector operations, hold results in destination registers, and pack them for storage.</p>
+          <p>How low-level kernels (LLKs) unpack tiles, run matrix and vector operations, hold results in destination registers, and pack them back out.</p>
           <small>read the LLK overview <span>↗</span></small>
         </a>
         <a class="resource-card" href="https://github.com/tenstorrent/tt-isa-documentation">
           <span class="resource-meta"><b>04</b> reference</span>
           <h3>tt-isa-documentation</h3>
-          <p>Instruction encodings, register behavior, and architecture details for Wormhole B0 and Blackhole A0. Select the documentation for your chip generation.</p>
+          <p>Instruction encodings, register behavior and architecture details for Wormhole B0 and Blackhole A0. Pick the docs for your chip.</p>
           <small>open the reference <span>↗</span></small>
         </a>
       </div>
@@ -89,7 +89,7 @@
         <div>
           <h2 id="build-guide-title">one Blackhole card</h2>
         </div>
-        <p>This dev box connects a p150a to a mini PC through an external PCIe dock. Other hosts need compatible PCIe connectivity, power delivery, cooling, and a supported Linux installation.</p>
+        <p>This dev box connects a p150a to a mini PC through an external PCIe dock. Any other host works too, as long as it has a compatible PCIe slot, enough power and cooling, and a supported Linux install.</p>
       </div>
 
       <div class="build-guide-grid">
@@ -126,17 +126,17 @@
           <ol class="setup-steps">
             <li>
               <span>01</span>
-              <div><strong>check PCIe, power, and cooling</strong><p>With the system powered off, install the p150a in the dock and connect the specified power cables. Keep the card's airflow unobstructed and follow the card and dock installation manuals.</p></div>
+              <div><strong>check PCIe, power, and cooling</strong><p>With the power off, seat the p150a in the dock and connect the power cables. Leave room for airflow, and follow the card and dock manuals.</p></div>
             </li>
             <li>
               <span>02</span>
-              <div><strong>prepare the Linux host</strong><p>This dev box configuration uses Ubuntu 24.04. Check the vendor's OS and BIOS requirements for your software release before installing.</p></div>
+              <div><strong>prepare the Linux host</strong><p>This build runs Ubuntu 24.04. Before installing, check Tenstorrent's OS and BIOS requirements for your software release.</p></div>
             </li>
             <li>
               <span>03</span>
               <div>
                 <strong>install and verify the software</strong>
-                <p>Follow Getting started to install the driver, inspect the card with <code>tt-smi</code>, and run a JAX computation with libtt.</p>
+                <p>Follow Getting started to install the driver, check the card with <code>tt-smi</code>, and run a JAX computation with libtt.</p>
               </div>
             </li>
           </ol>
@@ -155,7 +155,7 @@
         <div>
           <h2 id="quietbox-title">QuietBox 2</h2>
         </div>
-        <p>Tenstorrent's assembled, liquid-cooled Blackhole workstation. It includes the host, accelerator cards, cooling, power supply, and preinstalled Tenstorrent software.</p>
+        <p>Tenstorrent's prebuilt, liquid-cooled Blackhole workstation. The host, accelerator cards, cooling, power supply and Tenstorrent software all come included.</p>
       </div>
 
       <div class="build-guide-grid">
@@ -175,8 +175,8 @@
         <section class="build-panel" id="quietbox-purchase" aria-labelledby="quietbox-buy-title">
           <p class="build-panel-label" id="quietbox-buy-title"><span>02</span> / purchase &amp; setup</p>
           <div class="workstation-notes">
-            <p>Listed at <strong>US $9,999</strong> on September 11, 2026. Check Tenstorrent's product page for current pricing and delivery estimates.</p>
-            <p>The included Tenstorrent software has its own setup guide. With libtt, SGLang-JAX serves models across all four chips; see the <a href="{{ get_url(path='@/models/_index.md') }}">models page</a> for measured performance.</p>
+            <p>Listed at <strong>US $9,999</strong> on September 11, 2026; check Tenstorrent's product page for current pricing and delivery times.</p>
+            <p>The preinstalled Tenstorrent software has its own setup guide. With libtt, SGLang-JAX can serve models across all four chips; see the <a href="{{ get_url(path='@/models/_index.md') }}">models page</a> for measured performance.</p>
           </div>
           <a class="build-docs-link" href="https://tenstorrent.com/hardware/tt-quietbox">buy QuietBox 2 from Tenstorrent <span>↗</span></a>
           <a class="build-docs-link" href="https://docs.tenstorrent.com/tt-quietbox2-guide/">QuietBox 2 setup guide <span>↗</span></a>

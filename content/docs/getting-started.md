@@ -6,33 +6,33 @@ weight = 10
 
 ## Requirements
 
-These examples target one Blackhole p150a in an x86-64 Linux host. You need administrator access for system setup, network access for packages, and [uv](https://docs.astral.sh/uv/getting-started/installation/) for the Python environment.
+You'll need an x86-64 Linux machine with a Blackhole p150a, root access, a network connection, and [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
-Use the [Tenstorrent installation guide](https://docs.tenstorrent.com/getting-started/README.html) to check OS, BIOS, driver, and firmware requirements for your card. Our [p150a dev box configuration](../../hardware/#workstation-configuration) uses Ubuntu 24.04.
+Check the [Tenstorrent installation guide](https://docs.tenstorrent.com/getting-started/README.html) for the OS, BIOS, driver and firmware your card needs. Our [p150a dev box](../../hardware/#workstation-configuration) runs Ubuntu 24.04.
 
 ## Install the system software
 
-On Ubuntu, install the prerequisites and start the official installer:
+On Ubuntu, install the prerequisites and run Tenstorrent's installer:
 
 ```sh
 sudo apt update && sudo apt install -y curl jq
 /bin/bash -c "$(curl -fsSL https://tenstorrent.ai/install.sh)"
 ```
 
-The installer sets up the kernel driver, firmware, hugepages, and management tools. Follow its reboot instructions. These system components are separate from the libtt Python wheel.
+The installer sets up the kernel driver, firmware, hugepages and management tools. Reboot when it tells you to. None of this is part of the libtt Python wheel.
 
-If you selected the installer's default Python environment, activate it and inspect the card:
+If you let the installer create its default Python environment, activate it and look at the card:
 
 ```sh
 source ~/.tenstorrent-venv/bin/activate
 tt-smi
 ```
 
-The device count should match the installed cards. If you chose another environment, activate that one instead. Exit `tt-smi` before continuing.
+`tt-smi` should list every card you installed. (If you picked a different environment, activate that one instead.) Quit `tt-smi` before you continue.
 
 ## Install the JAX plugin
 
-Create a separate environment for experiments:
+Create a separate environment for your experiments:
 
 ```sh
 uv venv --python 3.12 .venv
@@ -40,11 +40,11 @@ source .venv/bin/activate
 uv pip install "jax==0.8.1" "jaxlib==0.8.1" "jax-tt-plugin==0.1.0"
 ```
 
-These pins use the JAX version in [libtt's reference inference recipe](https://github.com/pcmoritz/libtt/blob/b50ce2db8c3dbdebf1ba1818cae833dc472f34e2/README.md) and the [published plugin wheel](https://pypi.org/project/jax-tt-plugin/0.1.0/). The wheel bundles the user-space compiler and runtime; a separate tt-metal installation is not needed.
+These versions match [libtt's reference inference recipe](https://github.com/pcmoritz/libtt/blob/b50ce2db8c3dbdebf1ba1818cae833dc472f34e2/README.md) and the [published plugin wheel](https://pypi.org/project/jax-tt-plugin/0.1.0/). The wheel bundles the compiler and runtime, so you don't need to install tt-metal separately.
 
 ## Verify JAX execution
 
-Run this from the activated environment:
+Run this inside the environment:
 
 ```sh
 JAX_PLATFORMS=tt JAX_USE_SHARDY_PARTITIONER=false python - <<'PY'
@@ -62,15 +62,15 @@ print("PASS: addition on", y.device)
 PY
 ```
 
-`JAX_PLATFORMS=tt` requires the TT backend: initialization failure should stop the program instead of silently using the CPU. The second setting follows libtt's reference configuration by disabling the Shardy partitioner. Success means the plugin can initialize a device, compile this operation, and return the expected values. It does not establish coverage for a larger model.
+`JAX_PLATFORMS=tt` makes JAX fail loudly if the TT backend can't start, instead of quietly falling back to the CPU. `JAX_USE_SHARDY_PARTITIONER=false` matches libtt's reference configuration. If you see `PASS`, the plugin can open the device, compile a program and return correct results. That's a smoke test; it doesn't mean larger models will work.
 
 ## If a check fails
 
-| Symptom | Check next |
+| Symptom | What to try |
 | --- | --- |
-| `tt-smi` does not list the card | Run `lspci -d 1e52:`. If PCIe enumeration fails, check hardware setup before Python packages. Otherwise, check the driver and firmware installation. |
-| JAX cannot initialize `tt` | Confirm the plugin is installed in the active environment with `uv pip show jax-tt-plugin jax jaxlib`. Save the initialization error. |
-| The device opens but compilation fails | Reduce the failing program to one operation and save its shapes, dtypes, and StableHLO. |
-| Execution finishes with wrong values | Keep the reference output and maximum error; report the exact dtype and input values. |
+| `tt-smi` doesn't list the card | Run `lspci -d 1e52:`. If the card is missing there too, it's a hardware or PCIe problem, so fix that before looking at Python packages. If it shows up, check the driver and firmware install. |
+| JAX can't initialize `tt` | Make sure the plugin is installed in the active environment: `uv pip show jax-tt-plugin jax jaxlib`. Save the full initialization error. |
+| The device opens but compilation fails | Cut the program down to the one failing operation and save its shapes, dtypes and StableHLO. |
+| It runs but the values are wrong | Save the reference output and the maximum error, along with the exact dtype and inputs. |
 
-Next, run the [matrix multiply experiment](@/docs/first-experiment.md) or follow the [Qwen3-8B recipe](@/docs/inference.md).
+Next, try the [matrix multiply experiment](@/docs/first-experiment.md) or [serve Qwen3-8B](@/docs/inference.md).
