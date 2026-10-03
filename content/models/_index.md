@@ -40,15 +40,27 @@ Measured on a [QuietBox 2](../hardware/#quietbox-2) with libtt `96bed87` and SGL
 
 ## Batched throughput
 
-Total decode throughput on four chips in tokens per second, with up to 16 requests running at once. Each request sends the 19-token code prompt and generates 128 tokens.
+Decode throughput on four chips with several requests running at once. Each request sends the 19-token code prompt and generates 128 tokens.
 
-| Model | 1 request | 4 requests | 8 requests | 16 requests |
-| --- | ---: | ---: | ---: | ---: |
-| Qwen3-8B | 84 | 270 | 501 | 878 |
-| Qwen3-14B | 62 | 202 | 381 | 689 |
-| Qwen3-32B | 32 | 110 | 207 | 376 |
+<p class="perf-key"><span class="perf-key-total">total</span> tokens per second across all running requests<br><span class="perf-key-decode">per user</span> tokens per second for each request</p>
 
-At 16 requests, each request still decodes at 59 tokens/s on Qwen3-8B, 46 on Qwen3-14B and 25 on Qwen3-32B. To serve more requests at once, raise `--max-running-requests` and `--max-total-tokens` in the launch command; we used 16 and 4096.
+<table class="perf-table">
+<thead><tr><th scope="col">Model</th><th scope="col">Metric</th><th scope="col">1 request</th><th scope="col">4 requests</th><th scope="col">8 requests</th><th scope="col">16 requests</th></tr></thead>
+<tbody>
+<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-8B">Qwen3-8B</a><span class="perf-arch">dense</span></th><td class="perf-metric">total</td><td>84</td><td>270</td><td>501</td><td>878</td></tr>
+<tr class="perf-decode"><td class="perf-metric">per user</td><td>85.8</td><td>70.3</td><td>66.6</td><td>59.4</td></tr>
+</tbody>
+<tbody>
+<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-14B">Qwen3-14B</a><span class="perf-arch">dense</span></th><td class="perf-metric">total</td><td>62</td><td>202</td><td>381</td><td>689</td></tr>
+<tr class="perf-decode"><td class="perf-metric">per user</td><td>62.8</td><td>52.5</td><td>50.7</td><td>45.8</td></tr>
+</tbody>
+<tbody>
+<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-32B">Qwen3-32B</a><span class="perf-arch">dense</span></th><td class="perf-metric">total</td><td>32</td><td>110</td><td>207</td><td>376</td></tr>
+<tr class="perf-decode"><td class="perf-metric">per user</td><td>32.8</td><td>28.7</td><td>27.7</td><td>25.1</td></tr>
+</tbody>
+</table>
+
+To serve more requests at once, raise `--max-running-requests` and `--max-total-tokens` in the launch command; we used 16 and 4096.
 
 ## Speculative decoding
 
