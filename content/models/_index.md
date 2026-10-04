@@ -47,30 +47,30 @@ Decode throughput on four chips with several requests in flight. Each request se
 <table class="perf-table">
 <thead><tr><th scope="col">Model</th><th scope="col">Metric</th><th scope="col">1 request</th><th scope="col">4 requests</th><th scope="col">8 requests</th><th scope="col">16 requests</th></tr></thead>
 <tbody>
-<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-8B">Qwen3-8B</a><span class="perf-arch">dense</span></th><td class="perf-metric">total</td><td>84</td><td>270</td><td>500</td><td>875</td></tr>
-<tr class="perf-decode"><td class="perf-metric">per user</td><td>85.7</td><td>70.2</td><td>66.5</td><td>59.4</td></tr>
+<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-8B">Qwen3-8B</a><span class="perf-arch">dense</span></th><td class="perf-metric">total</td><td>93</td><td>298</td><td>541</td><td>922</td></tr>
+<tr class="perf-decode"><td class="perf-metric">per user</td><td>95.7</td><td>77.2</td><td>71.9</td><td>63.8</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-14B">Qwen3-14B</a><span class="perf-arch">dense</span></th><td class="perf-metric">total</td><td>62</td><td>202</td><td>379</td><td>689</td></tr>
-<tr class="perf-decode"><td class="perf-metric">per user</td><td>62.7</td><td>52.5</td><td>50.3</td><td>45.7</td></tr>
+<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-14B">Qwen3-14B</a><span class="perf-arch">dense</span></th><td class="perf-metric">total</td><td>67</td><td>219</td><td>413</td><td>730</td></tr>
+<tr class="perf-decode"><td class="perf-metric">per user</td><td>68.4</td><td>56.7</td><td>54.7</td><td>50.1</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-32B">Qwen3-32B</a><span class="perf-arch">dense</span></th><td class="perf-metric">total</td><td>32</td><td>111</td><td>208</td><td>377</td></tr>
-<tr class="perf-decode"><td class="perf-metric">per user</td><td>32.8</td><td>28.9</td><td>27.8</td><td>25.2</td></tr>
+<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-32B">Qwen3-32B</a><span class="perf-arch">dense</span></th><td class="perf-metric">total</td><td>34</td><td>117</td><td>221</td><td>400</td></tr>
+<tr class="perf-decode"><td class="perf-metric">per user</td><td>34.8</td><td>30.5</td><td>29.3</td><td>27.1</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.5-9B">Qwen3.5-9B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">total</td><td>79</td><td>268</td><td>476</td><td>773</td></tr>
-<tr class="perf-decode"><td class="perf-metric">per user</td><td>80.8</td><td>71.3</td><td>65.2</td><td>52.8</td></tr>
+<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.5-9B">Qwen3.5-9B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">total</td><td>90</td><td>308</td><td>529</td><td>830</td></tr>
+<tr class="perf-decode"><td class="perf-metric">per user</td><td>93.5</td><td>81.8</td><td>71.6</td><td>59.2</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.8-27B">Qwen3.8-27B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">total</td><td>34</td><td>119</td><td>213</td><td>349</td></tr>
-<tr class="perf-decode"><td class="perf-metric">per user</td><td>35.1</td><td>31.3</td><td>29.0</td><td>23.5</td></tr>
+<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.8-27B">Qwen3.8-27B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">total</td><td>37</td><td>128</td><td>230</td><td>373</td></tr>
+<tr class="perf-decode"><td class="perf-metric">per user</td><td>37.9</td><td>33.7</td><td>31.1</td><td>25.7</td></tr>
 </tbody>
 </table>
 
 To serve more requests at once, raise `--max-running-requests` and `--max-total-tokens` in the launch command (we used 16 and 4096). For Qwen3.5 and Qwen3.8, also set `--max-recurrent-state-size` to the same value as `--max-running-requests`; otherwise SGLang-JAX keeps a quarter of the recurrent state slots in reserve and runs at most 12 of 16 requests at once.
 
-These batched numbers use libtt `cd410e1` and SGLang-JAX `a205d16`.
+These batched numbers use overlap scheduling: remove `--disable-overlap-schedule` from the launch command. Overlap scheduling is only faster with libtt `cba0e0d`, which isn't in a release yet; with older libtt builds, keep the flag. It adds about one decode step to the time to first token. The numbers use libtt `cba0e0d` and SGLang-JAX `a205d16`.
 
 ## Speculative decoding
 
