@@ -13,30 +13,30 @@ These models run on SGLang-JAX's TT backend and libtt, with weights in block-flo
 <table class="perf-table">
 <thead><tr><th scope="col">Model</th><th scope="col">Metric</th><th scope="col">1 chip</th><th scope="col">2 chips</th><th scope="col">4 chips</th></tr></thead>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-8B">Qwen3-8B</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td>38.5</td><td>60.3</td><td>85.6</td></tr>
-<tr class="perf-ttft"><td class="perf-metric">first token</td><td>108</td><td>76</td><td>57</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-8B">Qwen3-8B</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td>40.0</td><td>65.0</td><td>96.1</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td>131</td><td>90</td><td>66</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-14B">Qwen3-14B</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td>23.7</td><td>40.3</td><td>62.1</td></tr>
-<tr class="perf-ttft"><td class="perf-metric">first token</td><td>163</td><td>102</td><td>75</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-14B">Qwen3-14B</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td>24.3</td><td>42.3</td><td>68.7</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td>202</td><td>126</td><td>88</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-32B">Qwen3-32B</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td>19.9</td><td>32.9</td></tr>
-<tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td>203</td><td>139</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-32B">Qwen3-32B</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td>20.5</td><td>34.9</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td>252</td><td>167</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.5-9B">Qwen3.5-9B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">decode</td><td>37.2</td><td>57.1</td><td>81.6</td></tr>
-<tr class="perf-ttft"><td class="perf-metric">first token</td><td>152</td><td>110</td><td>81</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.5-9B">Qwen3.5-9B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">decode</td><td>38.9</td><td>62.1</td><td>93.4</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td>176</td><td>120</td><td>91</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.8-27B">Qwen3.8-27B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td>22.8</td><td>35.1</td></tr>
-<tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td>251</td><td>186</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.8-27B">Qwen3.8-27B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td>23.8</td><td>38.0</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td>293</td><td>212</td></tr>
 </tbody>
 </table>
 
 A dash means the model doesn't fit on one chip or we haven't run that configuration yet. Dense models use full attention in every layer; the hybrid models (Qwen3.5, Qwen3.8) mix gated DeltaNet layers with full attention.
 
-Measured on a [QuietBox 2](../hardware/#quietbox-2) with libtt `96bed87` and SGLang-JAX `ff9b6dc`, using the [inference recipe](@/docs/inference.md) with `--tp-size` set to the chip count. Each number is greedy decoding of 128 tokens, one request at a time, taking the median of five runs after two warmups.
+Measured on a [QuietBox 2](../hardware/#quietbox-2) with libtt `e0c2891` and SGLang-JAX `a205d16`, using the [inference recipe](@/docs/inference.md) with `--tp-size` set to the chip count and overlap scheduling on: remove `--disable-overlap-schedule` from the launch command. Overlap scheduling is only faster with libtt `e0c2891`, which isn't in a release yet; with older libtt builds, keep the flag. It adds about one decode step to the time to first token. Each number is greedy decoding of 128 tokens, one request at a time, taking the median of five runs after two warmups.
 
 ## Batched throughput
 
@@ -70,7 +70,7 @@ Decode throughput on four chips with several requests in flight. Each request se
 
 To serve more requests at once, raise `--max-running-requests` and `--max-total-tokens` in the launch command (we used 16 and 4096). For Qwen3.5 and Qwen3.8, also set `--max-recurrent-state-size` to the same value as `--max-running-requests`; otherwise SGLang-JAX keeps a quarter of the recurrent state slots in reserve and runs at most 12 of 16 requests at once.
 
-These batched numbers use overlap scheduling: remove `--disable-overlap-schedule` from the launch command. Overlap scheduling is only faster with libtt `cba0e0d`, which isn't in a release yet; with older libtt builds, keep the flag. It adds about one decode step to the time to first token. The numbers use libtt `cba0e0d` and SGLang-JAX `a205d16`.
+These batched numbers also use overlap scheduling, with libtt `cba0e0d` and SGLang-JAX `a205d16`.
 
 ## Speculative decoding
 
