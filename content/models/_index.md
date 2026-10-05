@@ -6,9 +6,9 @@ template = "models.html"
 
 ## Supported models
 
-These models run on SGLang-JAX's TT backend and libtt. The weights of every matmul, including the LM head, are converted to Tenstorrent's 8-bit block floating point format (BFP8, where each group of 16 values shares an exponent); embeddings, norm weights, activations and the KV cache stay in BF16.
+These models run on SGLang-JAX's TT backend and libtt. Matmul weights, including the LM head, are stored in BFP8, Tenstorrent's 8-bit block floating point format, in which each group of 16 values shares an exponent. Everything else (embeddings, norm weights, activations and the KV cache) is BF16.
 
-<p class="perf-key"><span class="perf-key-decode">decode</span> tokens per second for a single request, higher is better<br><span class="perf-key-ttft">first token</span> milliseconds to the first token of a 215-token prompt, lower is better</p>
+<p class="perf-key"><span class="perf-key-decode">decode</span> tokens per second for a single request without speculative decoding, higher is better<br><span class="perf-key-ttft">first token</span> milliseconds to the first token of a 215-token prompt, lower is better</p>
 
 <table class="perf-table">
 <thead><tr><th scope="col">Model</th><th scope="col">Metric</th><th scope="col">1 chip</th><th scope="col">2 chips</th><th scope="col">4 chips</th></tr></thead>
@@ -36,7 +36,7 @@ These models run on SGLang-JAX's TT backend and libtt. The weights of every matm
 
 A dash means the model doesn't fit on one chip or we haven't run that configuration yet. Dense models use full attention in every layer; the hybrid models (Qwen3.5, Qwen3.8) mix gated DeltaNet layers with full attention.
 
-Measured on a [QuietBox 2](../hardware/#quietbox-2) with libtt `9dfdc65` and SGLang-JAX `a205d16`, using the [inference recipe](@/docs/inference.md) with `--tp-size` set to the chip count and overlap scheduling on: remove `--disable-overlap-schedule` from the launch command. Overlap scheduling is only faster with libtt from `4540907` on, which isn't in a release yet; with older libtt builds, keep the flag. It adds about one decode step to the time to first token. Each number is greedy decoding of 128 tokens, one request at a time, taking the median of five runs after two warmups.
+Measured on a [QuietBox 2](../hardware/#quietbox-2) with libtt `9dfdc65` and SGLang-JAX `a205d16`, using the [inference recipe](@/docs/inference.md) with `--tp-size` set to the chip count and overlap scheduling on: remove `--disable-overlap-schedule` from the launch command. Overlap scheduling is only faster with libtt from `4540907` on, which isn't in a release yet; with older libtt builds, keep the flag. It adds about one decode step to the time to first token. Each number is greedy decoding of 128 tokens, one request at a time and without [speculative decoding](#speculative-decoding), taking the median of five runs after two warmups.
 
 ## Batched throughput
 
