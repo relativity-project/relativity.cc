@@ -6,7 +6,7 @@ template = "models.html"
 
 ## Supported models
 
-These models run on SGLang-JAX's TT backend and libtt, with weights in block-float8 (BF8) and activations in BF16.
+These models run on SGLang-JAX's TT backend and libtt. The weights of every matmul, including the LM head, are converted to Tenstorrent's 8-bit block floating point format (BFP8, where each group of 16 values shares an exponent); embeddings, norm weights, activations and the KV cache stay in BF16.
 
 <p class="perf-key"><span class="perf-key-decode">decode</span> tokens per second for a single request, higher is better<br><span class="perf-key-ttft">first token</span> milliseconds to the first token of a 215-token prompt, lower is better</p>
 
