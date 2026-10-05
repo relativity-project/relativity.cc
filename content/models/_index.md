@@ -36,7 +36,7 @@ These models run on SGLang-JAX's TT backend and libtt. Matmul weights, including
 
 A dash means the model doesn't fit on one chip or we haven't run that configuration yet. Dense models use full attention in every layer; the hybrid models (Qwen3.5, Qwen3.8) mix gated DeltaNet layers with full attention.
 
-Measured on a [QuietBox 2](../hardware/#quietbox-2) with libtt `9dfdc65` and SGLang-JAX `a205d16`, using the [inference recipe](@/docs/inference.md) with `--tp-size` set to the chip count and overlap scheduling on: remove `--disable-overlap-schedule` from the launch command. Overlap scheduling is only faster with libtt from `4540907` on, which isn't in a release yet; with older libtt builds, keep the flag. It adds about one decode step to the time to first token. Each number is greedy decoding of 128 tokens, one request at a time and without [speculative decoding](#speculative-decoding), taking the median of five runs after two warmups.
+Measured on a [QuietBox 2](../hardware/#quietbox-2) with libtt `9dfdc65` and SGLang-JAX `a205d16`, using the [inference recipe](@/docs/inference.md) with `--tp-size` set to the chip count and overlap scheduling on: remove `--disable-overlap-schedule` from the launch command. Each number is greedy decoding of 128 tokens, one request at a time and without [speculative decoding](#speculative-decoding), taking the median of five runs after two warmups.
 
 ## Batched throughput
 
