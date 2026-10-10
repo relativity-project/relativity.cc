@@ -94,8 +94,8 @@ These batched numbers also use overlap scheduling, with libtt `0676075` and SGLa
 
 | Prompt | Without draft | With draft | Speedup |
 | --- | ---: | ---: | ---: |
-| 19-token code request | 40.8 | 125.6 | 3.1× |
-| 215-token summarization request | 40.4 | 50.2 | 1.2× |
+| 19-token code request | 41.4 | 116.6 | 2.8× |
+| 215-token summarization request | 40.6 | 56.2 | 1.4× |
 
 To turn it on, add these flags to the launch command:
 
@@ -108,7 +108,7 @@ To turn it on, add these flags to the launch command:
   --max-total-tokens 4096
 ```
 
-Keep `--disable-overlap-schedule` from the recipe with these flags: SGLang-JAX only runs DFlash with overlap scheduling when `--speculative-num-draft-tokens` is one more than `--speculative-num-steps`. We measured the numbers above with `--disable-overlap-schedule`, libtt `9dfdc65` and SGLang-JAX `a205d16`.
+Keep `--disable-overlap-schedule` from the recipe with these flags: SGLang-JAX only runs DFlash with overlap scheduling when `--speculative-num-draft-tokens` is one more than `--speculative-num-steps`. We measured the numbers above with `--disable-overlap-schedule`, libtt `0676075` and SGLang-JAX `5cbb48f`.
 
 ## Run a model
 
