@@ -48,7 +48,7 @@ The Tenstorrent-specific settings are:
 - `--device tt` and `--attention-backend tt` turn on SGLang-JAX's Tenstorrent code paths.
 - `env -u TT_METAL_RUNTIME_ROOT` clears any override, so the plugin uses its bundled runtime.
 
-The prebuilt `jax-tt-plugin` wheel includes the full compiler and runtime. To use your own build of libtt `main` instead, follow the [libtt build instructions](@/docs/software-stack.md#build-and-test-libtt), run `bazel build -c opt //:jax_tt_plugin_wheel`, and replace `--with "jax-tt-plugin"` with `--with /path/to/libtt/bazel-bin/jax_tt_plugin-0.1.0-py3-none-linux_x86_64.whl`.
+The prebuilt `jax-tt-plugin` wheel includes the full compiler and runtime. To use your own build of libtt `main` instead, follow the [libtt build instructions](@/docs/software-stack.md#build-and-test-libtt), run `bazel build -c opt //:jax_tt_plugin_wheel`, and replace `--with "jax-tt-plugin"` with `--with /path/to/libtt/bazel-bin/jax_tt_plugin-0.1.2-py3-none-linux_x86_64.whl`.
 
 ## Use several chips
 
