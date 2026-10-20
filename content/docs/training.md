@@ -66,12 +66,11 @@ python scripts/download_hf_assets.py --repo_id Qwen/Qwen3-1.7B --assets tokenize
 
 ## 2. Train
 
-Turn on TorchTPU support in libtt, let TorchTPU describe the chips to `torchrun`, reset the chips, and start one process per chip:
+Turn on TorchTPU support in libtt, let TorchTPU describe the chips to `torchrun`, and start one process per chip:
 
 ```sh
 export LIBTT_TPU_COMPAT=1
 eval $(python -m torch.tpu.distributed | sed 's/^/export /')
-tt-smi -r
 env -u TT_METAL_RUNTIME_ROOT -u TT_MESH_GRAPH_DESC_PATH -u TT_VISIBLE_DEVICES \
 torchrun --nproc_per_node=4 -m torchtitan.experiments.tpu.train \
   --module=torchtitan.experiments.tpu.qwen3 \
@@ -86,7 +85,6 @@ torchrun --nproc_per_node=4 -m torchtitan.experiments.tpu.train \
 What each part does:
 
 - `LIBTT_TPU_COMPAT=1` makes TorchTPU load libtt instead of Google's libtpu. It also reports the Blackhole chips as TorchTPU devices and turns off TorchTPU's Pallas flash attention, which only TPUs can run.
-- `tt-smi -r` resets the chips. Do it before every run: after a run with one process per chip, even one that finished normally, the chips' ethernet cores don't come back up for the next run, which then stops with `Timed out while waiting for active ethernet core`.
 - `python -m torch.tpu.distributed` is TorchTPU's launch helper. It prints the chip topology and one address per process, which TorchTPU uses to give each process its own chip and to connect the processes.
 - `env -u` clears settings from other recipes, such as the [inference guide's](@/docs/inference.md#use-several-chips) chip list. libtt sets the chip and a four-chip mesh for each process itself.
 - `--splash_attention_kernel.no_use_splash_attention_kernel` turns off the preset's splash attention, another Pallas kernel. Attention runs through PyTorch's `scaled_dot_product_attention` instead.
@@ -122,7 +120,6 @@ TORCH_DEVICE_BACKEND_AUTOLOAD=0 torchrun --nproc_per_node=1 \
   -m torchtitan.experiments.tpu.train $ARGS --checkpoint.create_seed_checkpoint
 TORCH_DEVICE_BACKEND_AUTOLOAD=0 torchrun --nproc_per_node=4 \
   -m torchtitan.experiments.tpu.train $ARGS --checkpoint.load_only
-tt-smi -r
 torchrun --nproc_per_node=4 -m torchtitan.experiments.tpu.train $ARGS --checkpoint.load_only
 ```
 
@@ -179,7 +176,7 @@ The first four rows use the preset's test data and tokenizer, whose token IDs ma
 ## 6. Known gaps
 
 - libtt's support for TorchTPU on several chips is on a branch and needs a local build until it's released.
-- The chips need a `tt-smi -r` before every run with one process per chip (see step 2).
+- A run that crashes or is killed leaves the chips' ethernet cores down, and the next run stops with `Timed out while waiting for active ethernet core`. Reset the chips with `tt-smi -r` before starting it.
 - Splash attention is a Pallas kernel and doesn't run, so attention runs as separate matrix multiplies and an FP32 softmax. It's the largest cost left (see above).
 - Each process compiles its programs in the first step of every run, which takes about 20 seconds once TT-Metal's kernels are in its cache (`~/.cache/tt-metal-cache`). libtt doesn't support TorchTPU's persistent compilation cache.
 - `torch.manual_seed` doesn't make random draws on the chips repeat, so two runs start from different random weights. Load a seed checkpoint to compare runs exactly.
