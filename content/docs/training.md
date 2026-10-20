@@ -21,13 +21,13 @@ The run uses TorchTitan's `qwen3_1_7b` preset:
 | Memory | Full activation checkpointing |
 | Compilation | `torch.compile` of each transformer block |
 
-A 500-step run with two checkpoints took 24 minutes. After the first step, which compiles each process's programs, a step takes 2.67 seconds: **768 tokens per second per chip**, 3,070 for the four. Over the 4.1 million tokens, the loss falls like this, averaged over 50 steps:
+A 500-step run with two checkpoints took 23 minutes. After the first step, which compiles each process's programs, a step takes 2.55 seconds: **804 tokens per second per chip**, 3,220 for the four. Over the 4.1 million tokens, the loss falls like this, averaged over 50 steps:
 
 | Steps | 1–50 | 51–100 | 101–150 | 151–200 | 201–250 | 251–300 | 301–350 | 351–400 | 401–450 | 451–500 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Loss | 8.33 | 7.19 | 6.95 | 6.82 | 6.68 | 6.57 | 6.51 | 6.41 | 6.28 | 6.35 |
+| Loss | 8.35 | 7.22 | 6.96 | 6.83 | 6.69 | 6.57 | 6.52 | 6.41 | 6.29 | 6.36 |
 
-The first step's loss is 12.20, a little above the 11.93 of a uniform guess over the 151,936-token vocabulary. Each step sees only 8,192 tokens, so single steps scatter around these averages with a standard deviation of 0.2 to 0.35.
+The first step's loss is 12.33, a little above the 11.93 of a uniform guess over the 151,936-token vocabulary. Each step sees only 8,192 tokens, so single steps scatter around these averages with a standard deviation of 0.2 to 0.35.
 
 ## 1. Install
 
@@ -93,7 +93,7 @@ What each part does:
 Each process compiles its programs during the first step: about 20 seconds when TT-Metal's kernels are already in its cache, and two to three minutes when it has to build them. After that, every process prints a line per step:
 
 ```text
-step: 250  loss:  6.76693  grad_norm:  0.9794  memory: -0.00GiB(-0.00%)  tps: 768  tflops: 9.02  mfu: 2.89%  time_end_to_end: 2.67s
+step: 300  loss:  6.60610  grad_norm:  0.8004  memory: -0.00GiB(-0.00%)  tps: 805  tflops: 9.44  mfu: 3.03%  time_end_to_end: 2.54s
 ```
 
 `tps` is tokens per second per chip. TorchTitan doesn't know the Blackhole's peak throughput and computes `mfu` against an A100, and libtt doesn't report device memory to PyTorch, so ignore those two fields.
@@ -147,20 +147,20 @@ Both runs show the same jump of the gradient norm in step 3.
 
 ## 5. Where the time goes
 
-A step is limited by the chips: the processes queue programs faster than the chips run them, and each chip runs about 17,000 TT-NN programs per step. TT-Metal's per-program device profiler splits a chip's 2.65 seconds like this:
+A step is limited by the chips: the processes queue programs faster than the chips run them, and each chip runs about 17,000 TT-NN programs per step. TT-Metal's per-program device profiler splits a chip's 2.53 seconds like this:
 
 | Work | Time per step | Share |
 | --- | --- | --- |
-| Attention: score and value matrix multiplies, causal mask, FP32 softmax and their gradients, on [16, 2048, 2048] scores | 0.73 s | 28% |
-| Other elementwise work: norms, rotary embeddings, SwiGLU, loss, gradient clipping, AdamW | 0.79 s | 30% |
-| Layout changes, slices and dtype casts | 0.48 s | 18% |
+| Attention: score and value matrix multiplies, causal mask, FP32 softmax and their gradients, on [16, 2048, 2048] scores | 0.73 s | 29% |
+| Other elementwise work: norms, rotary embeddings, SwiGLU, loss, gradient clipping, AdamW | 0.79 s | 31% |
+| Layout changes, slices and dtype casts | 0.48 s | 19% |
 | Projection, MLP and output-layer matrix multiplies | 0.26 s | 10% |
-| FSDP all-gathers and reduce-scatters | 0.25 s | 9% |
-| Embedding gradient (scatter-add into the 151,936-row table) | 0.14 s | 5% |
+| FSDP all-gathers and reduce-scatters | 0.25 s | 10% |
+| Embedding gradient (scatter-add into the 151,936-row table) | 0.02 s | 1% |
 
-TorchTitan's `tflops` field, 9.0 per chip, is its FLOPs-per-token estimate (6 per non-embedding parameter, plus attention) times the token rate, without the recomputation of activation checkpointing. All matrix multiplies together, attention's included, take 0.42 seconds, a sixth of the step; most of the time goes to the many smaller elementwise, layout and attention ops around them. A fused attention kernel would remove the largest of those costs: with splash attention unavailable, TorchTPU runs attention as separate matrix multiplies and an FP32 softmax.
+TorchTitan's `tflops` field, 9.4 per chip, is its FLOPs-per-token estimate (6 per non-embedding parameter, plus attention) times the token rate, without the recomputation of activation checkpointing. All matrix multiplies together, attention's included, take 0.42 seconds, a sixth of the step; most of the time goes to the many smaller elementwise, layout and attention ops around them. A fused attention kernel would remove the largest of those costs: with splash attention unavailable, TorchTPU runs attention as separate matrix multiplies and an FP32 softmax.
 
-libtt's changes on the `torchtitan-training` branch took a step from 6.29 to 2.67 seconds:
+libtt's changes on the `torchtitan-training` branch took a step from 6.29 to 2.55 seconds:
 
 | Change | Seconds per step | Tokens per second per chip |
 | --- | --- | --- |
@@ -170,6 +170,7 @@ libtt's changes on the `torchtitan-training` branch took a step from 6.29 to 2.6
 | Programs take their arguments tiled, instead of converting them at every program boundary | 3.17 | 646 |
 | The same, on C4 with the Qwen3 tokenizer instead of the preset's test data | 3.07 | 666 |
 | The fused QKV projection's heads stay as rows of [S × groups, heads × D], instead of tiles padded by the small group dimension | 2.67 | 768 |
+| Scatter-adds deal the table's rows out to the cores in turn, so that the embedding gradient's most frequent tokens don't all land on one core | 2.55 | 804 |
 
 The first four rows use the preset's test data and tokenizer, whose token IDs make the embedding gradient slower.
 
