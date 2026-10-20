@@ -1,6 +1,6 @@
 +++
 title = "Software stack"
-description = "How PyTorch via torchax and JAX reach Tenstorrent through libtt, and where TorchTPU fits in the roadmap."
+description = "How PyTorch through TorchTPU and JAX reach Tenstorrent chips through libtt, and where to look when something breaks."
 weight = 20
 +++
 
@@ -8,12 +8,12 @@ weight = 20
 
 The goal is to run existing frameworks and model code unmodified, or close to it. Rather than porting each model to the hardware, we put the compatibility work into the compiler and runtime and reuse upstream framework code.
 
-PyTorch programs go through [torchax](https://github.com/google/torchax), which maps PyTorch operations onto JAX. JAX programs use the backend directly:
+PyTorch programs run on [TorchTPU](https://github.com/google-pytorch/torch_tpu), Google's PyTorch backend for TPUs, and JAX programs run on JAX. Both lower their programs to StableHLO and hand them to a PJRT plugin, which libtt provides:
 
 ```text
-PyTorch program → torchax ─┐
-JAX program / SGLang-JAX ──┘
-  → JAX tracing and StableHLO lowering
+PyTorch program / TorchTitan → TorchTPU ─┐
+JAX program / SGLang-JAX → JAX ──────────┘
+  → StableHLO
   → libtt PJRT plugin (implementation from tt-xla)
   → tt-mlir compilation
   → tt-metal runtime and kernels
@@ -24,18 +24,18 @@ JAX program / SGLang-JAX ──┘
 
 ## Framework support and TorchTPU
 
-Today you can use JAX directly, or PyTorch through torchax. Once TorchTPU is open-sourced, we plan to build PyTorch support around it.
+JAX finds libtt as a plugin once the wheel is installed. TorchTPU loads its PJRT plugin from `TPU_LIBRARY_PATH`; with `LIBTT_TPU_COMPAT=1`, libtt points that at itself and makes TorchTPU see the Blackhole chips as TPU devices. TorchTPU then runs eagerly or with `torch.compile`, on one chip or with one process per chip, launched as on a TPU VM. The [training guide](@/docs/training.md) uses it to run TorchTitan on four chips, and [libtt's TorchTPU notes](https://github.com/pcmoritz/libtt/blob/main/docs/torch-tpu.md) list what doesn't work yet.
 
-The backend is experimental and op coverage is still growing. The [first experiment](@/docs/first-experiment.md) exercises the backend with a small JAX program; for PyTorch, start with the [torchax examples](https://github.com/google/torchax).
+The backend is experimental and op coverage is still growing. The [first experiment](@/docs/first-experiment.md) exercises the backend with a small JAX program.
 
 ## Know the interfaces
 
 | Component | What it does | Look here when |
 | --- | --- | --- |
-| torchax | Maps PyTorch operations to JAX and provides tensor interoperability. | A PyTorch operation cannot be translated or behaves differently after conversion. |
+| TorchTPU | Runs PyTorch operations eagerly or under `torch.compile`, lowers them to StableHLO, and sets up one process per chip. | A PyTorch operation fails to lower or behaves differently than on the CPU. |
 | JAX | Traces Python array operations and lowers a compiled function to StableHLO. | The traced program has an unexpected shape, dtype, or operation. |
 | StableHLO | Represents the tensor computation passed to the compiler. | You need a compiler input independent of the Python application. |
-| PJRT / [tt-xla](https://github.com/tenstorrent/tt-xla) | Exposes devices, buffers, compilation, and execution to JAX. | Plugin discovery, device initialization, or buffer handling fails. |
+| PJRT / [tt-xla](https://github.com/tenstorrent/tt-xla) | Exposes devices, buffers, compilation, and execution to JAX and TorchTPU. | Plugin discovery, device initialization, or buffer handling fails. |
 | [tt-mlir](https://github.com/tenstorrent/tt-mlir) | Lowers the input program to Tenstorrent operations and executable artifacts. | An operation is unsupported or compilation produces incorrect code. |
 | [tt-metal](https://github.com/tenstorrent/tt-metal) / Metalium | Supplies the runtime, kernels, memory movement, and device execution. | A compiled program hangs, produces incorrect output, or spends time moving data. |
 

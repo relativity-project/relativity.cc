@@ -1,158 +1,189 @@
 +++
 title = "Training"
-description = "Train a tiny TorchTitan Qwen3 model on a p150a, save its weights, and check the checkpoint with PyTorch."
+description = "Train Qwen3-1.7B on the four chips of a QuietBox 2 with TorchTitan and TorchTPU, launched the same way as on a Cloud TPU."
 weight = 40
 +++
 
-## Train a tiny Qwen3 model
+## Train Qwen3-1.7B on four chips
 
-This walkthrough trains a **31,987,968-parameter Qwen3 decoder** from scratch on one Blackhole p150a. It uses [TorchTitan's Qwen3 model](https://github.com/pytorch/torchtitan/tree/63de14f5876a195cbe805438614f7b777e1f0daa/torchtitan/models/qwen3), [TorchAX](https://github.com/google/torchax/tree/b2d44f0d6a25db265fe1d93d58dab5de0bf865ca) to run its PyTorch operations through JAX, and libtt to run them on the device. A small TorchAX loop handles the forward pass, gradients and SGD updates.
+[TorchTPU](https://github.com/google-pytorch/torch_tpu) is Google's PyTorch backend for TPUs. It drives its chips through the PJRT C API, which libtt implements, so TorchTPU also runs on Blackhole. This guide trains Qwen3-1.7B from scratch on the four chips of a [QuietBox 2](../../hardware/#quietbox-2) with [TorchTitan's TPU trainer](https://github.com/google-pytorch/torchtitan/tree/61bdf4c2/torchtitan/experiments/tpu). TorchTitan and TorchTPU are unmodified, and the install and launch follow their instructions for a TPU VM, with a few additions for the Blackhole chips.
 
-You'll train on a fixed sequence of token IDs, watch the loss drop, save a checkpoint, and reload it in plain PyTorch to check it. A fixed batch makes learning easy to see, and you don't need to download a tokenizer, dataset or pretrained weights.
-
-Run the [device check](@/docs/getting-started.md#verify-jax-execution) first. You need an x86-64 Linux machine with a working p150a, `uv`, Git and `curl`. Everything runs on one device; TorchTitan's distributed trainer isn't covered here.
-
-## 1. Get the script and dependencies
-
-Download the [training script](../../examples/train_tiny_qwen3.py) and [requirements file](../../examples/training-requirements.txt). Use a fresh environment, since this recipe pins JAX 0.7.1 and specific TorchTitan and TorchAX commits.
-
-```sh
-mkdir -p tiny-qwen3
-cd tiny-qwen3
-curl -fLO https://relativity.cc/examples/train_tiny_qwen3.py
-curl -fLO https://relativity.cc/examples/training-requirements.txt
-uv venv --python 3.12 .venv
-source .venv/bin/activate
-uv pip install "torch==2.13.0+cpu" --index-url https://download.pytorch.org/whl/cpu
-uv pip install -r training-requirements.txt
-```
-
-The requirements pin the published `jax-tt-plugin==0.1.0` wheel, JAX/jaxlib 0.7.1, Optax 0.2.4, and the TorchTitan and TorchAX commits. The CPU build of PyTorch provides the model API, and TorchAX sends the training computation to the JAX TT backend. Triton is only there because these packages import it.
-
-## 2. Understand the model and task
-
-The script uses TorchTitan's upstream `qwen3_configs["debugmodel"]` preset. TorchTitan defines the architecture and initialization; the script only sets the sequence length and swaps the attention implementation for TorchAX. The settings are:
+The run uses TorchTitan's `qwen3_1_7b` preset:
 
 | Setting | Value |
 | --- | --- |
-| Transformer layers | 8 |
-| Model width / feed-forward width | 256 / 3,072 |
-| Attention heads / KV heads | 16 / 8, with 128 elements per head |
-| Vocabulary | 2,048 token IDs |
-| Batch | One sequence of 32 tokens |
-| Parameters | 31,987,968, with shared embedding and output weights |
-| Parameter dtype | BF16 |
-| Optimizer | SGD, learning rate 0.05 |
-| Initialization seed | 0 |
+| Model | Qwen3-1.7B: 28 layers, 2.03 billion parameters with separate input and output embeddings |
+| Data | [C4](https://huggingface.co/datasets/allenai/c4) English, streamed from Hugging Face, with the Qwen3 tokenizer |
+| Parallelism | FSDP across 4 chips, one process per chip |
+| Batch | One 2,048-token sequence per chip, 8,192 tokens per step |
+| Precision | BF16 compute, FP32 parameters and optimizer state, BF16 gradient reduction |
+| Optimizer | AdamW, learning rate 8e-4, weight decay 0.1, gradient clipping at 1.0 |
+| Memory | Full activation checkpointing |
+| Compilation | `torch.compile` of each transformer block |
 
-The batch comes from these two lines in the script:
+A 500-step run with two checkpoints took 24 minutes. After the first step, which compiles each process's programs, a step takes 2.67 seconds: **768 tokens per second per chip**, 3,070 for the four. Over the 4.1 million tokens, the loss falls like this, averaged over 50 steps:
 
-```python
-tokens = torch.arange(seq_len, dtype=torch.int64) % vocab_size
-labels = (tokens + 1) % vocab_size
-```
+| Steps | 1–50 | 51–100 | 101–150 | 151–200 | 201–250 | 251–300 | 301–350 | 351–400 | 401–450 | 451–500 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Loss | 8.33 | 7.19 | 6.95 | 6.82 | 6.68 | 6.57 | 6.51 | 6.41 | 6.28 | 6.35 |
 
-With the defaults, the inputs are `0, 1, ..., 31` and the targets are `1, 2, ..., 32`. Causal attention lets each position see itself and earlier positions, so repeating this batch teaches the model to predict the next integer. A useful text model would also need varied text, a tokenizer and a held-out evaluation set.
+The first step's loss is 12.20, a little above the 11.93 of a uniform guess over the 151,936-token vocabulary. Each step sees only 8,192 tokens, so single steps scatter around these averages with a standard deviation of 0.2 to 0.35.
 
-The preset uses FlexAttention, which the script replaces with a small adapter around PyTorch's `scaled_dot_product_attention` so it runs under TorchAX. The adapter transposes TorchTitan's `[tokens, heads, head_dim]` layout to `[heads, tokens, head_dim]`, applies causal grouped-query attention, and transposes back. Everything else (transformer blocks, fused QKV projections, normalization, rotary embeddings, feed-forward layers) comes straight from the upstream preset. The rotary cache is sized for the 32-token sequence.
+## 1. Install
 
-## 3. Run 20 training steps
+You need a QuietBox 2 with working drivers (or another machine with four Blackhole chips), [uv](https://docs.astral.sh/uv/getting-started/installation/), Git and [Bazelisk](https://github.com/bazelbuild/bazelisk). Run the [device check](@/docs/getting-started.md#verify-jax-execution) first.
 
-In the activated environment:
+TorchTPU on several chips needs libtt's [`torchtitan-training` branch](https://github.com/pcmoritz/libtt/tree/torchtitan-training), which isn't in a released `jax-tt-plugin` wheel yet. Build the wheel from it, as in [Build and test libtt](@/docs/software-stack.md#build-and-test-libtt). The first build compiles LLVM, the compiler and the runtime, so it takes a while:
 
 ```sh
-env -u TT_METAL_RUNTIME_ROOT \
-  python -u train_tiny_qwen3.py \
-  --backend tt \
-  --steps 20 \
-  --output tiny-qwen3.pt
-uv pip freeze > training-environment.txt
+git clone -b torchtitan-training https://github.com/pcmoritz/libtt.git
+(cd libtt && bazel build -c opt //:jax_tt_plugin_wheel)
 ```
 
-The script selects the TT backend and turns off the Shardy partitioner. The device line should say `TTDevice(id=0, arch=Blackhole)`.
+Then clone TorchTitan at the tested commit and install its TPU dependencies in the order of [TorchTitan's README](https://github.com/google-pytorch/torchtitan/blob/61bdf4c2/torchtitan/experiments/tpu/README.md). Its files pin conflicting versions, so install them one after another rather than in one command:
 
-Each step computes the cross-entropy loss, takes gradients for every trainable parameter, and applies an SGD update. This is where the training step is put together:
-
-```python
-optimizer = optax.sgd(args.learning_rate)
-opt_state = interop.call_jax(optimizer.init, params)
-train_step = torchax.train.make_train_step(model_fn, loss_fn, optimizer)
-train_step = interop.jax_jit(
-    train_step, kwargs_for_jax_jit={"donate_argnums": (0, 2)}
-)
+```sh
+git clone https://github.com/google-pytorch/torchtitan.git
+cd torchtitan
+git checkout 61bdf4c2
+uv venv --python 3.12
+source .venv/bin/activate
+CPU="--extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match"
+uv pip install "torch==2.14.1" --index-url https://download.pytorch.org/whl/cpu
+uv pip install -r torchtitan/experiments/tpu/requirements.txt \
+  -f https://storage.googleapis.com/jax-releases/libtpu_releases.html $CPU
+uv pip install -r requirements.txt -r .ci/docker/requirements-flux.txt $CPU
+uv pip install "torch_tpu==0.2.0" ../libtt/bazel-bin/jax_tt_plugin-0.1.2-py3-none-linux_x86_64.whl $CPU
 ```
 
-`JittableModule` gives you a functional version of the TorchTitan model, with parameters and buffers passed in explicitly. The parameters and optimizer state returned by one step feed the next. After moving the model to TorchAX, the script re-ties the shared embedding/output weight so that training and checkpoint loading see the same model.
+The README installs a PyTorch nightly. TorchTPU 0.2.0 accepts PyTorch 2.11 to 2.15, and this guide uses the 2.14.1 release, which libtt's TorchTPU support is tested with.
 
-The loss is computed with an explicit one-hot/log-softmax reduction, which is equivalent to cross-entropy. On the pinned TT backend, `F.cross_entropy` returned wrong loss values in this graph.
+Download the Qwen3 tokenizer with TorchTitan's script. The model itself starts from random weights:
 
-Here are the losses from a tested p150a run, with runtime logs and per-step timings left out:
+```sh
+python scripts/download_hf_assets.py --repo_id Qwen/Qwen3-1.7B --assets tokenizer
+```
+
+## 2. Train
+
+Turn on TorchTPU support in libtt, let TorchTPU describe the chips to `torchrun`, reset the chips, and start one process per chip:
+
+```sh
+export LIBTT_TPU_COMPAT=1
+eval $(python -m torch.tpu.distributed | sed 's/^/export /')
+tt-smi -r
+env -u TT_METAL_RUNTIME_ROOT -u TT_MESH_GRAPH_DESC_PATH -u TT_VISIBLE_DEVICES \
+torchrun --nproc_per_node=4 -m torchtitan.experiments.tpu.train \
+  --module=torchtitan.experiments.tpu.qwen3 \
+  --config=qwen3_1_7b \
+  --splash_attention_kernel.no_use_splash_attention_kernel \
+  --hf_assets_path=assets/hf/Qwen3-1.7B \
+  --dataloader.dataset=c4 \
+  --training.steps=500 \
+  --lr_scheduler.warmup_steps=50
+```
+
+What each part does:
+
+- `LIBTT_TPU_COMPAT=1` makes TorchTPU load libtt instead of Google's libtpu. It also reports the Blackhole chips as TorchTPU devices and turns off TorchTPU's Pallas flash attention, which only TPUs can run.
+- `tt-smi -r` resets the chips. Do it before every run: after a run with one process per chip, even one that finished normally, the chips' ethernet cores don't come back up for the next run, which then stops with `Timed out while waiting for active ethernet core`.
+- `python -m torch.tpu.distributed` is TorchTPU's launch helper. It prints the chip topology and one address per process, which TorchTPU uses to give each process its own chip and to connect the processes.
+- `env -u` clears settings from other recipes, such as the [inference guide's](@/docs/inference.md#use-several-chips) chip list. libtt sets the chip and a four-chip mesh for each process itself.
+- `--splash_attention_kernel.no_use_splash_attention_kernel` turns off the preset's splash attention, another Pallas kernel. Attention runs through PyTorch's `scaled_dot_product_attention` instead.
+- `--dataloader.dataset=c4` streams C4 instead of the small test file the preset trains on. `--training.steps` and `--lr_scheduler.warmup_steps` shorten the preset's schedule for a run of about half an hour.
+
+Each process compiles its programs during the first step: about 20 seconds when TT-Metal's kernels are already in its cache, and two to three minutes when it has to build them. After that, every process prints a line per step:
 
 ```text
-device: TTDevice(id=0, arch=Blackhole)
-parameters: 31,987,968
-step 01: loss=7.735438
-step 05: loss=5.682494
-step 10: loss=4.183215
-step 20: loss=2.713692
-final loss: 2.477034
-checkpoint: tiny-qwen3.pt
-training: ok
+step: 250  loss:  6.76693  grad_norm:  0.9794  memory: -0.00GiB(-0.00%)  tps: 768  tflops: 9.02  mfu: 2.89%  time_end_to_end: 2.67s
 ```
 
-Each step's loss is measured before its update; the final loss comes from the saved weights after all 20 updates. The script fails if any loss is non-finite or if the final loss isn't lower than the first. The loss doesn't have to drop at every single step.
+`tps` is tokens per second per chip. TorchTitan doesn't know the Blackhole's peak throughput and computes `mfu` against an A100, and libtt doesn't report device memory to PyTorch, so ignore those two fields.
 
-The first step includes compilation and can take tens of seconds on an empty cache. Step times include waiting for both the loss and the updated weights on the device. This tiny batch is for learning and debugging; its timings say nothing about full-model training throughput.
+## 3. Save and resume
 
-## 4. Reload and check the trained weights
+TorchTitan saves checkpoints with PyTorch's distributed checkpointing: each process writes its shards of the model and the optimizer state, and the data loader's position. Add `--checkpoint.enable` to the training command to save to `outputs/checkpoint` every 500 steps (`--checkpoint.interval`) and after the last step. Running the command again with a larger `--training.steps` resumes from the latest checkpoint.
 
-The checkpoint is a regular PyTorch state dict plus the model preset, sequence length, seed, step count, learning rate, and the first and final losses. Reload it on the CPU and evaluate the same task there:
+With streamed C4, also add `--checkpoint.exclude_from_loading dataloader` when you resume. TorchTitan can't load the data loader's position for a streamed dataset and stops with `Missing key in checkpoint state_dict: dataloader.dp_rank_0.parent_state.parent.hf.examples_iterable.previous_state`, on the CPU as well, so the flag loads the model and the optimizer and starts the data stream over.
+
+A Qwen3-1.7B checkpoint, with the AdamW state, takes 23 GB and 13 to 14 seconds to save. A save also compiles its programs the first time a process makes one, which can add about a minute when TT-Metal has to build their kernels.
+
+Resuming is exact. With TorchTitan's local test data, whose loader position loads fine, a run resumed from its step-3 checkpoint reproduced steps 4 to 6, and its step-6 checkpoint matched the uninterrupted run's bit for bit in all 1,076 tensors. The C4 run above, resumed from step 500 with the flag, loaded its checkpoint in 30 seconds and went on at the same loss, around 6.2, and the same speed.
+
+## 4. Check the numbers against the CPU
+
+A falling loss doesn't prove that the chips compute the right thing, so compare against PyTorch on the CPU. TorchTitan can write a seed checkpoint with a model's initial weights, and runs that load it with `--checkpoint.load_only` train the same model on the same data without saving. With `TORCH_DEVICE_BACKEND_AUTOLOAD=0`, TorchTPU doesn't load and PyTorch runs on the CPU. TorchTitan's debug model and test data keep the CPU run to a few minutes per step:
 
 ```sh
-python - <<'PY'
-import torch
-import torch.nn.functional as F
-
-from train_tiny_qwen3 import build_model, make_batch
-
-checkpoint = torch.load("tiny-qwen3.pt", map_location="cpu", weights_only=True)
-config = checkpoint["config"]
-model = build_model(**config)
-model.load_state_dict(checkpoint["model"])
-model.eval()
-tokens, labels = make_batch(config["seq_len"], model.config.vocab_size)
-
-with torch.inference_mode():
-    logits = model(tokens).float()
-    loss = F.cross_entropy(logits, labels)
-    correct = (logits.argmax(-1) == labels).sum().item()
-
-torch.testing.assert_close(
-    loss, torch.tensor(checkpoint["final_loss"]), rtol=1e-2, atol=1e-2
-)
-print(f"CPU checkpoint loss: {loss.item():.6f}")
-print(f"correct next tokens: {correct}/{labels.numel()}")
-print("PASS: checkpoint loss matches TT within tolerance")
-PY
+ARGS="--module=torchtitan.experiments.tpu.qwen3 --config=qwen3_debugmodel \
+  --parallelism.use_simple_fsdp --training.steps=4 \
+  --checkpoint.enable --checkpoint.folder=ckpt/seed"
+TORCH_DEVICE_BACKEND_AUTOLOAD=0 torchrun --nproc_per_node=1 \
+  -m torchtitan.experiments.tpu.train $ARGS --checkpoint.create_seed_checkpoint
+TORCH_DEVICE_BACKEND_AUTOLOAD=0 torchrun --nproc_per_node=4 \
+  -m torchtitan.experiments.tpu.train $ARGS --checkpoint.load_only
+tt-smi -r
+torchrun --nproc_per_node=4 -m torchtitan.experiments.tpu.train $ARGS --checkpoint.load_only
 ```
 
-In the run above, the reloaded checkpoint had a loss of **2.478699** and predicted **28/32** next tokens correctly, so the weights check out in plain PyTorch, not just on the device. Keep in mind this is TorchTitan's debug preset trained on toy data, not a Qwen model you can serve.
+These are the losses and gradient norms of the 4-process CPU run and the 4-chip run:
 
-## 5. Try another experiment
+| Step | 1 | 2 | 3 | 4 |
+| --- | --- | --- | --- | --- |
+| CPU loss | 7.67712 | 6.75435 | 6.19516 | 5.97025 |
+| Chip loss | 7.67713 | 6.75506 | 6.19494 | 5.97012 |
+| CPU gradient norm | 1.9657 | 2.9336 | 3.6235 | 3.4442 |
+| Chip gradient norm | 1.9618 | 2.9295 | 3.6230 | 3.4439 |
 
-Once the TT process has exited, run the same training loop on the CPU from the same starting weights:
+After the four steps, the chips' weights differ from the CPU's by at most 0.15% (relative norm per tensor, 0.09% for the median tensor), while training moved them by about 8% from the seed. The CPU's and the chips' kernels round differently, so the runs drift apart slowly.
 
-```sh
-python -u train_tiny_qwen3.py \
-  --backend cpu \
-  --steps 20 \
-  --output tiny-qwen3-cpu.pt
-```
+The same check works with `--config=qwen3_1_7b` and the arguments from step 2, plus `--compile.no_enable` for the CPU run, since TorchTPU's `torch.compile` backend isn't loaded there. Its seed checkpoint takes 23 GB with the optimizer state, and the CPU needs about three minutes per step. Over three steps from the same seed:
 
-Compare the loss curves, allowing for BF16 and backend rounding differences. (The checkpoint check above compared the *same trained weights* on two backends; two separate training runs can drift apart as rounding errors add up.)
+| Step | 1 | 2 | 3 |
+| --- | --- | --- | --- |
+| CPU loss | 12.3545 | 10.9783 | 12.2161 |
+| Chip loss | 12.3554 | 10.9724 | 12.2709 |
+| CPU gradient norm | 4.787 | 6.474 | 41.27 |
+| Chip gradient norm | 4.770 | 6.414 | 41.63 |
 
-From here, try more `--steps` or a different `--learning-rate`. The `config` dictionary in `main()` sets the upstream preset, sequence length and seed. On TT, keep the sequence length a multiple of 32. Larger TorchTitan presets need their own memory and execution checks.
+Both runs show the same jump of the gradient norm in step 3.
 
-To go beyond this fixed batch, add a tokenizer and a train/validation split, feed different batches each step, and evaluate on data the model hasn't seen. Bigger models need memory planning: parameters, gradients, optimizer state, activations and temporary buffers all take space. Adam, for example, adds two moment buffers on top of what SGD needs. Multi-card training needs its own validation of sharding and collectives.
+## 5. Where the time goes
 
-If a run fails, open a [libtt issue](https://github.com/pcmoritz/libtt/issues) with the command, `training-environment.txt`, the model settings, the loss trace and the full error. The [software stack guide](@/docs/software-stack.md#isolate-a-failure) shows how to narrow down a compiler or runtime failure.
+A step is limited by the chips: the processes queue programs faster than the chips run them, and each chip runs about 17,000 TT-NN programs per step. TT-Metal's per-program device profiler splits a chip's 2.65 seconds like this:
+
+| Work | Time per step | Share |
+| --- | --- | --- |
+| Attention: score and value matrix multiplies, causal mask, FP32 softmax and their gradients, on [16, 2048, 2048] scores | 0.73 s | 28% |
+| Other elementwise work: norms, rotary embeddings, SwiGLU, loss, gradient clipping, AdamW | 0.79 s | 30% |
+| Layout changes, slices and dtype casts | 0.48 s | 18% |
+| Projection, MLP and output-layer matrix multiplies | 0.26 s | 10% |
+| FSDP all-gathers and reduce-scatters | 0.25 s | 9% |
+| Embedding gradient (scatter-add into the 151,936-row table) | 0.14 s | 5% |
+
+TorchTitan's `tflops` field, 9.0 per chip, is its FLOPs-per-token estimate (6 per non-embedding parameter, plus attention) times the token rate, without the recomputation of activation checkpointing. All matrix multiplies together, attention's included, take 0.42 seconds, a sixth of the step; most of the time goes to the many smaller elementwise, layout and attention ops around them. A fused attention kernel would remove the largest of those costs: with splash attention unavailable, TorchTPU runs attention as separate matrix multiplies and an FP32 softmax.
+
+libtt's changes on the `torchtitan-training` branch took a step from 6.29 to 2.67 seconds:
+
+| Change | Seconds per step | Tokens per second per chip |
+| --- | --- | --- |
+| Working baseline | 6.29 | 326 |
+| Matrix multiplies read transposed operands in place, instead of permuting attention's score tensors | 4.95 | 414 |
+| Permutes drop size-1 dimensions, which tiles padded 32 times | 3.42 | 599 |
+| Programs take their arguments tiled, instead of converting them at every program boundary | 3.17 | 646 |
+| The same, on C4 with the Qwen3 tokenizer instead of the preset's test data | 3.07 | 666 |
+| The fused QKV projection's heads stay as rows of [S × groups, heads × D], instead of tiles padded by the small group dimension | 2.67 | 768 |
+
+The first four rows use the preset's test data and tokenizer, whose token IDs make the embedding gradient slower.
+
+## 6. Known gaps
+
+- libtt's support for TorchTPU on several chips is on a branch and needs a local build until it's released.
+- The chips need a `tt-smi -r` before every run with one process per chip (see step 2).
+- Splash attention is a Pallas kernel and doesn't run, so attention runs as separate matrix multiplies and an FP32 softmax. It's the largest cost left (see above).
+- Each process compiles its programs in the first step of every run, which takes about 20 seconds once TT-Metal's kernels are in its cache (`~/.cache/tt-metal-cache`). libtt doesn't support TorchTPU's persistent compilation cache.
+- `torch.manual_seed` doesn't make random draws on the chips repeat, so two runs start from different random weights. Load a seed checkpoint to compare runs exactly.
+- TorchTitan's `memory` and `mfu` fields don't describe the Blackhole chips.
+- Only the `qwen3_1_7b` and `qwen3_debugmodel` presets with SimpleFSDP (the presets' default for TPUs) are tested. Other models, tensor parallelism and FSDP2 may hit compiler or runtime gaps.
+
+If a run fails, open a [libtt issue](https://github.com/pcmoritz/libtt/issues) with the command, `uv pip freeze`, the libtt commit and the full error of the first process that failed. The [software stack guide](@/docs/software-stack.md#isolate-a-failure) shows how to narrow down a compiler or runtime failure.

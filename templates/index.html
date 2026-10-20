@@ -56,7 +56,7 @@
       <div class="stack-layer">
         <div class="layer-label"><small>applications</small></div>
         <div class="stack-nodes stack-nodes-paired">
-          <a class="stack-node" href="https://github.com/pytorch/torchtitan"><strong>PyTorch programs</strong><small>including torchtitan training</small></a>
+          <a class="stack-node" href="https://github.com/google-pytorch/torchtitan"><strong>PyTorch programs</strong><small>including TorchTitan training</small></a>
           <a class="stack-node" href="https://github.com/relativity-project/sglang-jax"><strong>JAX programs</strong><small>including SGLang-JAX serving</small></a>
         </div>
       </div>
@@ -70,7 +70,7 @@
       <div class="stack-layer">
         <div class="layer-label"><small>frontends</small></div>
         <div class="stack-nodes stack-nodes-paired">
-          <a class="stack-node" href="https://github.com/google/torchax"><strong>torchax → JAX</strong><small>PyTorch operations lowered through JAX</small></a>
+          <a class="stack-node" href="https://github.com/google-pytorch/torch_tpu"><strong>TorchTPU</strong><small>PyTorch eager and torch.compile</small></a>
           <a class="stack-node" href="https://github.com/jax-ml/jax"><strong>JAX</strong><small>direct tracing and lowering</small></a>
         </div>
       </div>
@@ -112,16 +112,16 @@
     <section class="status-section" aria-labelledby="status-title">
       <div class="status-grid">
         <article class="status-card status-card-working">
-          <div class="status-meta"><small>planned after open-source release</small></div>
+          <div class="status-meta"><small>pytorch</small></div>
           <h3>TorchTPU</h3>
-          <p>Once TorchTPU is open-sourced, we plan to build PyTorch support around it. Until then, PyTorch runs through torchax.</p>
-          <a href="{{ get_url(path='@/docs/software-stack.md') }}#framework-support-and-torchtpu">current support &amp; planned direction <span>→</span></a>
+          <p>PyTorch runs on TorchTPU, Google's PyTorch backend for TPUs, which loads libtt in place of libtpu.</p>
+          <a href="{{ get_url(path='@/docs/software-stack.md') }}#framework-support-and-torchtpu">how PyTorch reaches the chips <span>→</span></a>
         </article>
 
         <article class="status-card status-card-progress">
           <div class="status-meta"><small>in progress</small></div>
           <h3>Multiple chips</h3>
-          <p>Inference runs on up to four chips with tensor parallelism. Speculative decoding and training on more than one chip are still in progress.</p>
+          <p>Inference runs on up to four chips with tensor parallelism, and training with FSDP and one process per chip. Speculative decoding on more than one chip is still in progress.</p>
           <a href="{{ config.extra.repo_url }}/issues">track or report an issue <span>↗</span></a>
         </article>
 
@@ -135,8 +135,8 @@
         <article class="status-card status-card-contribute">
           <div class="status-meta"><small>experimental</small></div>
           <h3>Training</h3>
-          <p>Train a tiny TorchTitan Qwen3 model through TorchAX, watch the loss drop, and reload the checkpoint to check the weights.</p>
-          <a href="{{ get_url(path='@/docs/training.md') }}">train a small model <span>→</span></a>
+          <p>Train Qwen3-1.7B on four chips with TorchTitan and TorchTPU, using the same commands as on a Cloud TPU.</p>
+          <a href="{{ get_url(path='@/docs/training.md') }}">train with TorchTitan <span>→</span></a>
         </article>
       </div>
     </section>
