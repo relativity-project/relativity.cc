@@ -62,7 +62,7 @@ print(f"warm execution, median of 20: {median(samples_ms):.3f} ms")
 Run it in the environment where you installed the plugin:
 
 ```sh
-JAX_PLATFORMS=tt JAX_USE_SHARDY_PARTITIONER=false python matmul.py
+JAX_PLATFORMS=tt JAX_USE_SHARDY_PARTITIONER=true python matmul.py
 uv pip freeze > experiment-requirements.txt
 ```
 

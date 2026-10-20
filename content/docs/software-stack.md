@@ -39,7 +39,7 @@ The backend is experimental and op coverage is still growing. The [first experim
 | [tt-mlir](https://github.com/tenstorrent/tt-mlir) | Lowers the input program to Tenstorrent operations and executable artifacts. | An operation is unsupported or compilation produces incorrect code. |
 | [tt-metal](https://github.com/tenstorrent/tt-metal) / Metalium | Supplies the runtime, kernels, memory movement, and device execution. | A compiled program hangs, produces incorrect output, or spends time moving data. |
 
-In libtt's [last reported run of the JAX test suite](https://github.com/pcmoritz/libtt/blob/b50ce2db8c3dbdebf1ba1818cae833dc472f34e2/README.md), 22,837 tests passed, 2,800 failed and 6,531 were skipped.
+In libtt's [last reported run of the JAX test suite](https://github.com/pcmoritz/libtt/blob/ffc8122/README.md) (October 2026), 25,458 tests passed, 2,316 failed and 6,736 were skipped.
 
 ## Build and test libtt
 
