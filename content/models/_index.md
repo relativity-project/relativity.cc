@@ -48,7 +48,7 @@ These models run on SGLang-JAX's TT backend and libtt. Matmul weights, including
 
 A dash means the model doesn't fit on one chip or we haven't run that configuration yet. Dense models use full attention in every layer; the hybrid models (Qwen3.5, Qwen3.8) mix gated DeltaNet layers with full attention. The mixture-of-experts (MoE) models run each token through a few of their experts, with the experts split over the chips. Qwen3-30B-A3B and Qwen3.5-35B-A3B use 8 of 128 and 256 experts, about 3B active parameters, and need at least two chips; Qwen3.8-Flash-Next uses 10 of 512 and needs four. Qwen3.5-35B-A3B and Qwen3.8-Flash-Next are also hybrid.
 
-Measured on a [QuietBox 2](../hardware/#quietbox-2) with libtt `a1a7d51` and SGLang-JAX `e1db2ea` (`2482d9e` for Qwen3.8-Flash-Next, see [Run a model](#run-a-model)), using the [inference recipe](@/docs/inference.md) with `--tp-size` set to the chip count and overlap scheduling on: remove `--disable-overlap-schedule` from the launch command. Each number is greedy decoding of 128 tokens, one request at a time and without [speculative decoding](#speculative-decoding), taking the median of five runs after two warmups.
+Measured on a [QuietBox 2](../hardware/#quietbox-2) with libtt `a1a7d51` and SGLang-JAX `e1db2ea` (`30a60ce` for Qwen3.8-Flash-Next, see [Run a model](#run-a-model)), using the [inference recipe](@/docs/inference.md) with `--tp-size` set to the chip count and overlap scheduling on: remove `--disable-overlap-schedule` from the launch command. Each number is greedy decoding of 128 tokens, one request at a time and without [speculative decoding](#speculative-decoding), taking the median of five runs after two warmups.
 
 ## Batched throughput
 
@@ -94,7 +94,7 @@ Decode throughput on four chips with several requests in flight. Each request se
 
 To serve more requests at once, raise `--max-running-requests` and `--max-total-tokens` in the launch command (we used 16 and 4096). For Qwen3.5 and Qwen3.8, also set `--max-recurrent-state-size` to the same value as `--max-running-requests`; otherwise SGLang-JAX keeps a quarter of the recurrent state slots in reserve and runs at most 12 of 16 requests at once.
 
-These batched numbers also use overlap scheduling, with libtt `a1a7d51` and SGLang-JAX `e1db2ea` (`2482d9e` for Qwen3.8-Flash-Next).
+These batched numbers also use overlap scheduling, with libtt `a1a7d51` and SGLang-JAX `e1db2ea` (`30a60ce` for Qwen3.8-Flash-Next).
 
 ## Speculative decoding
 
@@ -120,7 +120,22 @@ Keep `--disable-overlap-schedule` from the recipe with these flags: SGLang-JAX o
 
 ## Run a model
 
-Start from the multi-chip command in the [inference recipe](@/docs/inference.md#use-several-chips) and change `--model-path` and `--tp-size`. The mixture-of-experts models also need `--moe-backend fused`. Qwen3.8-Flash-Next also needs SGLang-JAX with [pull request #8](https://github.com/relativity-project/sglang-jax/pull/8) (`2482d9e`) and safetensors with [pull request #862](https://github.com/safetensors/safetensors/pull/862) until they are merged: with them, its weights stay in the memory-mapped checkpoint instead of being copied into RAM. Qwen3.5 and Qwen3.8 also need CPU builds of PyTorch and torchvision; add `--with "torch" --with "torchvision" --index "https://download.pytorch.org/whl/cpu" --index-strategy unsafe-best-match`.
+Start from the multi-chip command in the [inference recipe](@/docs/inference.md#use-several-chips) and change `--model-path` and `--tp-size`. The mixture-of-experts models also need `--moe-backend fused`. Qwen3.5 and Qwen3.8 also need CPU builds of PyTorch and torchvision; add `--with "torch" --with "torchvision" --index "https://download.pytorch.org/whl/cpu" --index-strategy unsafe-best-match`.
+
+Qwen3.8-Flash-Next also needs safetensors with [pull request #862](https://github.com/safetensors/safetensors/pull/862) until it is merged, so that its weights stay in the memory-mapped checkpoint instead of being copied into RAM. SGLang-JAX pins an older safetensors, which `uv run` can't override, so install everything into an environment with the override instead (building safetensors from source needs a Rust toolchain):
+
+```sh
+echo 'safetensors @ git+https://github.com/pcmoritz/safetensors.git@numpy-zero-copy#subdirectory=bindings/python' > overrides.txt
+uv venv --python 3.12 flash-next
+uv pip install --python flash-next/bin/python \
+  "sglang-jax @ git+https://github.com/relativity-project/sglang-jax.git#subdirectory=python" \
+  "jax-tt-plugin" "jax==0.11.1" "jaxlib==0.11.1" "torch" "torchvision" \
+  --index "https://download.pytorch.org/whl/cpu" \
+  --index-strategy unsafe-best-match \
+  --override overrides.txt
+```
+
+Then run the multi-chip command with `flash-next/bin/python -m sgl_jax.launch_server` in place of `uv run ... -m sgl_jax.launch_server`, with `--model-path Qwen/Qwen3.8-Flash-Next` and `--tp-size 4`.
 
 ## Known gaps
 
