@@ -37,17 +37,17 @@ Create a separate environment for your experiments:
 ```sh
 uv venv --python 3.12 .venv
 source .venv/bin/activate
-uv pip install "jax==0.8.1" "jaxlib==0.8.1" "jax-tt-plugin==0.1.0"
+uv pip install "jax==0.11.1" "jaxlib==0.11.1" "jax-tt-plugin==0.1.2"
 ```
 
-These versions match [libtt's reference inference recipe](https://github.com/pcmoritz/libtt/blob/b50ce2db8c3dbdebf1ba1818cae833dc472f34e2/README.md) and the [published plugin wheel](https://pypi.org/project/jax-tt-plugin/0.1.0/). The wheel bundles the compiler and runtime, so you don't need to install tt-metal separately.
+These versions match [libtt's reference inference recipe](https://github.com/pcmoritz/libtt/blob/a1a7d51/README.md) and the [published plugin wheel](https://pypi.org/project/jax-tt-plugin/0.1.2/). The wheel bundles the compiler and runtime, so you don't need to install tt-metal separately.
 
 ## Verify JAX execution
 
 Run this inside the environment:
 
 ```sh
-JAX_PLATFORMS=tt JAX_USE_SHARDY_PARTITIONER=false python - <<'PY'
+JAX_PLATFORMS=tt JAX_USE_SHARDY_PARTITIONER=true python - <<'PY'
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -62,7 +62,7 @@ print("PASS: addition on", y.device)
 PY
 ```
 
-`JAX_PLATFORMS=tt` makes JAX fail loudly if the TT backend can't start, instead of quietly falling back to the CPU. `JAX_USE_SHARDY_PARTITIONER=false` matches libtt's reference configuration. If you see `PASS`, the plugin can open the device, compile a program and return correct results. That's a smoke test; it doesn't mean larger models will work.
+`JAX_PLATFORMS=tt` makes JAX fail loudly if the TT backend can't start, instead of quietly falling back to the CPU. `JAX_USE_SHARDY_PARTITIONER=true` matches libtt's reference configuration. If you see `PASS`, the plugin can open the device, compile a program and return correct results. That's a smoke test; it doesn't mean larger models will work.
 
 ## If a check fails
 
