@@ -480,12 +480,14 @@ h1 {
 
 .models-page { min-height: calc(100vh - 230px); }
 
-/* Model performance: two rows per model, tinted by metric. */
+/* Model performance: a few rows per model, tinted by metric. */
 .perf-key { color: var(--muted); font-size: .875rem; line-height: 1.8; }
 .perf-key-decode,
+.perf-key-sampled,
 .perf-key-total,
 .perf-key-ttft { display: inline-block; min-width: 7.5em; padding: 0 8px; margin-right: 10px; font-weight: 500; }
 .perf-key-decode { color: var(--blue); background: rgba(77, 163, 255, .12); }
+.perf-key-sampled { color: var(--blue); background: transparent; box-shadow: inset 0 0 0 1px rgba(77, 163, 255, .35); }
 .perf-key-ttft { color: var(--red); background: rgba(255, 77, 61, .10); }
 .perf-key-total { color: var(--ink); background: rgba(243, 240, 232, .08); }
 .docs-prose .perf-table td { text-align: right; font-variant-numeric: tabular-nums; }
@@ -497,6 +499,8 @@ h1 {
 .docs-prose .perf-table td.perf-metric { text-align: left; white-space: nowrap; font-weight: 500; }
 .perf-table .perf-decode td { background: rgba(77, 163, 255, .035); }
 .perf-table .perf-decode td.perf-metric { color: var(--blue); }
+.perf-table .perf-sampled td { background: transparent; }
+.perf-table .perf-sampled td.perf-metric { color: var(--blue); }
 .perf-table .perf-ttft td { background: rgba(255, 77, 61, .03); }
 .perf-table .perf-ttft td.perf-metric { color: var(--red); }
 .perf-table .perf-total td { background: transparent; }
@@ -1106,6 +1110,7 @@ a:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
   .docs-prose .perf-table th,
   .docs-prose .perf-table td { padding: 10px 10px; }
   .perf-key-decode,
+  .perf-key-sampled,
   .perf-key-total,
   .perf-key-ttft { min-width: 0; }
   .docs-toc { display: none; }
