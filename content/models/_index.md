@@ -56,7 +56,7 @@ These models run on SGLang-JAX's TT backend and libtt. Matmul weights, including
 
 A dash means the model doesn't fit on one chip or we haven't run that configuration yet. Dense models use full attention in every layer; the hybrid models (Qwen3.5, Qwen3.8) mix gated DeltaNet layers with full attention. The mixture-of-experts (MoE) models run each token through a few of their experts, with the experts split over the chips. Qwen3-30B-A3B and Qwen3.5-35B-A3B use 8 of 128 and 256 experts, about 3B active parameters, and need at least two chips; Qwen3.8-Flash-Next uses 10 of 512 and needs four. Qwen3.5-35B-A3B and Qwen3.8-Flash-Next are also hybrid.
 
-Measured on a [QuietBox 2](../hardware/#quietbox-2) with libtt 0.1.3 and SGLang-JAX `9d833a7` with the [`skip-unneeded-masks`](https://github.com/relativity-project/sglang-jax/compare/main...skip-unneeded-masks) branch on top (`63e2d95`), using the [inference recipe](@/docs/inference.md) with `--tp-size` set to the chip count, overlap scheduling on (remove `--disable-overlap-schedule` from the launch command) and `JAX_DEFAULT_PRNG_IMPL=unsafe_rbg` (see [Sampling](#sampling)). Each number decodes 128 tokens, one request at a time and without [speculative decoding](#speculative-decoding), taking the median of five runs after two warmups.
+Measured on a [QuietBox 2](../hardware/#quietbox-2) with libtt 0.1.3 and SGLang-JAX `fc0a170`, using the [inference recipe](@/docs/inference.md) with `--tp-size` set to the chip count, overlap scheduling on (remove `--disable-overlap-schedule` from the launch command) and `JAX_DEFAULT_PRNG_IMPL=unsafe_rbg` (see [Sampling](#sampling)). Each number decodes 128 tokens, one request at a time and without [speculative decoding](#speculative-decoding), taking the median of five runs after two warmups.
 
 ## Sampling
 
@@ -79,8 +79,6 @@ With it, sampling at temperature 0.7 adds 2 to 3 ms per token for the Qwen3 mode
 | `temperature: 0.7, top_p: 0.95, top_k: 20` | 31.9 | 55.8 |
 
 In a batch, a search runs for every request as long as any request in the batch needs it. `min_p` filters without a search.
-
-Skipping the searches a batch doesn't need comes from the `skip-unneeded-masks` branch of SGLang-JAX. Until it is merged, SGLang-JAX `main` runs both searches for every sampled request, which gives them all the speed of the last row, and ignores `min_p` when serving.
 
 ## Batched throughput
 
