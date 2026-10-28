@@ -37,10 +37,10 @@ Create a separate environment for your experiments:
 ```sh
 uv venv --python 3.12 .venv
 source .venv/bin/activate
-uv pip install "jax==0.11.1" "jaxlib==0.11.1" "jax-tt-plugin==0.1.3"
+uv pip install "jax==0.11.1" "jaxlib==0.11.1" "jax-tt-plugin==0.1.4"
 ```
 
-These versions match [libtt's reference inference recipe](https://github.com/pcmoritz/libtt/blob/v0.1.3/README.md) and the [published plugin wheel](https://pypi.org/project/jax-tt-plugin/0.1.3/). The wheel bundles the compiler and runtime, so you don't need to install tt-metal separately.
+These versions match [libtt's reference inference recipe](https://github.com/pcmoritz/libtt/blob/v0.1.4/README.md) and the [published plugin wheel](https://pypi.org/project/jax-tt-plugin/0.1.4/). The wheel bundles the compiler and runtime, so you don't need to install tt-metal separately.
 
 ## Verify JAX execution
 
