@@ -13,44 +13,44 @@ These models run on SGLang-JAX's TT backend and libtt. Matmul weights, including
 <table class="perf-table">
 <thead><tr><th scope="col">Model</th><th scope="col">Metric</th><th scope="col">1 chip</th><th scope="col">2 chips</th><th scope="col">4 chips</th></tr></thead>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3-8B">Qwen3-8B</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td>44.8</td><td>78.5</td><td>121.8</td></tr>
-<tr class="perf-sampled"><td class="perf-metric">sampled</td><td>41.3</td><td>66.8</td><td>90.3</td></tr>
-<tr class="perf-ttft"><td class="perf-metric">first token</td><td>116</td><td>78</td><td>55</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3-8B">Qwen3-8B</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td>44.5</td><td>77.7</td><td>119.7</td></tr>
+<tr class="perf-sampled"><td class="perf-metric">sampled</td><td>41.7</td><td>68.8</td><td>98.3</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td>116</td><td>78</td><td>56</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3-14B">Qwen3-14B</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td>26.1</td><td>48.3</td><td>83.3</td></tr>
-<tr class="perf-sampled"><td class="perf-metric">sampled</td><td>24.9</td><td>43.5</td><td>66.9</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3-14B">Qwen3-14B</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td>26.1</td><td>48.0</td><td>82.3</td></tr>
+<tr class="perf-sampled"><td class="perf-metric">sampled</td><td>25.1</td><td>44.3</td><td>71.6</td></tr>
 <tr class="perf-ttft"><td class="perf-metric">first token</td><td>184</td><td>113</td><td>77</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3-32B">Qwen3-32B</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td>22.4</td><td>40.6</td></tr>
-<tr class="perf-sampled"><td class="perf-metric">sampled</td><td class="perf-none">—</td><td>21.2</td><td>35.9</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3-32B">Qwen3-32B</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td>22.3</td><td>40.4</td></tr>
+<tr class="perf-sampled"><td class="perf-metric">sampled</td><td class="perf-none">—</td><td>21.5</td><td>37.6</td></tr>
 <tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td>233</td><td>149</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3.5-9B">Qwen3.5-9B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">decode</td><td>39.9</td><td>66.3</td><td>102.5</td></tr>
-<tr class="perf-sampled"><td class="perf-metric">sampled</td><td>35.8</td><td>53.7</td><td>71.8</td></tr>
-<tr class="perf-ttft"><td class="perf-metric">first token</td><td>167</td><td>115</td><td>83</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3.5-9B">Qwen3.5-9B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">decode</td><td>39.8</td><td>65.8</td><td>101.2</td></tr>
+<tr class="perf-sampled"><td class="perf-metric">sampled</td><td>36.3</td><td>55.5</td><td>77.3</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td>168</td><td>115</td><td>83</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3.8-27B">Qwen3.8-27B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td>24.6</td><td>41.4</td></tr>
-<tr class="perf-sampled"><td class="perf-metric">sampled</td><td class="perf-none">—</td><td>22.6</td><td>34.9</td></tr>
-<tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td>288</td><td>196</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3.8-27B">Qwen3.8-27B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td>24.5</td><td>41.2</td></tr>
+<tr class="perf-sampled"><td class="perf-metric">sampled</td><td class="perf-none">—</td><td>22.9</td><td>36.6</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td>287</td><td>196</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3-30B-A3B">Qwen3-30B-A3B</a><span class="perf-arch">MoE</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td>102.4</td><td>127.0</td></tr>
-<tr class="perf-sampled"><td class="perf-metric">sampled</td><td class="perf-none">—</td><td>83.0</td><td>91.4</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3-30B-A3B">Qwen3-30B-A3B</a><span class="perf-arch">MoE</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td>101.1</td><td>124.7</td></tr>
+<tr class="perf-sampled"><td class="perf-metric">sampled</td><td class="perf-none">—</td><td>86.3</td><td>101.7</td></tr>
 <tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td>98</td><td>72</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3.5-35B-A3B">Qwen3.5-35B-A3B</a><span class="perf-arch">MoE</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td>75.3</td><td>93.5</td></tr>
-<tr class="perf-sampled"><td class="perf-metric">sampled</td><td class="perf-none">—</td><td>59.4</td><td>65.8</td></tr>
-<tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td>150</td><td>110</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3.5-35B-A3B">Qwen3.5-35B-A3B</a><span class="perf-arch">MoE</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td>74.8</td><td>92.4</td></tr>
+<tr class="perf-sampled"><td class="perf-metric">sampled</td><td class="perf-none">—</td><td>61.9</td><td>72.1</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td>150</td><td>111</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3.8-Flash-Next">Qwen3.8-Flash-Next</a><span class="perf-arch">MoE</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td class="perf-none">—</td><td>39.2</td></tr>
-<tr class="perf-sampled"><td class="perf-metric">sampled</td><td class="perf-none">—</td><td class="perf-none">—</td><td>33.7</td></tr>
-<tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td class="perf-none">—</td><td>812</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3.8-Flash-Next">Qwen3.8-Flash-Next</a><span class="perf-arch">MoE</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td class="perf-none">—</td><td>39.3</td></tr>
+<tr class="perf-sampled"><td class="perf-metric">sampled</td><td class="perf-none">—</td><td class="perf-none">—</td><td>34.5</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td class="perf-none">—</td><td>815</td></tr>
 </tbody>
 </table>
 
@@ -66,17 +66,17 @@ Set `JAX_DEFAULT_PRNG_IMPL=unsafe_rbg` in the launch command's environment when 
 export JAX_DEFAULT_PRNG_IMPL=unsafe_rbg
 ```
 
-It makes JAX draw its random bits with libtt's native generator. JAX's default Threefry generator adds about 25 ms to every sampled token on Blackhole for the Qwen3 models' 151,936-token vocabulary, and 39 ms for Qwen3.8-Flash-Next's 248,320. That halves sampled decode on one chip: 20.4 instead of 41.3 tokens per second for Qwen3-8B.
+It makes JAX draw its random bits with libtt's native generator. JAX's default Threefry generator adds about 25 ms to every sampled token on Blackhole for the Qwen3 models' 151,936-token vocabulary, and 40 ms for Qwen3.8-Flash-Next's 248,320. That halves sampled decode on one chip: 20.4 instead of 41.7 tokens per second for Qwen3-8B.
 
-With it, sampling at temperature 0.7 adds 2 to 3 ms per token for the Qwen3 models and 3 to 4.5 ms for Qwen3.5 and Qwen3.8, whose vocabulary is larger. Its share grows as decode gets faster: from 5% for Qwen3-14B on one chip to 30% for Qwen3.5-9B on four. `top_p` and `top_k` each add a search over the vocabulary to every step, and a request that sets only `temperature` runs neither. Qwen3-8B, one request, tokens per second:
+With it, sampling at temperature 0.7 adds 1.5 to 1.8 ms per token for the Qwen3 models and 2.4 to 3.5 ms for Qwen3.5 and Qwen3.8, whose vocabulary is larger. Its share grows as decode gets faster: from 4% for Qwen3-32B on two chips to 24% for Qwen3.5-9B on four. `top_p` and `top_k` each add a search over the vocabulary to every step, and a request that sets only `temperature` runs neither. Qwen3-8B, one request, tokens per second:
 
 | Sampling parameters | 1 chip | 4 chips |
 | --- | ---: | ---: |
-| greedy (`temperature: 0`) | 44.8 | 121.8 |
-| `temperature: 0.7` | 41.3 | 90.3 |
-| `temperature: 0.7, top_p: 0.95` | 35.8 | 68.4 |
-| `temperature: 0.7, top_k: 20` | 36.0 | 69.4 |
-| `temperature: 0.7, top_p: 0.95, top_k: 20` | 31.9 | 55.8 |
+| greedy (`temperature: 0`) | 44.5 | 119.7 |
+| `temperature: 0.7` | 41.7 | 98.3 |
+| `temperature: 0.7, top_p: 0.95` | 36.4 | 73.3 |
+| `temperature: 0.7, top_k: 20` | 36.6 | 74.3 |
+| `temperature: 0.7, top_p: 0.95, top_k: 20` | 32.5 | 58.9 |
 
 In a batch, a search runs for every request as long as any request in the batch needs it. `min_p` filters without a search.
 
@@ -89,36 +89,36 @@ Decode throughput on four chips with several requests in flight. Each request se
 <table class="perf-table">
 <thead><tr><th scope="col">Model</th><th scope="col">Metric</th><th scope="col">1 request</th><th scope="col">4 requests</th><th scope="col">8 requests</th><th scope="col">16 requests</th></tr></thead>
 <tbody>
-<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-8B">Qwen3-8B</a><span class="perf-arch">dense</span></th><td class="perf-metric">total</td><td>118</td><td>406</td><td>722</td><td>1122</td></tr>
-<tr class="perf-decode"><td class="perf-metric">per user</td><td>121.5</td><td>106.9</td><td>97.4</td><td>81.2</td></tr>
+<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-8B">Qwen3-8B</a><span class="perf-arch">dense</span></th><td class="perf-metric">total</td><td>116</td><td>400</td><td>716</td><td>1106</td></tr>
+<tr class="perf-decode"><td class="perf-metric">per user</td><td>119.3</td><td>105.3</td><td>96.8</td><td>78.8</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-14B">Qwen3-14B</a><span class="perf-arch">dense</span></th><td class="perf-metric">total</td><td>81</td><td>284</td><td>520</td><td>887</td></tr>
-<tr class="perf-decode"><td class="perf-metric">per user</td><td>83.2</td><td>74.7</td><td>71.6</td><td>62.4</td></tr>
+<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-14B">Qwen3-14B</a><span class="perf-arch">dense</span></th><td class="perf-metric">total</td><td>80</td><td>282</td><td>515</td><td>884</td></tr>
+<tr class="perf-decode"><td class="perf-metric">per user</td><td>82.2</td><td>73.9</td><td>69.3</td><td>62.5</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-32B">Qwen3-32B</a><span class="perf-arch">dense</span></th><td class="perf-metric">total</td><td>40</td><td>141</td><td>265</td><td>470</td></tr>
-<tr class="perf-decode"><td class="perf-metric">per user</td><td>40.5</td><td>37.1</td><td>36.0</td><td>32.8</td></tr>
+<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-32B">Qwen3-32B</a><span class="perf-arch">dense</span></th><td class="perf-metric">total</td><td>39</td><td>140</td><td>264</td><td>468</td></tr>
+<tr class="perf-decode"><td class="perf-metric">per user</td><td>40.3</td><td>36.9</td><td>35.8</td><td>32.6</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.5-9B">Qwen3.5-9B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">total</td><td>99</td><td>340</td><td>572</td><td>896</td></tr>
-<tr class="perf-decode"><td class="perf-metric">per user</td><td>102.5</td><td>89.9</td><td>77.5</td><td>62.7</td></tr>
+<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.5-9B">Qwen3.5-9B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">total</td><td>98</td><td>337</td><td>567</td><td>885</td></tr>
+<tr class="perf-decode"><td class="perf-metric">per user</td><td>101.2</td><td>88.9</td><td>76.1</td><td>62.3</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.8-27B">Qwen3.8-27B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">total</td><td>40</td><td>141</td><td>248</td><td>395</td></tr>
-<tr class="perf-decode"><td class="perf-metric">per user</td><td>41.4</td><td>37.0</td><td>33.4</td><td>27.0</td></tr>
+<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.8-27B">Qwen3.8-27B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">total</td><td>40</td><td>140</td><td>248</td><td>394</td></tr>
+<tr class="perf-decode"><td class="perf-metric">per user</td><td>41.3</td><td>36.8</td><td>33.3</td><td>26.9</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-30B-A3B">Qwen3-30B-A3B</a><span class="perf-arch">MoE</span></th><td class="perf-metric">total</td><td>122</td><td>389</td><td>676</td><td>1008</td></tr>
-<tr class="perf-decode"><td class="perf-metric">per user</td><td>126.8</td><td>104.7</td><td>93.9</td><td>74.7</td></tr>
+<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-30B-A3B">Qwen3-30B-A3B</a><span class="perf-arch">MoE</span></th><td class="perf-metric">total</td><td>120</td><td>384</td><td>668</td><td>989</td></tr>
+<tr class="perf-decode"><td class="perf-metric">per user</td><td>124.5</td><td>103.2</td><td>91.5</td><td>74.6</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.5-35B-A3B">Qwen3.5-35B-A3B</a><span class="perf-arch">MoE</span></th><td class="perf-metric">total</td><td>90</td><td>298</td><td>477</td><td>723</td></tr>
-<tr class="perf-decode"><td class="perf-metric">per user</td><td>93.2</td><td>79.4</td><td>64.3</td><td>50.6</td></tr>
+<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.5-35B-A3B">Qwen3.5-35B-A3B</a><span class="perf-arch">MoE</span></th><td class="perf-metric">total</td><td>89</td><td>296</td><td>473</td><td>720</td></tr>
+<tr class="perf-decode"><td class="perf-metric">per user</td><td>92.2</td><td>78.6</td><td>63.8</td><td>50.7</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.8-Flash-Next">Qwen3.8-Flash-Next</a><span class="perf-arch">MoE</span></th><td class="perf-metric">total</td><td>36</td><td>90</td><td>127</td><td>160</td></tr>
-<tr class="perf-decode"><td class="perf-metric">per user</td><td>38.5</td><td>24.7</td><td>18.4</td><td>10.9</td></tr>
+<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.8-Flash-Next">Qwen3.8-Flash-Next</a><span class="perf-arch">MoE</span></th><td class="perf-metric">total</td><td>36</td><td>93</td><td>134</td><td>160</td></tr>
+<tr class="perf-decode"><td class="perf-metric">per user</td><td>38.6</td><td>25.9</td><td>19.6</td><td>11.0</td></tr>
 </tbody>
 </table>
 
@@ -132,8 +132,8 @@ These batched numbers are greedy and also use overlap scheduling, with the same 
 
 | Prompt | Without draft | With draft | Speedup |
 | --- | ---: | ---: | ---: |
-| 19-token code request | 42.5 | 122.8 | 2.9× |
-| 215-token summarization request | 41.6 | 73.4 | 1.8× |
+| 19-token code request | 42.4 | 122.4 | 2.9× |
+| 215-token summarization request | 41.6 | 73.5 | 1.8× |
 
 To turn it on, add these flags to the launch command:
 
