@@ -128,6 +128,39 @@ These batched numbers are greedy and also use overlap scheduling, with the same 
 
 ## Speculative decoding
 
+### MTP
+
+Qwen3.5 and Qwen3.8 checkpoints include a multi-token prediction (MTP) layer, which SGLang-JAX can run as the draft model: each step, the MTP layer proposes five tokens and the model checks them in one forward pass. Here is Qwen3.8-27B with its own MTP layer as the draft, one request at a time, in tokens per second:
+
+| Request | Chips | Without draft | With draft | Speedup |
+| --- | ---: | ---: | ---: | ---: |
+| greedy, 5-token prompt | 4 | 42.2 | 106.5 | 2.5× |
+| greedy, 19-token code request | 4 | 42.2 | 86.7 | 2.1× |
+| greedy, 215-token summarization request | 4 | 42.0 | 58.5 | 1.4× |
+| temperature 0.7, 5-token prompt | 4 | 39.2 | 90.1 | 2.3× |
+| greedy, 5-token prompt | 2 | 24.9 | 65.6 | 2.6× |
+| greedy, 19-token code request | 2 | 24.9 | 67.7 | 2.7× |
+| greedy, 215-token summarization request | 2 | 24.8 | 56.1 | 2.3× |
+| temperature 0.7, 5-token prompt | 2 | 23.9 | 49.7 | 2.1× |
+
+The greedy text is the same with and without the draft, except for the last few tokens of the summarization request on two chips, after the model had finished its answer. The speedup depends on how many of the proposed tokens the model accepts, which varies with the text: it is smallest on the summarization request. Sampling at temperature 0.7 keeps most of it.
+
+This needs SGLang-JAX [pull request #9](https://github.com/relativity-project/sglang-jax/pull/9) until it is merged. To turn it on, add these flags to the launch command and remove `--disable-overlap-schedule`:
+
+```sh
+  --speculative-algorithm EAGLE \
+  --speculative-draft-model-path Qwen/Qwen3.8-27B \
+  --speculative-num-steps 5 \
+  --speculative-eagle-topk 1 \
+  --speculative-num-draft-tokens 6 \
+  --grammar-backend none \
+  --max-total-tokens 4096
+```
+
+The draft model path is the model itself: SGLang-JAX loads its MTP layer and shares the model's embedding and LM head. We measured the numbers above with overlap scheduling, `JAX_DEFAULT_PRNG_IMPL=unsafe_rbg`, libtt 0.1.5 and SGLang-JAX `cba8832` (pull request #9), without the draft as well as with it.
+
+### DFlash
+
 [DFlash](https://github.com/relativity-project/sglang-jax/blob/main/docs/features/speculative_decoding.md) speculative decoding works on one chip with Qwen3 models. Here is Qwen3-8B with the [z-lab/Qwen3-8B-DFlash-b16](https://huggingface.co/z-lab/Qwen3-8B-DFlash-b16) draft model, in tokens per second:
 
 | Prompt | Without draft | With draft | Speedup |
@@ -170,6 +203,7 @@ Then run the multi-chip command with `flash-next/bin/python -m sgl_jax.launch_se
 ## Known gaps
 
 - DFlash doesn't compile on more than one chip yet, and doesn't support Qwen3-14B, Qwen3.5 or Qwen3.8 drafts.
+- SGLang-JAX doesn't run the MTP layers of mixture-of-experts checkpoints as drafts yet.
 - To use a single chip of a QuietBox, you need a single-chip mesh descriptor in `TT_MESH_GRAPH_DESC_PATH`.
 - Qwen3.8-Flash-Next's first request after a start takes about two minutes, while its weights are read from the checkpoint and prepared on the chips.
 - Qwen3.8-Flash-Next's QSA layers attend densely, which matches the model only while a request's context is at most 2,051 tokens.
