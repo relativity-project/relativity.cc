@@ -58,7 +58,7 @@ TORCH_TPU_INTERNAL_XLA_OPTIONS="enable_trace=true" \
   --device tpu --tp-size 1 --dtype bfloat16 --kv-cache-dtype bfloat16 \
   --mem-fraction-static 0.75 --max-total-tokens 16384 \
   --enable-torch-compile --page-size 64 \
-  --context-length 2048 --chunked-prefill-size 512 \
+  --context-length 2048 --chunked-prefill-size 64 \
   --torch-compile-max-bs 4 --tpu-compile-bs 1 4 --tpu-compile-tokens 64 \
   --grammar-backend none
 ```
@@ -70,7 +70,7 @@ The first start compiles every program it needs, which takes a few minutes. The 
 - `--kv-cache-dtype bfloat16`. SGLang-TorchTPU defaults to an FP8 KV cache, but TTNN's paged decode attention reads BF16; with FP8, every step gathers each sequence's pages and converts them on the host, about 50 times slower.
 - `--mem-fraction-static 0.75`. The default of 0.4 leaves no memory for the KV cache next to Qwen3-8B's 16 GB of BF16 weights.
 - `--max-total-tokens` keeps the KV pool small. Traced programs keep their buffers, and a larger pool hasn't been tested.
-- `--tpu-compile-bs` and `--tpu-compile-tokens` choose the batch sizes and prefill lengths compiled at startup. Requests of other shapes fail once the server is up, so cover the batch sizes you'll serve.
+- `--tpu-compile-bs` and `--tpu-compile-tokens` choose the batch sizes and prefill lengths compiled at startup; requests of other shapes fail once the server is up, so cover the batch sizes you'll serve. Keep `--chunked-prefill-size` at the largest prefill length: SGLang splits longer prompts into chunks of that size, and a chunk larger than every compiled length stops the server.
 - `--grammar-backend none`: structured output isn't tested.
 
 To use one chip of a QuietBox 2, pick it by PCI address and give libtt a single-chip mesh descriptor: `TT_VISIBLE_DEVICES=0000:01:00.0 TT_MESH_GRAPH_DESC_PATH=/path/to/libtt/tests/one_chip_mesh_graph_descriptor.textproto`.
