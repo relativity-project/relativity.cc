@@ -135,4 +135,4 @@ The [models page](@/models/_index.md) covers the Qwen3, Qwen3.5 and Qwen3.8 mode
 
 Next, we want to support more of the Qwen family, DeepSeek, GLM and Kimi, especially their smaller and flash variants. The plan is to reuse upstream SGLang-JAX model code with as few changes as possible, adding kernels and compiler support where needed. Existing work in [tt-metal](https://github.com/tenstorrent/tt-metal) is a good starting point. Contributions are welcome; start with an issue on [libtt](https://github.com/pcmoritz/libtt/issues).
 
-We also plan to support the PyTorch-based SGLang and vLLM servers, using TorchTPU once it's open-sourced; see the [framework roadmap](@/docs/software-stack.md#framework-support-and-torchtpu).
+PyTorch-based serving has started: [PyTorch SGLang](@/docs/pytorch-sglang.md) runs SGLang-TorchTPU through torch_tpu, experimentally and with fewer models so far. vLLM is planned; see the [framework roadmap](@/docs/software-stack.md#framework-support-and-torchtpu).

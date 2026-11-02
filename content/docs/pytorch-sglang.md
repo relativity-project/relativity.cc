@@ -1,12 +1,12 @@
 +++
 title = "PyTorch SGLang"
-description = "Serve Qwen3 with SGLang-TorchTPU, SGLang's PyTorch server for TPUs, on one Blackhole chip through torch_tpu and libtt. Experimental, with its current limitations."
+description = "Serve Qwen3 with SGLang-TorchTPU, SGLang's PyTorch server for TPUs, on one or several Blackhole chips through torch_tpu and libtt. Experimental, with its current limitations and the work in progress."
 weight = 35
 +++
 
-[SGLang-TorchTPU](https://github.com/sgl-project/sglang-torchtpu) is SGLang's PyTorch server for TPUs. It runs its models with PyTorch on [torch_tpu](https://github.com/google-pytorch/torch_tpu), which drives the device through the PJRT C API. libtt provides that API for Tenstorrent chips, so SGLang-TorchTPU runs on a Blackhole chip without changes to SGLang or torch_tpu.
+[SGLang-TorchTPU](https://github.com/sgl-project/sglang-torchtpu) is SGLang's PyTorch server for TPUs. It runs its models with PyTorch on [torch_tpu](https://github.com/google-pytorch/torch_tpu), which drives the device through the PJRT C API. libtt provides that API for Tenstorrent chips, so SGLang-TorchTPU runs on Blackhole chips without changes to SGLang or torch_tpu.
 
-This path is **experimental**. It serves Qwen3 dense models up to 8B on one chip, with BF16 weights. For the models and speeds on the [models page](@/models/_index.md), use [SGLang-JAX](@/docs/inference.md); see [Limitations](#limitations) for what SGLang-TorchTPU doesn't run yet.
+This path is **experimental**. With libtt `main` it serves Qwen3 dense models with BF16 weights, on one chip or with tensor parallelism over several. For the models and speeds on the [models page](@/models/_index.md), use [SGLang-JAX](@/docs/inference.md). See [Limitations](#limitations) for what SGLang-TorchTPU doesn't run yet, and [Work in progress](#work-in-progress) for what comes next.
 
 ## How it fits together
 
@@ -19,11 +19,16 @@ SGLang-TorchTPU (PyTorch model code, torch.compile)
   → Tenstorrent device
 ```
 
-`LIBTT_TPU_COMPAT=1` turns on libtt's TPU compatibility mode. libtt then reports itself as a TPU platform, so torch_tpu loads it and uses its normal compilation settings, and keeps tensors on the device in the layout programs read, as a TPU does. SGLang-TorchTPU's attention kernel is a Pallas kernel that only TPUs run; libtt replaces it with JAX and TTNN's paged attention operations when SGLang-TorchTPU loads it.
+`LIBTT_TPU_COMPAT=1` turns on libtt's TPU compatibility mode:
+- libtt reports itself as a TPU platform, so torch_tpu loads it and uses its normal compilation settings;
+- tensors stay on the device in the layout programs read, as on a TPU;
+- SGLang-TorchTPU's attention kernel, a Pallas kernel that only TPUs run, is replaced with JAX and TTNN's paged attention operations when SGLang-TorchTPU loads it.
+
+With several chips, SGLang-TorchTPU runs one process per chip, as on a TPU host. libtt joins the processes into one mesh, and their collectives run over the chips' Ethernet links.
 
 ## Install
 
-You'll need one Blackhole chip with working drivers (run the [device check](@/docs/getting-started.md#verify-jax-execution) first), [uv](https://docs.astral.sh/uv/getting-started/installation/), Git and Python 3.12.
+You'll need Blackhole chips with working drivers (run the [device check](@/docs/getting-started.md#verify-jax-execution) first), [uv](https://docs.astral.sh/uv/getting-started/installation/), Git and Python 3.12.
 
 SGLang-TorchTPU support is newer than the latest libtt release, so build the plugin wheel from libtt `main`, following the [libtt build instructions](@/docs/software-stack.md#build-and-test-libtt):
 
@@ -65,15 +70,25 @@ TORCH_TPU_INTERNAL_XLA_OPTIONS="enable_trace=true" \
 
 The first start compiles every program it needs, which takes a few minutes. The settings that matter:
 
-- `LIBTT_TPU_COMPAT=1` turns on TPU compatibility mode (see above). `SGLANG_PLATFORM=tpu_oot` and `--device tpu` load SGLang-TorchTPU's TPU plugin and code paths.
-- `TORCH_TPU_INTERNAL_XLA_OPTIONS="enable_trace=true"` records each compiled program on the device once and replays it, instead of dispatching its operations from the host every step. It doubles Qwen3-0.6B's decode speed. torch_tpu takes several options separated by spaces.
-- `--kv-cache-dtype bfloat16`. SGLang-TorchTPU defaults to an FP8 KV cache, but TTNN's paged decode attention reads BF16; with FP8, every step gathers each sequence's pages and converts them on the host, about 50 times slower.
-- `--mem-fraction-static 0.75`. The default of 0.4 leaves no memory for the KV cache next to Qwen3-8B's 16 GB of BF16 weights.
-- `--max-total-tokens` keeps the KV pool small. Traced programs keep their buffers, and a larger pool hasn't been tested.
-- `--tpu-compile-bs` and `--tpu-compile-tokens` choose the batch sizes and prefill lengths compiled at startup; requests of other shapes fail once the server is up, so cover the batch sizes you'll serve. Keep `--chunked-prefill-size` at the largest prefill length: SGLang splits longer prompts into chunks of that size, and a chunk larger than every compiled length stops the server.
-- `--grammar-backend none`: structured output isn't tested.
+- **`LIBTT_TPU_COMPAT=1`** turns on TPU compatibility mode (see above). `SGLANG_PLATFORM=tpu_oot` and `--device tpu` load SGLang-TorchTPU's TPU plugin and code paths.
+- **`TORCH_TPU_INTERNAL_XLA_OPTIONS="enable_trace=true"`** records each compiled program on the device once and replays it, instead of dispatching its operations from the host every step. It doubles Qwen3-0.6B's decode speed. torch_tpu takes several options separated by spaces.
+- **`--kv-cache-dtype bfloat16`:** SGLang-TorchTPU defaults to an FP8 KV cache, but TTNN's paged decode attention reads BF16. With FP8, every step gathers each sequence's pages and converts them on the host, about 50 times slower.
+- **`--mem-fraction-static 0.75`:** the default of 0.4 leaves no memory for the KV cache next to Qwen3-8B's 16 GB of BF16 weights.
+- **`--max-total-tokens`** keeps the KV pool small. Traced programs keep their buffers, and a larger pool hasn't been tested.
+- **`--tpu-compile-bs` and `--tpu-compile-tokens`** choose the batch sizes and prefill lengths compiled at startup. Requests of other shapes fail once the server is up, so cover the batch sizes you'll serve.
+- **`--chunked-prefill-size`** must equal the largest prefill length. SGLang splits longer prompts into chunks of that size, and a chunk larger than every compiled length stops the server. To prefill long prompts in fewer chunks, also compile a longer length: with `--tpu-compile-tokens 64 256 --chunked-prefill-size 256`, Qwen3-8B on one chip returns the first token of a 219-token prompt after 0.77 s, against 1.10 s in 64-token chunks. The extra program adds about a minute to each start.
+- **`--grammar-backend none`:** structured output isn't tested.
 
 To use one chip of a QuietBox 2, pick it by PCI address and give libtt a single-chip mesh descriptor: `TT_VISIBLE_DEVICES=0000:01:00.0 TT_MESH_GRAPH_DESC_PATH=/path/to/libtt/tests/one_chip_mesh_graph_descriptor.textproto`.
+
+## Several chips
+
+Pass `--tp-size` with the number of chips, for example `--tp-size 4` on a QuietBox 2. Use `--mem-fraction-static 0.85` for Qwen3-32B. SGLang-TorchTPU then starts one process per chip, and libtt gives each process its chip and joins them into one mesh. Leave `TT_VISIBLE_DEVICES` and `TT_MESH_GRAPH_DESC_PATH` unset; libtt sets both for each process.
+
+- **Collective buffers:** TT-NN's collectives write to their peers at the addresses of their own buffers, but separate processes don't allocate in the same order. Each process therefore reserves the same DRAM region for collective buffers when it starts: `LIBTT_SYMMETRIC_DRAM_MB` megabytes per chip, 2048 by default.
+- **After a crash:** a multi-chip server that is killed can leave the chips' Ethernet links down, and the next start then hangs or fails while bringing up the fabric. Reset the chips with `tt-smi -r` before starting again.
+
+The same support runs plain PyTorch programs with `torchrun`, one process per chip; see libtt's [torch_tpu guide](https://github.com/pcmoritz/libtt/blob/main/docs/torch-tpu.md#multi-process-tensor-parallelism).
 
 ## Send a request
 
@@ -87,33 +102,61 @@ SGLang-TorchTPU also serves SGLang's OpenAI-compatible API on `/v1/completions` 
 
 ## Performance
 
-Greedy decoding of 256 tokens (128 for Qwen3-8B), traced, with a BF16 KV cache, on one Blackhole chip of a [QuietBox 2](../../hardware/#quietbox-2), with libtt `main` and SGLang-TorchTPU; batch 4 is four concurrent requests:
+Greedy decoding of 128 tokens, traced, with BF16 weights and a BF16 KV cache, on a [QuietBox 2](../../hardware/#quietbox-2) with libtt `main` (`5861d04`) and SGLang-TorchTPU `4a5c484`:
+- **1 request:** the median decode rate of three requests after a warmup.
+- **4 requests:** four concurrent requests' total decode rate.
 
-| Model | Weights | 1 request | 4 requests |
-| --- | --- | ---: | ---: |
-| Qwen3-0.6B | BF16 | 89 tokens/s | 291 tokens/s (73 per request) |
-| Qwen3-8B | BF16 | 19 tokens/s | 72 tokens/s (18 per request) |
+| Model | Chips | 1 request | 4 requests |
+| --- | ---: | ---: | ---: |
+| Qwen3-0.6B | 1 | 90 tokens/s | 228 tokens/s |
+| Qwen3-0.6B | 4 | 118 tokens/s | 354 tokens/s |
+| Qwen3-8B | 1 | 19.3 tokens/s | 66 tokens/s |
+| Qwen3-8B | 4 | 49.8 tokens/s | 162 tokens/s |
+| Qwen3-14B | 4 | 33.2 tokens/s | 111 tokens/s |
+| Qwen3-32B | 4 | 16.3 tokens/s | 56 tokens/s |
 
-Qwen3-8B reads its 16 GB of BF16 weights on every step, so it decodes at about the speed the chip's memory allows for them. SGLang-JAX stores matmul weights in BFP8 and decodes Qwen3-8B at 46 tokens/s on one chip.
+Each concurrent request returns the same text as on its own.
+
+Decoding reads every weight on each step, so its speed follows the bytes per weight. On one chip, Qwen3-8B reads its 16 GB of BF16 weights at about the speed the chip's memory allows. SGLang-JAX stores matmul weights in BFP8, with about half the bytes. On the [models page](@/models/_index.md) it decodes Qwen3-8B at 46.0 tokens/s on one chip and 122.2 on four, and Qwen3-32B at 40.7 on four.
 
 ## Limitations
 
 **Models**
 
-| Models on the [models page](@/models/_index.md) | Status with SGLang-TorchTPU | Why |
+| Models on the [models page](@/models/_index.md) | Status with SGLang-TorchTPU on libtt `main` | Why |
 | --- | --- | --- |
-| Qwen3-8B | Runs on one chip | |
-| Qwen3-14B, Qwen3-32B | Doesn't run | BF16 weights don't fit on one chip, and SGLang-TorchTPU can't use several chips on Tenstorrent yet |
-| Qwen3.5-9B, Qwen3.8-27B | Doesn't run | Their gated DeltaNet layers and recurrent-state copies are Pallas kernels that only TPUs run, and Qwen3.8-27B needs several chips |
-| Qwen3-30B-A3B, Qwen3.5-35B-A3B, Qwen3.8-Flash-Next | Doesn't run | They need several chips |
+| Qwen3-8B, Qwen3-14B, Qwen3-32B | Run, with BF16 weights | |
+| Qwen3.5-9B, Qwen3.8-27B | Don't run yet | Their gated DeltaNet layers and recurrent-state copies are Pallas kernels that only TPUs run (see [Work in progress](#work-in-progress)) |
+| Qwen3-30B-A3B, Qwen3.5-35B-A3B, Qwen3.8-Flash-Next | Don't run yet | SGLang-TorchTPU's fused MoE kernel is a Pallas kernel (see [Work in progress](#work-in-progress)) |
 
 **Features**
 
-- **One chip only.** `--tp-size` above 1 starts one process per chip, and libtt doesn't support torch_tpu's multi-process collectives yet.
-- **BF16 weights only.** SGLang-TorchTPU's FP8 weight quantization runs Pallas kernels, and libtt only converts weights to BFP8 for JAX programs that mark them, which torch_tpu's don't.
-- **Speculative decoding:** EAGLE3 runs; SGLang-TorchTPU's test serves Qwen3-1.7B with the [AngelSlim/Qwen3-1.7B_eagle3](https://huggingface.co/AngelSlim/Qwen3-1.7B_eagle3) draft. DFlash doesn't run yet: its draft writes the KV cache with a Pallas kernel. MTP needs Qwen3.5 or Qwen3.8 support.
+- **BF16 weights only.** SGLang-TorchTPU's FP8 weight quantization runs Pallas kernels, and libtt converts weights to BFP8 only for JAX programs that mark them, which torch_tpu's don't. With BF16 weights, a step reads about twice as many bytes as with SGLang-JAX's BFP8 ones, so decoding is slower on the same chips.
+- **Speculative decoding:** EAGLE3 runs; SGLang-TorchTPU's test serves Qwen3-1.7B with the [AngelSlim/Qwen3-1.7B_eagle3](https://huggingface.co/AngelSlim/Qwen3-1.7B_eagle3) draft. DFlash and MTP don't run on `main` yet.
 - **Fixed shapes.** Only the batch sizes and prefill lengths compiled at startup run.
-- **Slow starts.** Every start compiles all programs again.
-- **Features built on Pallas kernels** don't run, including HiCache's KV offload to host memory, the FP8 KV cache pool, SparseCore operations and the fused MoE kernels.
+- **Slow starts.** Every start compiles all programs again, since compiled programs aren't cached between runs yet.
+- **Features built on Pallas kernels** don't run, including HiCache's KV offload to host memory, the FP8 KV cache pool and SparseCore operations.
 
-If something fails, check that `LIBTT_TPU_COMPAT=1` is set in the server's environment and that the libtt wheel comes from `main`; the [software stack](@/docs/software-stack.md) page lists what to collect for a bug report.
+If something fails, check that `LIBTT_TPU_COMPAT=1` is set in the server's environment and that the libtt wheel comes from `main`. The [software stack](@/docs/software-stack.md) page lists what to collect for a bug report.
+
+## Work in progress
+
+These run on development branches of libtt, not yet on `main`. Like the attention kernel, each replaces one of SGLang-TorchTPU's Pallas kernels with JAX and TTNN operations when SGLang-TorchTPU loads it, so SGLang itself stays unchanged. The numbers come from those branches on a QuietBox 2, with BF16 weights.
+
+- **DFlash speculative decoding** (branch `sglang-kernels-hybrid-dflash`). DFlash's draft writes its KV cache with a Pallas kernel, which now runs as JAX.
+  - Qwen3-8B with the [z-lab/Qwen3-8B-DFlash-b16](https://huggingface.co/z-lab/Qwen3-8B-DFlash-b16) draft serves the same greedy text as without it.
+  - On one chip it decodes a code prompt at 31.8 tokens/s, against 19.3 without the draft (1.65×).
+  - Long prompts accept only about 1.2 draft tokens per step and decode slower than without the draft. That's under investigation.
+- **Qwen3.5 and Qwen3.8 hybrid models.** Their gated DeltaNet layers run on TTNN's gated delta decode kernel, which updates the recurrent state in place, with the chunked prefill from SGLang-JAX.
+  - Qwen3.5-9B serves the same greedy text as Hugging Face on one chip, at 11.3 tokens/s.
+  - With MTP (`--speculative-algorithm NEXTN`, 3 steps, 4 draft tokens), it decodes 20 tokens/s, accepting 3.7 to 4 tokens per step.
+  - Qwen3.8-27B runs on four chips but decodes only 3.9 tokens/s, and its MTP doesn't start yet.
+  - These models need `--max-mamba-cache-size 8 --no-enable-multimodal --disable-radix-cache` for now, and `SGLANG_TPU_VIT_PRECOMPILE_SIZES=` (empty) to skip the vision encoder's warmup.
+- **Mixture-of-experts models.** The experts run on TTNN's fused MoE kernel with BFP4 weights, as on the models page, split over the chips with `--ep-size` equal to `--tp-size`.
+  - Qwen3-30B-A3B on four chips decodes 50.5 tokens/s for one request and 133 tokens/s for four.
+  - It scores 0.805 on 200 MMLU questions, against about 0.80 with SGLang-JAX.
+  - Qwen3.5-35B-A3B and Qwen3.8-Flash-Next are next.
+- **Planned:**
+  - BFP8 weights, which would bring decoding closer to SGLang-JAX's speeds;
+  - caching compiled programs between starts ([libtt#463](https://github.com/pcmoritz/libtt/pull/463));
+  - prefix caching for the hybrid models.
