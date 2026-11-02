@@ -24,7 +24,7 @@ JAX program / SGLang-JAX ──┘
 
 ## Framework support and TorchTPU
 
-Today you can use JAX directly, or PyTorch through torchax. Once TorchTPU is open-sourced, we plan to build PyTorch support around it.
+Today you can use JAX directly, or PyTorch through torchax. PyTorch also runs through [torch_tpu](https://github.com/google-pytorch/torch_tpu), the PyTorch backend for TPUs, which drives its device through the PJRT C API: with `LIBTT_TPU_COMPAT=1`, libtt presents itself to torch_tpu as a TPU. [PyTorch SGLang](@/docs/pytorch-sglang.md) serves models that way; it's experimental.
 
 The backend is experimental and op coverage is still growing. The [first experiment](@/docs/first-experiment.md) exercises the backend with a small JAX program; for PyTorch, start with the [torchax examples](https://github.com/google/torchax).
 
