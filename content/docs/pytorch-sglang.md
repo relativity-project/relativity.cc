@@ -125,7 +125,7 @@ SGLang-TorchTPU also serves SGLang's OpenAI-compatible API on `/v1/completions` 
 
 ## Performance
 
-Greedy decoding of 128 tokens, traced, with a BF16 KV cache, on a [QuietBox 2](../../hardware/#quietbox-2) with libtt `main` (`1ff9b2d`) and SGLang-TorchTPU `c1da112`:
+Greedy decoding of 128 tokens, traced, with a BF16 KV cache, on a [QuietBox 2](../../hardware/#quietbox-2) with libtt `main` (`6b59e24`) and SGLang-TorchTPU `c1da112`:
 - **1 request:** the median decode rate of three requests after a warmup.
 - **4 requests:** four concurrent requests' total decode rate, the median of five batches.
 
