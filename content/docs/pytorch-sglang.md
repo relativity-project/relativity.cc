@@ -6,7 +6,7 @@ weight = 35
 
 [SGLang-TorchTPU](https://github.com/sgl-project/sglang-torchtpu) is SGLang's PyTorch server for TPUs. It runs its models with PyTorch on [torch_tpu](https://github.com/google-pytorch/torch_tpu), which drives the device through the PJRT C API. libtt provides that API for Tenstorrent chips, so SGLang-TorchTPU runs on Blackhole chips without changes to SGLang or torch_tpu.
 
-This path is **experimental**. With libtt `main` it serves Qwen3 dense models with BF16 or [FP8](#fp8-weights) weights, on one chip or with tensor parallelism over several. For the models and speeds on the [models page](@/models/_index.md), use [SGLang-JAX](@/docs/inference.md). See [Limitations](#limitations) for what SGLang-TorchTPU doesn't run yet, and [Work in progress](#work-in-progress) for what comes next.
+This path is **experimental**. With libtt `main` it serves the Qwen3 dense models and the Qwen3.5 and Qwen3.8 [hybrid models](#hybrid-models) with BF16 or [FP8](#fp8-weights) weights, on one chip or with tensor parallelism over several. The [models page](@/models/_index.md#sglang-torchtpu) compares its speeds with [SGLang-JAX](@/docs/inference.md)'s, which is faster and also runs the mixture-of-experts models. See [Limitations](#limitations) for what SGLang-TorchTPU doesn't run yet, and [Work in progress](#work-in-progress) for what comes next.
 
 ## How it fits together
 
@@ -113,6 +113,16 @@ Pass `--tp-size` with the number of chips, for example `--tp-size 4` on a QuietB
 
 The same support runs plain PyTorch programs with `torchrun`, one process per chip; see libtt's [torch_tpu guide](https://github.com/pcmoritz/libtt/blob/main/docs/torch-tpu.md#multi-process-tensor-parallelism).
 
+## Hybrid models
+
+Qwen3.5 and Qwen3.8 mix gated DeltaNet layers with full attention. SGLang-TorchTPU runs those layers with Pallas kernels, which libtt replaces with TTNN's gated delta kernels when SGLang-TorchTPU loads them; the decode kernel updates each request's recurrent state in place. Start the server as above, and add:
+
+- `--no-enable-multimodal`, and `SGLANG_TPU_VIT_PRECOMPILE_SIZES=` (empty) in the environment, to skip the vision encoder and its warmup;
+- `--max-mamba-cache-size 8`, the number of recurrent-state slots (we used 32 to run 16 requests at once);
+- `--disable-radix-cache`, since prefix caching doesn't support these models yet.
+
+For Qwen3.8-27B with FP8 weights, use [Qwen/Qwen3.8-27B-FP8](https://huggingface.co/Qwen/Qwen3.8-27B-FP8). With `--quantization fp8` on four chips, it stops at startup: one of its projections is 24 columns wide on each chip, and torch_tpu's FP8 matmul needs multiples of 16.
+
 ## Send a request
 
 ```sh
@@ -162,7 +172,7 @@ Decoding reads every weight on each step, so its speed follows the bytes per wei
 | Models on the [models page](@/models/_index.md) | Status with SGLang-TorchTPU on libtt `main` | Why |
 | --- | --- | --- |
 | Qwen3-8B, Qwen3-14B, Qwen3-32B | Run, with BF16 or FP8 weights | |
-| Qwen3.5-9B, Qwen3.8-27B | Don't run yet | Their gated DeltaNet layers and recurrent-state copies are Pallas kernels that only TPUs run (see [Work in progress](#work-in-progress)) |
+| Qwen3.5-9B, Qwen3.8-27B | Run, with BF16 or FP8 weights (see [Hybrid models](#hybrid-models)) | |
 | Qwen3-30B-A3B, Qwen3.5-35B-A3B, Qwen3.8-Flash-Next | Don't run yet | SGLang-TorchTPU's fused MoE kernel is a Pallas kernel (see [Work in progress](#work-in-progress)) |
 
 **Features**
@@ -183,11 +193,6 @@ These run on development branches of libtt, not yet on `main`. Like the attentio
   - Qwen3-8B with the [z-lab/Qwen3-8B-DFlash-b16](https://huggingface.co/z-lab/Qwen3-8B-DFlash-b16) draft serves the same greedy text as without it.
   - On one chip it decodes a code prompt at 31.8 tokens/s, against 19.3 without the draft (1.65×).
   - Long prompts accept only about 1.2 draft tokens per step and decode slower than without the draft. That's under investigation.
-- **Qwen3.5 and Qwen3.8 hybrid models.** Their gated DeltaNet layers run on TTNN's gated delta decode kernel, which updates the recurrent state in place, with the chunked prefill from SGLang-JAX.
-  - Qwen3.5-9B serves the same greedy text as Hugging Face on one chip, at 11.3 tokens/s.
-  - With MTP (`--speculative-algorithm NEXTN`, 3 steps, 4 draft tokens), it decodes 20 tokens/s, accepting 3.7 to 4 tokens per step.
-  - Qwen3.8-27B runs on four chips at 21 tokens/s, but its MTP doesn't start yet.
-  - These models need `--max-mamba-cache-size 8 --no-enable-multimodal --disable-radix-cache` for now, and `SGLANG_TPU_VIT_PRECOMPILE_SIZES=` (empty) to skip the vision encoder's warmup.
 - **Mixture-of-experts models.** The experts run on TTNN's fused MoE kernel with BFP4 weights, as on the models page, split over the chips with `--ep-size` equal to `--tp-size`.
   - Qwen3-30B-A3B on four chips decodes 50.5 tokens/s for one request and 133 tokens/s for four.
   - It scores 0.805 on 200 MMLU questions, against about 0.80 with SGLang-JAX.
