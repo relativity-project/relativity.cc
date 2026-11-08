@@ -178,7 +178,7 @@ Decoding reads every weight on each step, so its speed follows the bytes per wei
 **Features**
 
 - **No BFP8 weights.** libtt converts weights to BFP8 only for JAX programs that mark them, which torch_tpu's don't. A BF16 checkpoint therefore reads twice as many bytes per step as SGLang-JAX's BFP8 weights; use an [FP8](#fp8-weights) checkpoint or `--quantization fp8` instead.
-- **Speculative decoding:** EAGLE3 runs; SGLang-TorchTPU's test serves Qwen3-1.7B with the [AngelSlim/Qwen3-1.7B_eagle3](https://huggingface.co/AngelSlim/Qwen3-1.7B_eagle3) draft. DFlash and MTP don't run on `main` yet.
+- **Speculative decoding:** EAGLE3 runs; SGLang-TorchTPU's test serves Qwen3-1.7B with the [AngelSlim/Qwen3-1.7B_eagle3](https://huggingface.co/AngelSlim/Qwen3-1.7B_eagle3) draft. MTP runs for Qwen3.5 and Qwen3.8, with the checkpoint's MTP layer as the draft (`--speculative-algorithm NEXTN`, see the [models page](@/models/_index.md#mtp)). DFlash doesn't run on `main` yet: its draft writes its KV cache with a Pallas kernel that libtt doesn't replace yet.
 - **Fixed shapes.** Only the batch sizes and prefill lengths compiled at startup run.
 - **Slow starts.** Every start compiles all programs again, since compiled programs aren't cached between runs yet.
 - **Features built on Pallas kernels** don't run, including HiCache's KV offload to host memory, the FP8 KV cache pool and SparseCore operations.
@@ -189,7 +189,7 @@ If something fails, check that `LIBTT_TPU_COMPAT=1` is set in the server's envir
 
 These run on development branches of libtt, not yet on `main`. Like the attention kernel, each replaces one of SGLang-TorchTPU's Pallas kernels with JAX and TTNN operations when SGLang-TorchTPU loads it, so SGLang itself stays unchanged. The numbers come from those branches on a QuietBox 2, with BF16 weights.
 
-- **DFlash speculative decoding** (branch `sglang-kernels-hybrid-dflash`). DFlash's draft writes its KV cache with a Pallas kernel, which now runs as JAX.
+- **DFlash speculative decoding** (branch `sglang-kernels-hybrid-dflash`, with SGLang-TorchTPU `c1da112`). DFlash's draft writes its KV cache with a Pallas kernel, which runs as JAX there. SGLang-TorchTPU's `main` now writes it with a newer kernel, which the branch doesn't replace yet.
   - Qwen3-8B with the [z-lab/Qwen3-8B-DFlash-b16](https://huggingface.co/z-lab/Qwen3-8B-DFlash-b16) draft serves the same greedy text as without it.
   - On one chip it decodes a code prompt at 31.8 tokens/s, against 19.3 without the draft (1.65×).
   - Long prompts accept only about 1.2 draft tokens per step and decode slower than without the draft. That's under investigation.

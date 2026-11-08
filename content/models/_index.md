@@ -135,35 +135,49 @@ These batched numbers are greedy and also use overlap scheduling, with the same 
 <table class="perf-table">
 <thead><tr><th scope="col">Model</th><th scope="col">Metric</th><th scope="col">1 chip</th><th scope="col">2 chips</th><th scope="col">4 chips</th></tr></thead>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3-8B-FP8">Qwen3-8B-FP8</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td>43.5</td><td>72.6</td><td>111.5</td></tr>
-<tr class="perf-sampled"><td class="perf-metric">sampled</td><td>41.8</td><td>67.9</td><td>100.6</td></tr>
-<tr class="perf-ttft"><td class="perf-metric">first token</td><td>635</td><td>361</td><td>210</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3-8B-FP8">Qwen3-8B-FP8</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td>44.0</td><td>69.3</td><td>103.9</td></tr>
+<tr class="perf-sampled"><td class="perf-metric">sampled</td><td>42.3</td><td>65.2</td><td>94.9</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td>251</td><td>168</td><td>125</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3-14B-FP8">Qwen3-14B-FP8</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td>25.8</td><td>45.3</td><td>73.3</td></tr>
-<tr class="perf-sampled"><td class="perf-metric">sampled</td><td>25.1</td><td>43.5</td><td>68.6</td></tr>
-<tr class="perf-ttft"><td class="perf-metric">first token</td><td>914</td><td>495</td><td>289</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3-14B-FP8">Qwen3-14B-FP8</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td>25.7</td><td>44.3</td><td>70.3</td></tr>
+<tr class="perf-sampled"><td class="perf-metric">sampled</td><td>25.1</td><td>42.6</td><td>66.2</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td>393</td><td>238</td><td>170</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3-32B-FP8">Qwen3-32B-FP8</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td>22.0</td><td>37.6</td></tr>
-<tr class="perf-sampled"><td class="perf-metric">sampled</td><td class="perf-none">—</td><td>21.6</td><td>36.3</td></tr>
-<tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td>1100</td><td>632</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3-32B-FP8">Qwen3-32B-FP8</a><span class="perf-arch">dense</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td>21.9</td><td>36.8</td></tr>
+<tr class="perf-sampled"><td class="perf-metric">sampled</td><td class="perf-none">—</td><td>21.4</td><td>35.6</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td>480</td><td>320</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3.5-9B">Qwen3.5-9B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">decode</td><td>38.0</td><td>61.3</td><td>91.2</td></tr>
-<tr class="perf-sampled"><td class="perf-metric">sampled</td><td>35.9</td><td>56.0</td><td>79.9</td></tr>
-<tr class="perf-ttft"><td class="perf-metric">first token</td><td>521</td><td>314</td><td>209</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3.5-9B">Qwen3.5-9B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">decode</td><td>37.2</td><td>59.3</td><td>85.7</td></tr>
+<tr class="perf-sampled"><td class="perf-metric">sampled</td><td>35.3</td><td>54.5</td><td>76.0</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td>480</td><td>296</td><td>204</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3.8-27B-FP8">Qwen3.8-27B-FP8</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td>24.8</td><td>41.1</td></tr>
-<tr class="perf-sampled"><td class="perf-metric">sampled</td><td class="perf-none">—</td><td>23.9</td><td>38.7</td></tr>
-<tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td>788</td><td>509</td></tr>
+<tr class="perf-decode"><th scope="rowgroup" rowspan="3"><a href="https://huggingface.co/Qwen/Qwen3.8-27B-FP8">Qwen3.8-27B-FP8</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">decode</td><td class="perf-none">—</td><td>25.1</td><td>41.5</td></tr>
+<tr class="perf-sampled"><td class="perf-metric">sampled</td><td class="perf-none">—</td><td>24.2</td><td>39.1</td></tr>
+<tr class="perf-ttft"><td class="perf-metric">first token</td><td class="perf-none">—</td><td>734</td><td>488</td></tr>
 </tbody>
 </table>
 
-A dash means the model doesn't fit on one chip. For a single request, SGLang-TorchTPU decodes up to 13% slower than SGLang-JAX, and about as fast for Qwen3.8-27B. Its first tokens take 2.5 to 5.5 times as long: its prefill hasn't been optimized yet. With 16 requests in flight, its total throughput is 42 to 55% of SGLang-JAX's (see [below](#batched-throughput-with-sglang-torchtpu)).
+A dash means the model doesn't fit on one chip. For a single request, SGLang-TorchTPU decodes up to 18% slower than SGLang-JAX (Qwen3.5-9B on four chips), and as fast for Qwen3.8-27B. Its first tokens take 2.1 to 2.9 times as long. With 16 requests in flight, its total throughput is 51 to 72% of SGLang-JAX's (see [below](#batched-throughput-with-sglang-torchtpu)).
 
-Measured on the same QuietBox 2 with libtt `main` (`336788f`) and SGLang-TorchTPU `d09a341`, the `fp8-scaled-mm-ragged-m` branch of [relativity-project/sglang-torchtpu](https://github.com/relativity-project/sglang-torchtpu/tree/fp8-scaled-mm-ragged-m): `c1da112` with one commit that drops the 16-row padding around the FP8 matmuls. The server ran the [FP8 launch command](@/docs/pytorch-sglang.md#fp8-weights) with `--tp-size` set to the chip count, `--mem-fraction-static 0.85`, `--max-running-requests 2`, `--tpu-compile-tokens 64 256 --chunked-prefill-size 256` and `--disable-radix-cache`. The [hybrid models](@/docs/pytorch-sglang.md#hybrid-models) also need `--no-enable-multimodal --max-mamba-cache-size 8` and `SGLANG_TPU_VIT_PRECOMPILE_SIZES=` (empty). As above, each number decodes 128 tokens, one request at a time, taking the median of five runs after two warmups.
+Measured on the same QuietBox 2 with SGLang-TorchTPU `5191118`, the `main` branch of [sgl-project/sglang-torchtpu](https://github.com/sgl-project/sglang-torchtpu), and libtt `main` (`5daedd1`) with three changes for sampling that aren't merged yet (branch [`trace-long-eager-programs`](https://github.com/pcmoritz/libtt/tree/trace-long-eager-programs), see [Sampling with SGLang-TorchTPU](#sampling-with-sglang-torchtpu)). The server ran the [FP8 launch command](@/docs/pytorch-sglang.md#fp8-weights) with `--tp-size` set to the chip count, `--mem-fraction-static 0.85`, `--max-running-requests 2`, `--tpu-compile-tokens 64 256 --chunked-prefill-size 256` and `--disable-radix-cache`. The [hybrid models](@/docs/pytorch-sglang.md#hybrid-models) also need `--no-enable-multimodal --max-mamba-cache-size 8` and `SGLANG_TPU_VIT_PRECOMPILE_SIZES=` (empty). As above, each number decodes 128 tokens, one request at a time, taking the median of five runs after two warmups.
+
+### Sampling with SGLang-TorchTPU
+
+SGLang-TorchTPU filters top-p and top-k without sorting: it searches for each request's cutoff in 30 rounds over the vocabulary, and a `top_k` of at most 64 picks from the 64 most likely tokens. Qwen3-8B-FP8, one request, tokens per second:
+
+| Sampling parameters | 1 chip | 4 chips |
+| --- | ---: | ---: |
+| greedy (`temperature: 0`) | 44.0 | 103.9 |
+| `temperature: 0.7` | 42.3 | 94.9 |
+| `temperature: 0.7, top_p: 0.95` | 38.7 | 78.5 |
+| `temperature: 0.7, top_k: 20` | 43.0 | 98.7 |
+| `temperature: 0.7, top_p: 0.95, top_k: 20` | 42.0 | 93.5 |
+
+These need libtt's [unrolled short loops](https://github.com/pcmoritz/libtt/compare/main...unroll-counted-loops), [full-tile reductions over a few vocabulary rows](https://github.com/pcmoritz/libtt/compare/unroll-counted-loops...wide-rows-full-tiles) and [traced long eager ops](https://github.com/pcmoritz/libtt/compare/wide-rows-full-tiles...trace-long-eager-programs): on libtt `main`, `top_p: 0.95` decodes 26.6 tokens/s on one chip and 36.8 on four. Sampling follows the model's probabilities: for each of these settings, the first tokens of 400 requests fit the log-probabilities the server reports.
 
 ### Batched throughput with SGLang-TorchTPU
 
@@ -174,24 +188,24 @@ Decode throughput on four chips with several requests in flight, as [above](#bat
 <table class="perf-table">
 <thead><tr><th scope="col">Model</th><th scope="col">Metric</th><th scope="col">1 request</th><th scope="col">4 requests</th><th scope="col">8 requests</th><th scope="col">16 requests</th></tr></thead>
 <tbody>
-<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-8B-FP8">Qwen3-8B-FP8</a><span class="perf-arch">dense</span></th><td class="perf-metric">total</td><td>95</td><td>309</td><td>433</td><td>507</td></tr>
-<tr class="perf-decode"><td class="perf-metric">per user</td><td>110.4</td><td>100.4</td><td>79.6</td><td>48.8</td></tr>
+<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-8B-FP8">Qwen3-8B-FP8</a><span class="perf-arch">dense</span></th><td class="perf-metric">total</td><td>96</td><td>342</td><td>555</td><td>734</td></tr>
+<tr class="perf-decode"><td class="perf-metric">per user</td><td>103.5</td><td>97.3</td><td>83.1</td><td>59.8</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-14B-FP8">Qwen3-14B-FP8</a><span class="perf-arch">dense</span></th><td class="perf-metric">total</td><td>64</td><td>194</td><td>315</td><td>390</td></tr>
-<tr class="perf-decode"><td class="perf-metric">per user</td><td>73.2</td><td>67.9</td><td>56.8</td><td>37.2</td></tr>
+<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-14B-FP8">Qwen3-14B-FP8</a><span class="perf-arch">dense</span></th><td class="perf-metric">total</td><td>66</td><td>236</td><td>406</td><td>593</td></tr>
+<tr class="perf-decode"><td class="perf-metric">per user</td><td>70.1</td><td>66.8</td><td>59.3</td><td>46.1</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-32B-FP8">Qwen3-32B-FP8</a><span class="perf-arch">dense</span></th><td class="perf-metric">total</td><td>32</td><td>96</td><td>142</td><td>196</td></tr>
-<tr class="perf-decode"><td class="perf-metric">per user</td><td>37.5</td><td>35.6</td><td>28.3</td><td>19.7</td></tr>
+<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3-32B-FP8">Qwen3-32B-FP8</a><span class="perf-arch">dense</span></th><td class="perf-metric">total</td><td>35</td><td>124</td><td>213</td><td>335</td></tr>
+<tr class="perf-decode"><td class="perf-metric">per user</td><td>36.7</td><td>35.2</td><td>31.4</td><td>25.8</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.5-9B">Qwen3.5-9B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">total</td><td>80</td><td>246</td><td>360</td><td>439</td></tr>
-<tr class="perf-decode"><td class="perf-metric">per user</td><td>91.2</td><td>74.7</td><td>58.5</td><td>37.5</td></tr>
+<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.5-9B">Qwen3.5-9B</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">total</td><td>76</td><td>198</td><td>354</td><td>454</td></tr>
+<tr class="perf-decode"><td class="perf-metric">per user</td><td>85.7</td><td>71.8</td><td>56.6</td><td>38.8</td></tr>
 </tbody>
 <tbody>
-<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.8-27B-FP8">Qwen3.8-27B-FP8</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">total</td><td>36</td><td>110</td><td>164</td><td>223</td></tr>
-<tr class="perf-decode"><td class="perf-metric">per user</td><td>41.1</td><td>37.1</td><td>29.3</td><td>20.1</td></tr>
+<tr class="perf-total"><th scope="rowgroup" rowspan="2"><a href="https://huggingface.co/Qwen/Qwen3.8-27B-FP8">Qwen3.8-27B-FP8</a><span class="perf-arch">hybrid</span></th><td class="perf-metric">total</td><td>36</td><td>113</td><td>169</td><td>230</td></tr>
+<tr class="perf-decode"><td class="perf-metric">per user</td><td>41.5</td><td>37.3</td><td>29.6</td><td>20.4</td></tr>
 </tbody>
 </table>
 
@@ -229,6 +243,30 @@ SGLang-JAX supports it since [pull request #9](https://github.com/relativity-pro
 ```
 
 The draft model path is the model itself: SGLang-JAX loads its MTP layer and shares the model's embedding and LM head. We measured the numbers above with overlap scheduling, `JAX_DEFAULT_PRNG_IMPL=unsafe_rbg`, libtt 0.1.5 and SGLang-JAX `6282ec6`, without the draft as well as with it.
+
+SGLang-TorchTPU runs the MTP layer as the draft too, with 3 draft tokens a step. The same requests, in tokens per second:
+
+| Request | Chips | Without draft | With draft | Speedup |
+| --- | ---: | ---: | ---: | ---: |
+| greedy, 5-token prompt | 4 | 41.5 | 62.5 | 1.5× |
+| greedy, 19-token code request | 4 | 41.5 | 58.1 | 1.4× |
+| greedy, 215-token summarization request | 4 | 41.2 | 56.4 | 1.4× |
+| temperature 0.7, 5-token prompt | 4 | 39.1 | 49.1 | 1.3× |
+| greedy, 5-token prompt | 2 | 25.1 | 43.9 | 1.8× |
+| greedy, 19-token code request | 2 | 25.1 | 39.7 | 1.6× |
+| greedy, 215-token summarization request | 2 | 25.0 | 37.2 | 1.5× |
+| temperature 0.7, 5-token prompt | 2 | 24.2 | 34.3 | 1.4× |
+
+The model accepts about 3 tokens per step. As with SGLang-JAX, the greedy text with the draft is the same as without it until a near-tie between two tokens goes the other way, after 180 to 420 characters (the 5-token prompt's text on two chips is the same throughout). Sampling at temperature 0.7 with `top_p: 0.95` and `top_k: 20` as well decodes 47.9 tokens/s on four chips and 29.9 on two. To turn it on, add these flags to the [SGLang-TorchTPU launch command](@/docs/pytorch-sglang.md#hybrid-models):
+
+```sh
+  --speculative-algorithm NEXTN \
+  --speculative-num-steps 3 \
+  --speculative-eagle-topk 1 \
+  --speculative-num-draft-tokens 4
+```
+
+SGLang-TorchTPU doesn't need a separate draft model path: it loads the checkpoint's MTP layer. We measured with the same SGLang-TorchTPU and libtt as [above](#sglang-torchtpu).
 
 ### DFlash
 
@@ -274,6 +312,7 @@ Then run the multi-chip command with `flash-next/bin/python -m sgl_jax.launch_se
 ## Known gaps
 
 - DFlash doesn't compile on more than one chip yet, and doesn't support Qwen3-14B, Qwen3.5 or Qwen3.8 drafts.
+- SGLang-TorchTPU doesn't run DFlash on libtt yet: its draft writes the draft's KV cache with a Pallas kernel that libtt doesn't replace yet.
 - SGLang-JAX doesn't run the MTP layers of mixture-of-experts checkpoints as drafts yet.
 - To use a single chip of a QuietBox, you need a single-chip mesh descriptor in `TT_MESH_GRAPH_DESC_PATH`.
 - Qwen3.8-Flash-Next's first request after a start takes about two minutes, while its weights are read from the checkpoint and prepared on the chips.
