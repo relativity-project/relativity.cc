@@ -135,7 +135,24 @@ Qwen3.5 and Qwen3.8 mix gated DeltaNet layers with full attention. SGLang-TorchT
 - `--max-mamba-cache-size 8`, the number of recurrent-state slots (we used 32 to run 16 requests at once);
 - `--disable-radix-cache`, since prefix caching doesn't support these models yet.
 
-For Qwen3.8-27B with FP8 weights, use [Qwen/Qwen3.8-27B-FP8](https://huggingface.co/Qwen/Qwen3.8-27B-FP8). With `--quantization fp8` on four chips, it stops at startup: one of its projections is 24 columns wide on each chip, and torch_tpu's FP8 matmul needs multiples of 16.
+For Qwen3.8-27B with FP8 weights, use [Qwen/Qwen3.8-27B-FP8](https://huggingface.co/Qwen/Qwen3.8-27B-FP8). With `--quantization fp8` on four chips, it stops at startup: one of its projections is 24 columns wide on each chip, and torch_tpu's FP8 matmul needs multiples of 16. This command serves Qwen3.8-27B-FP8 on the four chips of a QuietBox 2:
+
+```sh
+LIBTT_TPU_COMPAT=1 SGLANG_PLATFORM=tpu_oot SGLANG_TPU_ENABLE_FP8_LINEAR_SMALL_M_KERNEL=1 \
+SGLANG_TPU_VIT_PRECOMPILE_SIZES= \
+TORCH_TPU_INTERNAL_XLA_OPTIONS="enable_trace=true" \
+.venv/bin/python -m sglang.launch_server \
+  --model-path Qwen/Qwen3.8-27B-FP8 --host 127.0.0.1 --port 31000 \
+  --device tpu --tp-size 4 --dtype bfloat16 --kv-cache-dtype bfloat16 \
+  --mem-fraction-static 0.85 --max-total-tokens 16384 \
+  --enable-torch-compile --page-size 64 \
+  --context-length 2048 --chunked-prefill-size 64 \
+  --torch-compile-max-bs 4 --tpu-compile-bs 1 4 --tpu-compile-tokens 64 \
+  --no-enable-multimodal --max-mamba-cache-size 8 --disable-radix-cache \
+  --grammar-backend none
+```
+
+To decode with the checkpoint's MTP layer as the draft, add `--speculative-algorithm NEXTN --speculative-num-steps 3 --speculative-eagle-topk 1 --speculative-num-draft-tokens 4`. A single request then decodes about twice as fast (see the [models page](@/models/_index.md#mtp)).
 
 ## Send a request
 
