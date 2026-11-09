@@ -163,7 +163,7 @@ These batched numbers are greedy and also use overlap scheduling, with the same 
 
 A dash means the model doesn't fit on one chip. For a single request, SGLang-TorchTPU decodes up to 18% slower than SGLang-JAX (Qwen3.5-9B on four chips), and as fast for Qwen3.8-27B. Its first tokens take 2.1 to 2.7 times as long. With 16 requests in flight, its total throughput is 51 to 71% of SGLang-JAX's (see [below](#batched-throughput-with-sglang-torchtpu)).
 
-Measured on the same QuietBox 2 with SGLang-TorchTPU `5191118`, the `main` branch of [sgl-project/sglang-torchtpu](https://github.com/sgl-project/sglang-torchtpu), and libtt `main` (`159f9cc`). The server ran the [FP8 launch command](@/docs/pytorch-sglang.md#fp8-weights) with `--tp-size` set to the chip count, `--mem-fraction-static 0.85`, `--max-running-requests 2`, `--tpu-compile-tokens 64 256 --chunked-prefill-size 256` and `--disable-radix-cache`. The [hybrid models](@/docs/pytorch-sglang.md#hybrid-models) also need `--no-enable-multimodal --max-mamba-cache-size 8` and `SGLANG_TPU_VIT_PRECOMPILE_SIZES=` (empty). As above, each number decodes 128 tokens, one request at a time, taking the median of five runs after two warmups.
+Measured on the same QuietBox 2 with libtt 0.2.0, torch_tpu 0.2.0 and SGLang-TorchTPU `5191118`, from the `main` branch of [sgl-project/sglang-torchtpu](https://github.com/sgl-project/sglang-torchtpu), installed as the [PyTorch SGLang guide](@/docs/pytorch-sglang.md#install) describes. The server ran the [FP8 launch command](@/docs/pytorch-sglang.md#fp8-weights) with `--tp-size` set to the chip count, `--mem-fraction-static 0.85`, `--max-running-requests 2`, `--tpu-compile-tokens 64 256 --chunked-prefill-size 256` and `--disable-radix-cache`. The [hybrid models](@/docs/pytorch-sglang.md#hybrid-models) also need `--no-enable-multimodal --max-mamba-cache-size 8` and `SGLANG_TPU_VIT_PRECOMPILE_SIZES=` (empty). As above, each number decodes 128 tokens, one request at a time, taking the median of five runs after two warmups.
 
 ### Sampling with SGLang-TorchTPU
 
@@ -177,7 +177,7 @@ SGLang-TorchTPU filters top-p and top-k without sorting: it searches for each re
 | `temperature: 0.7, top_k: 20` | 43.0 | 105.6 |
 | `temperature: 0.7, top_p: 0.95, top_k: 20` | 42.0 | 100.0 |
 
-These speeds come from libtt's [unrolled short loops](https://github.com/pcmoritz/libtt/pull/520), [full-tile reductions over a few vocabulary rows](https://github.com/pcmoritz/libtt/pull/521) and [traced long eager ops](https://github.com/pcmoritz/libtt/pull/522); before them, `top_p: 0.95` decoded 26.6 tokens/s on one chip and 36.8 on four. Sampling follows the model's probabilities: for each of these settings, the first tokens of 400 requests fit the log-probabilities the server reports.
+These speeds come from libtt 0.2.0's [unrolled short loops](https://github.com/pcmoritz/libtt/pull/520), [full-tile reductions over a few vocabulary rows](https://github.com/pcmoritz/libtt/pull/521) and [traced long eager ops](https://github.com/pcmoritz/libtt/pull/522); before them, `top_p: 0.95` decoded 26.6 tokens/s on one chip and 36.8 on four. Sampling follows the model's probabilities: for each of these settings, the first tokens of 400 requests fit the log-probabilities the server reports.
 
 ### Batched throughput with SGLang-TorchTPU
 
