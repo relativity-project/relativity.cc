@@ -6,7 +6,7 @@ weight = 35
 
 [SGLang-TorchTPU](https://github.com/sgl-project/sglang-torchtpu) is SGLang's PyTorch server for TPUs. It runs its models with PyTorch on [torch_tpu](https://github.com/google-pytorch/torch_tpu), which drives the device through the PJRT C API. libtt provides that API for Tenstorrent chips, so SGLang-TorchTPU runs on Blackhole chips without changes to SGLang or torch_tpu.
 
-This path is **experimental**. With libtt 0.2.0 it serves the Qwen3 dense models and the Qwen3.5 and Qwen3.8 [hybrid models](#hybrid-models) with BF16 or [FP8](#fp8-weights) weights, on one chip or with tensor parallelism over several. The [models page](@/models/_index.md#sglang-torchtpu) compares its speeds with [SGLang-JAX](@/docs/inference.md)'s, which is faster and also runs the mixture-of-experts models. See [Limitations](#limitations) for what SGLang-TorchTPU doesn't run yet, and [Work in progress](#work-in-progress) for what comes next.
+This path is **experimental**. With libtt 0.2.0 it serves the Qwen3 dense models and the Qwen3.5 and Qwen3.8 [hybrid models](#hybrid-models) with BF16 or [FP8](#fp8-weights) weights, on one chip or with tensor parallelism over several. The [models page](@/models/_index.md#sglang-torchtpu) has its speeds next to those of [SGLang-JAX](@/docs/inference.md), which also runs the mixture-of-experts models. See [Limitations](#limitations) for what SGLang-TorchTPU doesn't run yet, and [Work in progress](#work-in-progress) for what comes next.
 
 ## How it fits together
 
@@ -116,7 +116,7 @@ With that variable, SGLang-TorchTPU sends the FP8 linear layers of decode steps 
 - one TT-NN operation quantizes each row of activations to FP8, as the kernel does;
 - the decode matmul reads the FP8 weights and applies the activation and weight scales as it writes its result. For the MLP's gate and up projection, it also computes SiluAndMul there, for BF16 weights too.
 
-The results are the same, bit for bit, as when the same steps run as separate TT-NN operations. Without the variable, the FP8 layers run as separate PyTorch operations, and Qwen3-8B-FP8 decodes at 37 tokens/s on four chips instead of 83.
+The results are the same, bit for bit, as when the same steps run as separate TT-NN operations. Without the variable, the FP8 layers run as separate PyTorch operations: with libtt `main` at `6b59e24`, Qwen3-8B-FP8 then decoded 37 tokens/s on four chips instead of 83.
 
 ## Several chips
 
@@ -166,35 +166,20 @@ SGLang-TorchTPU also serves SGLang's OpenAI-compatible API on `/v1/completions` 
 
 ## Performance
 
-Greedy decoding of 128 tokens, traced, with a BF16 KV cache, on a [QuietBox 2](../../hardware/#quietbox-2) with libtt `main` (`6b59e24`) and SGLang-TorchTPU `c1da112`:
-- **1 request:** the median decode rate of three requests after a warmup.
-- **4 requests:** four concurrent requests' total decode rate, the median of five batches.
+The [models page](@/models/_index.md#sglang-torchtpu) has SGLang-TorchTPU's speeds with FP8 weights for the Qwen3 dense models and the hybrid models: single requests on one, two and four chips, sampling, batched requests, MTP and DFlash.
 
-**BF16 weights**
-
-| Model | Chips | 1 request | 4 requests |
-| --- | ---: | ---: | ---: |
-| Qwen3-0.6B | 1 | 131 tokens/s | 297 tokens/s |
-| Qwen3-0.6B | 4 | 152 tokens/s | 439 tokens/s |
-| Qwen3-8B | 1 | 26.5 tokens/s | 86 tokens/s |
-| Qwen3-8B | 4 | 72.3 tokens/s | 223 tokens/s |
-| Qwen3-14B | 4 | 45.4 tokens/s | 148 tokens/s |
-| Qwen3-32B | 4 | 22.5 tokens/s | 75 tokens/s |
-
-**FP8 weights**, with `SGLANG_TPU_ENABLE_FP8_LINEAR_SMALL_M_KERNEL=1`
+With BF16 weights and the [launch command above](#launch-qwen3-8b), on a [QuietBox 2](../../hardware/#quietbox-2) with libtt 0.2.0 and the same torch_tpu and SGLang-TorchTPU as the models page, measured with the models page's [benchmark script](@/models/_index.md#how-we-measure):
+- **1 request:** a single greedy request's decode rate after its first token.
+- **4 requests:** four requests at once, their tokens per second from sending them until the last one finishes, prefills included.
 
 | Model | Chips | 1 request | 4 requests |
 | --- | ---: | ---: | ---: |
-| Qwen3-8B-FP8 | 1 | 40.8 tokens/s | 120 tokens/s |
-| Qwen3-8B-FP8 | 4 | 83.1 tokens/s | 245 tokens/s |
-| Qwen3-8B, `--quantization fp8` | 1 | 41.6 tokens/s | 121 tokens/s |
-| Qwen3-8B, `--quantization fp8` | 4 | 85.4 tokens/s | 245 tokens/s |
-| Qwen3-14B, `--quantization fp8` | 4 | 59.9 tokens/s | 180 tokens/s |
-| Qwen3-32B, `--quantization fp8` | 4 | 32.6 tokens/s | 99 tokens/s |
+| Qwen3-0.6B | 1 | 155 tokens/s | 508 tokens/s |
+| Qwen3-0.6B | 4 | 200 tokens/s | 655 tokens/s |
+| Qwen3-8B | 1 | 27.3 tokens/s | 99.6 tokens/s |
+| Qwen3-8B | 4 | 88.0 tokens/s | 296 tokens/s |
 
-Each concurrent request returns the same text as on its own, except one of the four with Qwen3-32B and `--quantization fp8`.
-
-Decoding reads every weight on each step, so its speed follows the bytes per weight. On one chip, Qwen3-8B reads its 16 GB of BF16 weights at about the speed the chip's memory allows, and its FP8 weights, half the bytes, decode 1.5 times as fast. SGLang-JAX stores matmul weights in BFP8, about as many bytes as FP8. On the [models page](@/models/_index.md), it decodes Qwen3-8B at 46.0 tokens/s on one chip and 122.2 on four, and Qwen3-32B at 40.7 on four. On four chips, a step's many small operations take more of the time than its weight reads, and SGLang-JAX is still faster.
+Decoding reads every weight on each step, so its speed follows the bytes per weight. On one chip, Qwen3-8B reads its 16 GB of BF16 weights at about the speed the chip's memory allows, and its FP8 weights, half the bytes, decode 1.6 times as fast (44.0 tokens/s on the models page). On four chips, each chip reads a quarter of the weights, and a step's many small operations take more of its time.
 
 ## Limitations
 

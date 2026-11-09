@@ -8,7 +8,7 @@ template = "models.html"
 
 These models run on SGLang-JAX's TT backend and libtt. Matmul weights, including the LM head, are stored in BFP8, Tenstorrent's 8-bit block floating point format, in which each group of 16 values shares an exponent. The mixture-of-experts models' experts are the exception: TTNN's fused MoE kernel stores them in BFP4, with 4 bits per value. Everything else (embeddings, norm weights, activations and the KV cache) is BF16. The dense and hybrid models also run on [SGLang-TorchTPU](#sglang-torchtpu), SGLang's PyTorch server, with FP8 weights.
 
-<p class="perf-key"><span class="perf-key-decode">decode</span> tokens per second for a single greedy request without speculative decoding, higher is better<br><span class="perf-key-sampled">sampled</span> the same request sampled at temperature 0.7, without top-p or top-k (see <a href="#sampling">Sampling</a>)<br><span class="perf-key-ttft">first token</span> milliseconds to the first token of a 215-token prompt, lower is better</p>
+<p class="perf-key"><span class="perf-key-decode">decode</span> tokens per second after the first token, for a single greedy request without speculative decoding, higher is better<br><span class="perf-key-sampled">sampled</span> the same request sampled at temperature 0.7, without top-p or top-k (see <a href="#sampling">Sampling</a>)<br><span class="perf-key-ttft">first token</span> milliseconds to the first token of a 215-token prompt, lower is better</p>
 
 <table class="perf-table">
 <thead><tr><th scope="col">Model</th><th scope="col">Metric</th><th scope="col">1 chip</th><th scope="col">2 chips</th><th scope="col">4 chips</th></tr></thead>
@@ -56,7 +56,7 @@ These models run on SGLang-JAX's TT backend and libtt. Matmul weights, including
 
 A dash means the model doesn't fit on one chip or we haven't run that configuration yet. Dense models use full attention in every layer; the hybrid models (Qwen3.5, Qwen3.8) mix gated DeltaNet layers with full attention. The mixture-of-experts (MoE) models run each token through a few of their experts, with the experts split over the chips. Qwen3-30B-A3B and Qwen3.5-35B-A3B use 8 of 128 and 256 experts, about 3B active parameters, and need at least two chips; Qwen3.8-Flash-Next uses 10 of 512 and needs four. Qwen3.5-35B-A3B and Qwen3.8-Flash-Next are also hybrid.
 
-Measured on a [QuietBox 2](../hardware/#quietbox-2) with libtt 0.1.5 and SGLang-JAX `6282ec6`, using the [inference recipe](@/docs/inference.md) with `--tp-size` set to the chip count, overlap scheduling on (remove `--disable-overlap-schedule` from the launch command) and `JAX_DEFAULT_PRNG_IMPL=unsafe_rbg` (see [Sampling](#sampling)). Each number decodes 128 tokens, one request at a time and without [speculative decoding](#speculative-decoding), taking the median of five runs after two warmups.
+Measured on a [QuietBox 2](../hardware/#quietbox-2) with libtt 0.1.5 and SGLang-JAX `6282ec6`, using the [inference recipe](@/docs/inference.md) with `--tp-size` set to the chip count, overlap scheduling on (remove `--disable-overlap-schedule` from the launch command) and `JAX_DEFAULT_PRNG_IMPL=unsafe_rbg` (see [Sampling](#sampling)). Each number decodes 128 tokens, one request at a time and without [speculative decoding](#speculative-decoding), taking the median of five runs after two warmups. [How we measure](#how-we-measure) has the prompts, the timing and a script that takes the same measurements.
 
 ## Sampling
 
@@ -82,9 +82,9 @@ In a batch, a search runs for every request as long as any request in the batch 
 
 ## Batched throughput
 
-Decode throughput on four chips with several requests in flight. Each request sends a 19-token code prompt and generates 128 tokens.
+Decode throughput on four chips with several requests in flight. Each request sends a 19-token code prompt and generates 128 tokens. Total throughput includes the time the requests' prefills take, so it's lower than the number of requests times the per-user rate (see [How we measure](#how-we-measure)).
 
-<p class="perf-key"><span class="perf-key-total">total</span> tokens per second across all running requests<br><span class="perf-key-decode">per user</span> tokens per second for each request</p>
+<p class="perf-key"><span class="perf-key-total">total</span> tokens per second across all requests, from sending them until the last one finishes, prefills included<br><span class="perf-key-decode">per user</span> each request's decode rate after its first token, the median over requests</p>
 
 <table class="perf-table">
 <thead><tr><th scope="col">Model</th><th scope="col">Metric</th><th scope="col">1 request</th><th scope="col">4 requests</th><th scope="col">8 requests</th><th scope="col">16 requests</th></tr></thead>
@@ -183,7 +183,7 @@ These speeds come from libtt 0.2.0's [unrolled short loops](https://github.com/p
 
 Decode throughput on four chips with several requests in flight, as [above](#batched-throughput): each request sends a 19-token code prompt and generates 128 greedy tokens.
 
-<p class="perf-key"><span class="perf-key-total">total</span> tokens per second across all running requests<br><span class="perf-key-decode">per user</span> tokens per second for each request</p>
+<p class="perf-key"><span class="perf-key-total">total</span> tokens per second across all requests, from sending them until the last one finishes, prefills included<br><span class="perf-key-decode">per user</span> each request's decode rate after its first token, the median over requests</p>
 
 <table class="perf-table">
 <thead><tr><th scope="col">Model</th><th scope="col">Metric</th><th scope="col">1 request</th><th scope="col">4 requests</th><th scope="col">8 requests</th><th scope="col">16 requests</th></tr></thead>
@@ -317,6 +317,22 @@ uv pip install --python flash-next/bin/python \
 ```
 
 Then run the multi-chip command with `flash-next/bin/python -m sgl_jax.launch_server` in place of `uv run ... -m sgl_jax.launch_server`, with `--model-path Qwen/Qwen3.8-Flash-Next` and `--tp-size 4`.
+
+## How we measure
+
+[serving_bench.py](../examples/serving_bench.py) takes this page's measurements against a running server, SGLang-JAX or SGLang-TorchTPU, launched as described above. It needs only Python's standard library:
+
+```sh
+curl -fLO https://relativity.cc/examples/serving_bench.py
+python3 serving_bench.py single --sampled   # one request at a time
+python3 serving_bench.py batched            # 1, 4, 8 and 16 requests at once
+```
+
+- **Requests:** every request streams its output and generates exactly 128 tokens, greedy (`temperature: 0`) unless it samples, with `ignore_eos` so that it doesn't stop early. The prompts are `The capital of France is` (5 tokens), a 19-token code request and a 215-token summarization request; the script has their text.
+- **Single requests:** each prompt runs twice to warm up and then five times, and the tables show the medians. Decode is the 5-token prompt's tokens after the first, divided by the time from its first streamed token to its last. First token is the time from sending the 215-token prompt to its first streamed token, so it includes the prefill. Sampled decode uses the 5-token prompt. [MTP](#mtp) and [DFlash](#dflash) use the same measurement with the code and summarization requests as well.
+- **Batched:** the script sends n copies of the code request at once. Total throughput is the requests' 128 × n tokens divided by the time from sending them until the last one finishes, so it includes the prefills and any wait for a free slot. Per user is the median of the requests' decode rates, each measured from the request's own first token, as for single requests. Total is therefore lower than n times per user; at 16 requests, the prefills take a larger share of the time. Each request count first runs two warmup batches, and more until two in a row return every first token within two seconds, since a server compiles programs for new batch shapes when it first sees them. The tables show the median of the three batches after that.
+
+Each configuration gets a fresh server on chips that were just reset.
 
 ## Known gaps
 
