@@ -6,7 +6,7 @@ weight = 35
 
 [SGLang-TorchTPU](https://github.com/sgl-project/sglang-torchtpu) is SGLang's PyTorch server for TPUs. It runs its models with PyTorch on [torch_tpu](https://github.com/google-pytorch/torch_tpu), which drives the device through the PJRT C API. libtt provides that API for Tenstorrent chips, so SGLang-TorchTPU runs on Blackhole chips without changes to SGLang or torch_tpu.
 
-This path is **experimental**. With libtt 0.2.0 it serves the Qwen3 dense models and the Qwen3.5 and Qwen3.8 [hybrid models](#hybrid-models) with BF16 or [FP8](#fp8-weights) weights, on one chip or with tensor parallelism over several. The [models page](@/models/_index.md#sglang-torchtpu) has its speeds next to those of [SGLang-JAX](@/docs/inference.md), which also runs the mixture-of-experts models. See [Limitations](#limitations) for what SGLang-TorchTPU doesn't run yet, and [Work in progress](#work-in-progress) for what comes next.
+This path is **experimental**. With libtt 0.2.0 it serves the Qwen3 dense models and the Qwen3.5 and Qwen3.8 [hybrid models](#hybrid-models) with BF16 or [FP8](#fp8-weights) weights, on one chip or with tensor parallelism over several. libtt's `main` branch also runs two of the [mixture-of-experts models](#mixture-of-experts-models). The [models page](@/models/_index.md#sglang-torchtpu) has its speeds next to those of [SGLang-JAX](@/docs/inference.md). See [Limitations](#limitations) for what SGLang-TorchTPU doesn't run yet, and [Work in progress](#work-in-progress) for what comes next.
 
 ## How it fits together
 
@@ -122,7 +122,7 @@ The results are the same, bit for bit, as when the same steps run as separate TT
 
 Pass `--tp-size` with the number of chips, for example `--tp-size 4` on a QuietBox 2. Use `--mem-fraction-static 0.85` for Qwen3-32B. SGLang-TorchTPU then starts one process per chip, and libtt gives each process its chip and joins them into one mesh. Leave `TT_VISIBLE_DEVICES` and `TT_MESH_GRAPH_DESC_PATH` unset; libtt sets both for each process.
 
-- **Collective buffers:** TT-NN's collectives write to their peers at the addresses of their own buffers, but separate processes don't allocate in the same order. Each process therefore reserves the same DRAM region for collective buffers when it starts: `LIBTT_SYMMETRIC_DRAM_MB` megabytes per chip, 2048 by default.
+- **Collective buffers:** TT-NN's collectives write to their peers at the addresses of their own buffers, but separate processes don't allocate in the same order. Each process therefore reserves the same DRAM region for collective buffers when it starts: `LIBTT_SYMMETRIC_DRAM_MB` megabytes per chip, 2048 by default. libtt's `main` branch doesn't need the region: its collectives between processes send each other their buffers' addresses.
 - **After a crash:** a multi-chip server that is killed can leave the chips' Ethernet links down, and the next start then hangs or fails while bringing up the fabric. Reset the chips with `tt-smi -r` before starting again.
 
 The same support runs plain PyTorch programs with `torchrun`, one process per chip; see libtt's [torch_tpu guide](https://github.com/pcmoritz/libtt/blob/main/docs/torch-tpu.md#multi-process-tensor-parallelism).
@@ -153,6 +153,10 @@ TORCH_TPU_INTERNAL_XLA_OPTIONS="enable_trace=true" \
 ```
 
 To decode with the checkpoint's MTP layer as the draft, add `--speculative-algorithm NEXTN --speculative-num-steps 3 --speculative-eagle-topk 1 --speculative-num-draft-tokens 4`. A single request then decodes about twice as fast (see the [models page](@/models/_index.md#mtp)).
+
+## Mixture-of-experts models
+
+With libtt built from `main` (see [Install](#install)), SGLang-TorchTPU serves the FP8 checkpoints of [Qwen3-30B-A3B](https://huggingface.co/Qwen/Qwen3-30B-A3B-FP8) and [Qwen3.5-35B-A3B](https://huggingface.co/Qwen/Qwen3.5-35B-A3B-FP8) on two or four chips. Their experts run in a Pallas kernel, which libtt replaces with TTNN's fused MoE kernel, in FP8. Start the server with the [FP8 launch command](#fp8-weights), `--tp-size` set to the chip count and `--ep-size` set to the same number, which splits the experts over the chips; we used `--mem-fraction-static 0.85`. Qwen3.5-35B-A3B is also a [hybrid model](#hybrid-models) and needs those flags too. The [models page](@/models/_index.md#sglang-torchtpu) has their speeds.
 
 ## Send a request
 
@@ -189,7 +193,8 @@ Decoding reads every weight on each step, so its speed follows the bytes per wei
 | --- | --- | --- |
 | Qwen3-8B, Qwen3-14B, Qwen3-32B | Run, with BF16 or FP8 weights | |
 | Qwen3.5-9B, Qwen3.8-27B | Run, with BF16 or FP8 weights (see [Hybrid models](#hybrid-models)) | |
-| Qwen3-30B-A3B, Qwen3.5-35B-A3B, Qwen3.8-Flash-Next | Don't run yet | SGLang-TorchTPU's fused MoE kernel is a Pallas kernel (see [Work in progress](#work-in-progress)) |
+| Qwen3-30B-A3B, Qwen3.5-35B-A3B | Run with FP8 weights on libtt built from `main` (see [Mixture-of-experts models](#mixture-of-experts-models)) | libtt 0.2.0 doesn't replace SGLang-TorchTPU's fused MoE kernel, a Pallas kernel |
+| Qwen3.8-Flash-Next | Doesn't run yet | Its FP8 checkpoint takes 186 GB, more than the 137 GB of DRAM on four chips |
 
 **Features**
 
@@ -203,12 +208,6 @@ If something fails, check that `LIBTT_TPU_COMPAT=1` is set in the server's envir
 
 ## Work in progress
 
-These run on development branches of libtt, not yet on `main`. Like the attention kernel, each replaces one of SGLang-TorchTPU's Pallas kernels with JAX and TTNN operations when SGLang-TorchTPU loads it, so SGLang itself stays unchanged. The numbers come from those branches on a QuietBox 2, with BF16 weights.
-
-- **Mixture-of-experts models.** The experts run on TTNN's fused MoE kernel with BFP4 weights, as on the models page, split over the chips with `--ep-size` equal to `--tp-size`.
-  - Qwen3-30B-A3B on four chips decodes 50.5 tokens/s for one request and 133 tokens/s for four.
-  - It scores 0.805 on 200 MMLU questions, against about 0.80 with SGLang-JAX.
-  - Qwen3.5-35B-A3B and Qwen3.8-Flash-Next are next.
-- **Planned:**
-  - BFP8 weights for BF16 checkpoints, as SGLang-JAX stores them;
-  - prefix caching for the hybrid models.
+Planned:
+- BFP8 weights for BF16 checkpoints, as SGLang-JAX stores them;
+- prefix caching for the hybrid models.
