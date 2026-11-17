@@ -13,6 +13,7 @@ page_template = "docs/page.html"
 - **Want to serve a model?** [Inference](@/docs/inference.md) has launch commands for one or more chips and a quick MMLU check. The [models page](@/models/_index.md) lists the supported models and how fast they run.
 - **Serving with PyTorch?** [PyTorch SGLang](@/docs/pytorch-sglang.md) runs SGLang-TorchTPU through torch_tpu on one or several chips. It's experimental and supports fewer models than SGLang-JAX.
 - **Want to train?** [Training](@/docs/training.md) trains a tiny Qwen3 model with TorchTitan and TorchAX, saves a checkpoint, and checks it in PyTorch.
+- **Reinforcement learning?** [Reinforcement learning](@/docs/reinforcement-learning.md) trains Qwen3-0.6B on GSM8K with GRPO in miles: SGLang-TorchTPU generates on two chips of a QuietBox 2 and miles' trainer learns on the other two. It's experimental.
 - **Working on the compiler or runtime?** [Software stack](@/docs/software-stack.md) explains how the pieces fit together and what to collect when something breaks.
 
-Most examples use a single Blackhole p150a. Inference also runs across several chips; training currently covers a tiny model on one chip.
+Most examples use a single Blackhole p150a. Inference also runs across several chips; training covers a tiny model on one chip, and reinforcement learning a small model on four.
