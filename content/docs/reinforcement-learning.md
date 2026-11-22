@@ -39,8 +39,8 @@ On a TPU host, miles moves the weights from trainer to engine chip to chip, whic
 
 libtt also fills in for the parts of the TPU path that only run on TPUs:
 
-- miles' trainer runs attention with a Pallas splash attention kernel. libtt replaces it with tt-train's fused attention, as it does for [TorchTitan's TPU trainer](https://github.com/google-pytorch/torchtitan/tree/main/torchtitan/experiments/tpu).
-- PyTorch's FSDP2 gathers parameters into flat buffers and reduces gradients from `[2, N]` ones, and miles computes log-probabilities on `[tokens, 1, vocabulary]` logits. A Blackhole chip stores tensors in 32 × 32 tiles of their last two dimensions, so each of these would take 16 to 32 times its size: the gathered embedding alone 10 GB. libtt stores them in whole tiles instead (`[N / 32, 32]`, and `[tokens, vocabulary]`), the way a TPU picks a layout without the padding.
+- miles' trainer runs attention with a Pallas splash attention kernel. libtt replaces it with tt-train's fused attention ([libtt #559](https://github.com/pcmoritz/libtt/pull/559)), as it does for [TorchTitan's TPU trainer](https://github.com/google-pytorch/torchtitan/tree/main/torchtitan/experiments/tpu).
+- PyTorch's FSDP2 gathers parameters into flat buffers and reduces gradients from `[2, N]` ones, and miles computes log-probabilities on `[tokens, 1, vocabulary]` logits. A Blackhole chip stores tensors in 32 × 32 tiles of their last two dimensions, so each of these would take 16 to 32 times its size: the gathered embedding alone 10 GB. libtt stores them in whole tiles instead (`[N / 32, 32]`, and `[tokens, vocabulary]`), the way a TPU picks a layout without the padding ([libtt #566](https://github.com/pcmoritz/libtt/pull/566)).
 
 ## Install
 
@@ -50,7 +50,7 @@ Work in one directory: the steps below put SGLang-TorchTPU, libtt, miles and tor
 
 **1. SGLang-TorchTPU.** Install it as in the [PyTorch SGLang guide](@/docs/pytorch-sglang.md#install), in `sglang-torchtpu/.venv`. It serves the policy, and its packages also give miles' trainer the SGLang server arguments and TPU platform it imports.
 
-**2. libtt.** The miles path needs libtt's `main` branch: build the plugin wheel as in [Build and test libtt](@/docs/software-stack.md#build-and-test-libtt) and install it in SGLang-TorchTPU's environment, in place of the PyPI release:
+**2. libtt.** The miles path needs these two libtt changes, which came after the 0.2.1 release, so build the plugin wheel from `main` as in [Build and test libtt](@/docs/software-stack.md#build-and-test-libtt) and install it in SGLang-TorchTPU's environment, in place of the PyPI release:
 
 ```sh
 git clone https://github.com/pcmoritz/libtt.git
