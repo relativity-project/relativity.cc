@@ -6,7 +6,7 @@ weight = 35
 
 [SGLang-TorchTPU](https://github.com/sgl-project/sglang-torchtpu) is SGLang's PyTorch server for TPUs. It runs its models with PyTorch on [torch_tpu](https://github.com/google-pytorch/torch_tpu), which drives the device through the PJRT C API. libtt provides that API for Tenstorrent chips, so SGLang-TorchTPU runs on Blackhole chips without changes to SGLang or torch_tpu.
 
-This path is **experimental**. With libtt 0.2.1 it serves the Qwen3 dense models and the Qwen3.5 and Qwen3.8 [hybrid models](#hybrid-models) with BF16 or [FP8](#fp8-weights) weights, and two of the [mixture-of-experts models](#mixture-of-experts-models) with FP8 weights, on one chip or with tensor parallelism over several. The [models page](@/models/_index.md#sglang-torchtpu) has its speeds next to those of [SGLang-JAX](@/docs/inference.md). See [Limitations](#limitations) for what SGLang-TorchTPU doesn't run yet, and [Work in progress](#work-in-progress) for what comes next.
+This path is **experimental**. With libtt 0.2.2 it serves the Qwen3 dense models and the Qwen3.5 and Qwen3.8 [hybrid models](#hybrid-models) with BF16 or [FP8](#fp8-weights) weights, and two of the [mixture-of-experts models](#mixture-of-experts-models) with FP8 weights, on one chip or with tensor parallelism over several. The [models page](@/models/_index.md#sglang-torchtpu) has its speeds next to those of [SGLang-JAX](@/docs/inference.md). See [Limitations](#limitations) for what SGLang-TorchTPU doesn't run yet, and [Work in progress](#work-in-progress) for what comes next.
 
 ## How it fits together
 
@@ -30,7 +30,7 @@ With several chips, SGLang-TorchTPU runs one process per chip, as on a TPU host.
 
 You'll need Blackhole chips with working drivers (run the [device check](@/docs/getting-started.md#verify-jax-execution) first), [uv](https://docs.astral.sh/uv/getting-started/installation/), Git and Python 3.12.
 
-Install SGLang-TorchTPU from source, as its README describes, at the commit we tested with libtt 0.2.1. Then install the libtt plugin from PyPI, without its dependencies so that SGLang-TorchTPU's pinned JAX stays:
+Install SGLang-TorchTPU from source, as its README describes, at the commit we tested with libtt 0.2.2. Then install the libtt plugin from PyPI, without its dependencies so that SGLang-TorchTPU's pinned JAX stays:
 
 ```sh
 git clone https://github.com/sgl-project/sglang-torchtpu.git
@@ -43,12 +43,12 @@ VIRTUAL_ENV=.venv uv pip install --no-sources --override overrides.txt \
   --index-strategy unsafe-best-match \
   --extra-index-url https://download.pytorch.org/whl/cpu -e python/
 VIRTUAL_ENV=.venv uv pip install --no-deps -e .
-VIRTUAL_ENV=.venv uv pip install --no-deps "jax-tt-plugin==0.2.1"
+VIRTUAL_ENV=.venv uv pip install --no-deps "jax-tt-plugin==0.2.2"
 ```
 
-SGLang-TorchTPU pins a torch_tpu nightly from a package registry that asks for credentials. The override installs [torch_tpu 0.2.0](https://pypi.org/project/torch-tpu/0.2.0/) from PyPI instead, the version libtt 0.2.1 is tested with, and `--no-sources` makes uv look for it there.
+SGLang-TorchTPU pins a torch_tpu nightly from a package registry that asks for credentials. The override installs [torch_tpu 0.2.0](https://pypi.org/project/torch-tpu/0.2.0/) from PyPI instead, the version libtt 0.2.2 is tested with, and `--no-sources` makes uv look for it there.
 
-To try a newer libtt, build the plugin wheel from `main` with `bazel build -c opt //:jax_tt_plugin_wheel`, following the [libtt build instructions](@/docs/software-stack.md#build-and-test-libtt), and install `bazel-bin/jax_tt_plugin-*.whl` in place of `jax-tt-plugin==0.2.0`.
+To try a newer libtt, build the plugin wheel from `main` with `bazel build -c opt //:jax_tt_plugin_wheel`, following the [libtt build instructions](@/docs/software-stack.md#build-and-test-libtt), and install `bazel-bin/jax_tt_plugin-*.whl` in place of `jax-tt-plugin==0.2.2`.
 
 ## Launch Qwen3-8B
 
@@ -156,7 +156,7 @@ To decode with the checkpoint's MTP layer as the draft, add `--speculative-algor
 
 ## Mixture-of-experts models
 
-With libtt 0.2.1, SGLang-TorchTPU serves the FP8 checkpoints of [Qwen3-30B-A3B](https://huggingface.co/Qwen/Qwen3-30B-A3B-FP8) and [Qwen3.5-35B-A3B](https://huggingface.co/Qwen/Qwen3.5-35B-A3B-FP8) on two or four chips. Their experts run in a Pallas kernel, which libtt replaces with TTNN's fused MoE kernel, in FP8. Start the server with the [FP8 launch command](#fp8-weights), `--tp-size` set to the chip count and `--ep-size` set to the same number, which splits the experts over the chips; we used `--mem-fraction-static 0.85`. Qwen3.5-35B-A3B is also a [hybrid model](#hybrid-models) and needs those flags too. The [models page](@/models/_index.md#sglang-torchtpu) has their speeds.
+With libtt 0.2.2, SGLang-TorchTPU serves the FP8 checkpoints of [Qwen3-30B-A3B](https://huggingface.co/Qwen/Qwen3-30B-A3B-FP8) and [Qwen3.5-35B-A3B](https://huggingface.co/Qwen/Qwen3.5-35B-A3B-FP8) on two or four chips. Their experts run in a Pallas kernel, which libtt replaces with TTNN's fused MoE kernel, in FP8. Start the server with the [FP8 launch command](#fp8-weights), `--tp-size` set to the chip count and `--ep-size` set to the same number, which splits the experts over the chips; we used `--mem-fraction-static 0.85`. Qwen3.5-35B-A3B is also a [hybrid model](#hybrid-models) and needs those flags too. The [models page](@/models/_index.md#sglang-torchtpu) has their speeds.
 
 ## Send a request
 
@@ -170,26 +170,26 @@ SGLang-TorchTPU also serves SGLang's OpenAI-compatible API on `/v1/completions` 
 
 ## Performance
 
-The [models page](@/models/_index.md#sglang-torchtpu) has SGLang-TorchTPU's speeds with FP8 weights for the Qwen3 dense models and the hybrid models: single requests on one, two and four chips, sampling, batched requests, MTP and DFlash.
+The [models page](@/models/_index.md#sglang-torchtpu) has SGLang-TorchTPU's speeds with FP8 weights for the Qwen3 dense models, the hybrid models and the mixture-of-experts models: single requests on one, two and four chips, sampling, batched requests, MTP and DFlash.
 
-With BF16 weights and the [launch command above](#launch-qwen3-8b), on a [QuietBox 2](../../hardware/#quietbox-2) with libtt 0.2.0 and the same torch_tpu and SGLang-TorchTPU as the models page, measured with the models page's [benchmark script](@/models/_index.md#how-we-measure):
+With BF16 weights and the [launch command above](#launch-qwen3-8b), on a [QuietBox 2](../../hardware/#quietbox-2) with libtt 0.2.2 and the same torch_tpu and SGLang-TorchTPU as the models page, measured with the models page's [benchmark script](@/models/_index.md#how-we-measure):
 - **1 request:** a single greedy request's decode rate after its first token.
 - **4 requests:** four requests at once, their tokens per second from sending them until the last one finishes, prefills included.
 
 | Model | Chips | 1 request | 4 requests |
 | --- | ---: | ---: | ---: |
-| Qwen3-0.6B | 1 | 155 tokens/s | 508 tokens/s |
-| Qwen3-0.6B | 4 | 200 tokens/s | 655 tokens/s |
-| Qwen3-8B | 1 | 27.3 tokens/s | 99.6 tokens/s |
-| Qwen3-8B | 4 | 88.0 tokens/s | 296 tokens/s |
+| Qwen3-0.6B | 1 | 159 tokens/s | 519 tokens/s |
+| Qwen3-0.6B | 4 | 205 tokens/s | 676 tokens/s |
+| Qwen3-8B | 1 | 27.5 tokens/s | 100 tokens/s |
+| Qwen3-8B | 4 | 91.1 tokens/s | 307 tokens/s |
 
-Decoding reads every weight on each step, so its speed follows the bytes per weight. On one chip, Qwen3-8B reads its 16 GB of BF16 weights at about the speed the chip's memory allows, and its FP8 weights, half the bytes, decode 1.6 times as fast (44.0 tokens/s on the models page). On four chips, each chip reads a quarter of the weights, and a step's many small operations take more of its time.
+Decoding reads every weight on each step, so its speed follows the bytes per weight. On one chip, Qwen3-8B reads its 16 GB of BF16 weights at about the speed the chip's memory allows, and its FP8 weights, half the bytes, decode 1.6 times as fast (44.4 tokens/s on the models page). On four chips, each chip reads a quarter of the weights, and a step's many small operations take more of its time.
 
 ## Limitations
 
 **Models**
 
-| Models on the [models page](@/models/_index.md) | Status with SGLang-TorchTPU on libtt 0.2.1 | Why |
+| Models on the [models page](@/models/_index.md) | Status with SGLang-TorchTPU on libtt 0.2.2 | Why |
 | --- | --- | --- |
 | Qwen3-8B, Qwen3-14B, Qwen3-32B | Run, with BF16 or FP8 weights | |
 | Qwen3.5-9B, Qwen3.8-27B | Run, with BF16 or FP8 weights (see [Hybrid models](#hybrid-models)) | |
@@ -204,7 +204,7 @@ Decoding reads every weight on each step, so its speed follows the bytes per wei
 - **Slow first starts.** The first start with a model and its settings compiles every program, which takes several minutes; later starts load them from the cache.
 - **Features built on Pallas kernels** don't run, including HiCache's KV offload to host memory, the FP8 KV cache pool and SparseCore operations.
 
-If something fails, check that `LIBTT_TPU_COMPAT=1` is set in the server's environment and that `VIRTUAL_ENV=.venv uv pip show jax-tt-plugin` reports version 0.2.1 or newer. The [software stack](@/docs/software-stack.md) page lists what to collect for a bug report.
+If something fails, check that `LIBTT_TPU_COMPAT=1` is set in the server's environment and that `VIRTUAL_ENV=.venv uv pip show jax-tt-plugin` reports version 0.2.2 or newer. The [software stack](@/docs/software-stack.md) page lists what to collect for a bug report.
 
 ## Work in progress
 
