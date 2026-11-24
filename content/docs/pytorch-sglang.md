@@ -122,7 +122,7 @@ The results are the same, bit for bit, as when the same steps run as separate TT
 
 Pass `--tp-size` with the number of chips, for example `--tp-size 4` on a QuietBox 2. Use `--mem-fraction-static 0.85` for Qwen3-32B. SGLang-TorchTPU then starts one process per chip, and libtt gives each process its chip and joins them into one mesh. Leave `TT_VISIBLE_DEVICES` and `TT_MESH_GRAPH_DESC_PATH` unset; libtt sets both for each process.
 
-- **Collective buffers:** TT-NN's collectives write to their peers at the addresses of their own buffers, but separate processes don't allocate in the same order. libtt's collectives between processes therefore send each other their buffers' addresses before they write. (libtt 0.2.0 reserved the same DRAM region for collective buffers in every process instead, `LIBTT_SYMMETRIC_DRAM_MB` megabytes per chip.)
+- **Collective buffers:** TT-NN's collectives write to their peers at the addresses of their own buffers, but separate processes don't allocate in the same order. libtt's collectives between processes therefore send each other their buffers' addresses before they write.
 - **After a crash:** a multi-chip server that is killed can leave the chips' Ethernet links down, and the next start then hangs or fails while bringing up the fabric. Reset the chips with `tt-smi -r` before starting again.
 
 The same support runs plain PyTorch programs with `torchrun`, one process per chip; see libtt's [torch_tpu guide](https://github.com/pcmoritz/libtt/blob/main/docs/torch-tpu.md#multi-process-tensor-parallelism).
